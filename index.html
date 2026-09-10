@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#faf9f7"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="My Wardrobe"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>My Wardrobe</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#faf9f7;color:#171717}
+header{padding:22px 18px 10px;position:sticky;top:0;background:#faf9f7ee;backdrop-filter:blur(10px);z-index:5}
+h1{margin:0 0 15px;font-size:28px}.search{width:100%;padding:13px 15px;border:1px solid #ddd;border-radius:12px;background:white;font-size:15px}
+nav{display:flex;gap:8px;overflow:auto;padding:12px 0}.chip{border:0;background:#eee;padding:9px 14px;border-radius:20px;white-space:nowrap}.chip.active{background:#171717;color:white}
+main{padding:8px 18px 100px}.title{display:flex;justify-content:space-between;align-items:center;margin:12px 0}.count{color:#777;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px #0000000b}.photo{height:210px;background:#f0efed;display:flex;align-items:center;justify-content:center;font-size:58px}.card img{width:100%;height:210px;object-fit:cover}.info{padding:11px}.name{font-weight:600}.meta{font-size:13px;color:#777;margin-top:4px}
+.fab{position:fixed;right:20px;bottom:80px;border:0;background:#171717;color:white;border-radius:30px;padding:15px 20px;font-size:15px;box-shadow:0 5px 20px #0003}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 4px;z-index:10}.bottom button{border:0;background:none;padding:6px;color:#666}.bottom .sel{color:#111;font-weight:bold}
+.modal{display:none;position:fixed;inset:0;background:#0007;z-index:20;align-items:flex-end}.modal.open{display:flex}.sheet{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:20px;max-height:90vh;overflow:auto}.sheet h2{margin-top:0}label{display:block;font-size:13px;color:#555;margin:12px 0 5px}input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:15px}.preview{height:170px;border-radius:14px;background:#f1f0ee;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:50px}.preview img{width:100%;height:100%;object-fit:cover}.actions{display:flex;gap:10px;margin-top:18px}.actions button{flex:1;padding:13px;border-radius:12px;border:1px solid #ddd}.primary{background:#171717!important;color:white;border-color:#171717!important}
+.look{background:white;border-radius:16px;padding:16px;margin-top:14px}.lookrow{display:flex;gap:10px;overflow:auto}.mini{min-width:105px;background:#f2f1ef;border-radius:12px;padding:10px}.mini .photo{height:95px;background:none;font-size:34px}.empty{text-align:center;padding:50px 20px;color:#777}
+</style>
+</head>
+<body>
+<header>
+<h1>MY WARDROBE</h1>
+<input id="search" class="search" placeholder="🔍 Search my clothes">
+<nav id="chips"></nav>
+</header>
+<main id="app"></main>
+<button class="fab" onclick="openAdd()">＋ Add Clothes</button>
+<div class="bottom">
+<button id="wardrobeBtn" class="sel" onclick="showWardrobe()">👕<br>Wardrobe</button>
+<button id="lookBtn" onclick="showLooks()">✨<br>Create Look</button>
+<button onclick="showSaved()">♥<br>Saved Looks</button>
+</div>
+
+<div id="modal" class="modal" onclick="if(event.target===this)closeAdd()">
+<div class="sheet">
+<h2>Add Clothes</h2>
+<div id="preview" class="preview">📷</div>
+<label>Photo</label><input id="photo" type="file" accept="image/*">
+<label>Item name</label><input id="name" placeholder="e.g. White Oxford Shirt">
+<label>Category</label><select id="category"><option>Shirts</option><option>Pants</option><option>Jackets</option><option>Shoes</option><option>Accessories</option><option>Shorts</option><option>Other</option></select>
+<label>Colour</label><input id="color" placeholder="e.g. White">
+<label>Brand (optional)</label><input id="brand" placeholder="e.g. Zara">
+<div class="actions"><button onclick="closeAdd()">Cancel</button><button class="primary" onclick="saveItem()">Add to Wardrobe</button></div>
+</div></div>
+
+<script>
+const key='myWardrobeItems';
+const lookKey='myWardrobeLooks';
+let items=JSON.parse(localStorage.getItem(key)||'[]');
+let looks=JSON.parse(localStorage.getItem(lookKey)||'[]');
+let currentCat='All', page='wardrobe', previewData='';
+const defaults=[
+{name:'White Shirt',category:'Shirts',color:'White',brand:'',emoji:'👕'},
+{name:'Black Shirt',category:'Shirts',color:'Black',brand:'',emoji:'👕'},
+{name:'Blue Shirt',category:'Shirts',color:'Blue',brand:'',emoji:'👕'},
+{name:'Black Pants',category:'Pants',color:'Black',brand:'',emoji:'👖'},
+{name:'Beige Chinos',category:'Pants',color:'Beige',brand:'',emoji:'👖'},
+{name:'White Sneakers',category:'Shoes',color:'White',brand:'',emoji:'👟'}
+];
+if(!items.length){items=defaults;localStorage.setItem(key,JSON.stringify(items))}
+const cats=['All','Shirts','Pants','Jackets','Shoes','Accessories','Shorts','Other'];
+function renderChips(){chips.innerHTML=cats.map(c=>`<button class="chip ${c===currentCat?'active':''}" onclick="setCat('${c}')">${c}</button>`).join('')}
+function setCat(c){currentCat=c;showWardrobe()}
+function showWardrobe(){page='wardrobe';document.querySelector('.fab').style.display='block';renderChips();render()}
+function showLooks(){page='looks';document.querySelector('.fab').style.display='none';renderChips();render()}
+function showSaved(){page='saved';document.querySelector('.fab').style.display='none';renderChips();render()}
+search.oninput=render;
+function render(){
+if(page==='wardrobe'){
+ let q=search.value.toLowerCase();
+ let a=items.filter(x=>(currentCat==='All'||x.category===currentCat)&&x.name.toLowerCase().includes(q));
+ app.innerHTML=`<div class="title"><h2>${currentCat==='All'?'All Clothes':currentCat}</h2><span class="count">${a.length} items</span></div><div class="grid">${a.map(card).join('')}</div>`;
+ if(!a.length)app.innerHTML+=`<div class="empty">No clothes found.<br>Tap ＋ Add Clothes to add something new.</div>`;
+}else if(page==='looks'){
+ app.innerHTML=`<div class="title"><h2>Create a Look</h2></div>
+ <div class="look"><b>1. Choose a shirt</b><div class="lookrow">${items.filter(x=>x.category==='Shirts').map(selectCard('shirt')).join('')}</div></div>
+ <div class="look"><b>2. Choose pants</b><div class="lookrow">${items.filter(x=>x.category==='Pants').map(selectCard('pants')).join('')}</div></div>
+ <div class="look"><b>3. Choose shoes</b><div class="lookrow">${items.filter(x=>x.category==='Shoes').map(selectCard('shoes')).join('')}</div></div>
+ <button class="primary" style="width:100%;padding:14px;border-radius:12px;margin-top:16px;border:0" onclick="saveLook()">♥ Save This Look</button>`;
+}else{
+ app.innerHTML=`<div class="title"><h2>Saved Looks</h2><span class="count">${looks.length}</span></div>${looks.length?looks.map((l,i)=>`<div class="look"><b>Look ${i+1}</b><p>${l.map(x=>x.name).join(' • ')}</p></div>`).join(''):`<div class="empty">No saved looks yet.</div>`}
+}}
+function card(x){return `<div class="card"><div class="photo">${x.photo?`<img src="${x.photo}">`:x.emoji||'👕'}</div><div class="info"><div class="name">${x.name}</div><div class="meta">${x.category} · ${x.color||''}</div></div></div>`}
+function selectCard(type){return x=>`<button class="mini" id="${type}-${x.name.replaceAll(' ','_')}" onclick="choose('${type}','${x.name.replaceAll("'","\\'")}')"><div class="photo">${x.photo?`<img src="${x.photo}">`:x.emoji||'👕'}</div><b>${x.name}</b></button>`}
+let selected={shirt:null,pants:null,shoes:null};
+function choose(type,name){selected[type]=items.find(x=>x.name===name);render()}
+function saveLook(){let a=Object.values(selected).filter(Boolean);if(a.length<2)return alert('Choose at least two items first.');looks.unshift(a);localStorage.setItem(lookKey,JSON.stringify(looks));selected={shirt:null,pants:null,shoes:null};showSaved()}
+function openAdd(){modal.classList.add('open')}
+function closeAdd(){modal.classList.remove('open');previewData='';photo.value='';preview.innerHTML='📷'}
+photo.onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{previewData=r.result;preview.innerHTML=`<img src="${previewData}">`};r.readAsDataURL(f)}
+function saveItem(){
+if(!name.value.trim())return alert('Please enter an item name.');
+let emoji=category.value==='Shoes'?'👟':category.value==='Pants'||category.value==='Shorts'?'👖':category.value==='Accessories'?'⌚':category.value==='Jackets'?'🧥':'👕';
+items.unshift({name:name.value.trim(),category:category.value,color:color.value.trim(),brand:brand.value.trim(),emoji,photo:previewData});
+localStorage.setItem(key,JSON.stringify(items));name.value='';color.value='';brand.value='';closeAdd();currentCat='All';showWardrobe()
+}
+renderChips();render();
+</script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js");</script></body></html>
