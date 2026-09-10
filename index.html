@@ -1,2136 +1,2172 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-
-<meta name="theme-color" content="#faf9f7">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="My Wardrobe">
-
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icons/icon-180.png">
-
-<title>My Wardrobe</title>
-
-<style>
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#faf9f7;
-  color:#171717;
-}
-
-header{
-  padding:22px 18px 10px;
-  position:sticky;
-  top:0;
-  background:rgba(250,249,247,.95);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  z-index:5;
-}
-
-h1{
-  margin:0 0 15px;
-  font-size:28px;
-}
-
-h2{
-  margin:0;
-}
-
-.search{
-  width:100%;
-  padding:13px 15px;
-  border:1px solid #ddd;
-  border-radius:12px;
-  background:white;
-  font-size:15px;
-  outline:none;
-}
-
-.search:focus{
-  border-color:#999;
-}
-
-main{
-  padding:10px 18px 110px;
-  max-width:1000px;
-  margin:auto;
-}
-
-.title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:14px 0;
-}
-
-.count{
-  color:#777;
-  font-size:14px;
-}
-
-/* CATEGORY GRID */
-
-.category-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:16px;
-}
-
-.category-card{
-  background:white;
-  border-radius:18px;
-  padding:22px 16px;
-  min-height:145px;
-  box-shadow:0 2px 12px rgba(0,0,0,.06);
-  cursor:pointer;
-  border:0;
-  text-align:left;
-}
-
-.category-icon{
-  font-size:45px;
-  margin-bottom:14px;
-}
-
-.category-name{
-  font-size:17px;
-  font-weight:600;
-}
-
-.category-count{
-  margin-top:5px;
-  color:#777;
-  font-size:13px;
-}
-
-/* CLOTHING GRID */
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
-}
-
-.card{
-  background:white;
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 2px 12px rgba(0,0,0,.06);
-}
-
-.photo{
-  height:210px;
-  background:#f0efed;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:58px;
-  overflow:hidden;
-}
-
-.photo img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-
-.info{
-  padding:11px;
-}
-
-.name{
-  font-weight:600;
-}
-
-.meta{
-  font-size:13px;
-  color:#777;
-  margin-top:4px;
-}
-
-/* BUTTONS */
-
-.button-row{
-  display:flex;
-  gap:10px;
-  margin-top:16px;
-}
-
-.action-button{
-  flex:1;
-  padding:13px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  background:white;
-  cursor:pointer;
-  font-size:14px;
-}
-
-.primary{
-  background:#171717!important;
-  color:white!important;
-  border-color:#171717!important;
-}
-
-.fab{
-  position:fixed;
-  right:20px;
-  bottom:80px;
-  border:0;
-  background:#171717;
-  color:white;
-  border-radius:30px;
-  padding:15px 20px;
-  font-size:15px;
-  box-shadow:0 5px 20px rgba(0,0,0,.2);
-  cursor:pointer;
-  z-index:9;
-}
-
-/* BOTTOM NAV */
-
-.bottom{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:white;
-  border-top:1px solid #eee;
-  display:flex;
-  justify-content:space-around;
-  padding:10px 4px;
-  padding-bottom:calc(10px + env(safe-area-inset-bottom));
-  z-index:10;
-}
-
-.bottom button{
-  border:0;
-  background:none;
-  padding:6px 12px;
-  color:#666;
-  cursor:pointer;
-  font-size:13px;
-}
-
-.bottom .sel{
-  color:#111;
-  font-weight:bold;
-}
-
-/* MODAL */
-
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  z-index:20;
-  align-items:flex-end;
-}
-
-.modal.open{
-  display:flex;
-}
-
-.sheet{
-  background:white;
-  width:100%;
-  border-radius:22px 22px 0 0;
-  padding:20px;
-  max-height:90vh;
-  overflow-y:auto;
-}
-
-.sheet h2{
-  margin-top:0;
-}
-
-label{
-  display:block;
-  font-size:13px;
-  color:#555;
-  margin:12px 0 5px;
-}
-
-input,
-select{
-  width:100%;
-  padding:12px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  font-size:15px;
-  background:white;
-}
-
-.preview{
-  height:170px;
-  border-radius:14px;
-  background:#f1f0ee;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  font-size:50px;
-}
-
-.preview img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-/* LOOKS */
-
-.look{
-  background:white;
-  border-radius:16px;
-  padding:16px;
-  margin-top:14px;
-}
-
-.lookrow{
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-  padding-top:12px;
-}
-
-.mini{
-  min-width:120px;
-  background:#f2f1ef;
-  border:2px solid transparent;
-  border-radius:12px;
-  padding:8px;
-  cursor:pointer;
-  text-align:left;
-}
-
-.mini.selected{
-  border-color:#171717;
-}
-
-.mini .photo{
-  height:100px;
-  background:transparent;
-  font-size:34px;
-}
-
-.mini b{
-  display:block;
-  font-size:13px;
-  padding:6px 2px 2px;
-}
-
-/* SAVED LOOKS */
-
-.saved-item{
-  background:white;
-  border-radius:16px;
-  padding:16px;
-  margin-top:14px;
-}
-
-.saved-items{
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-  margin-top:12px;
-}
-
-.saved-mini{
-  min-width:95px;
-  text-align:center;
-  font-size:12px;
-}
-
-.saved-mini .photo{
-  height:90px;
-  border-radius:12px;
-  font-size:32px;
-}
-
-.delete-button{
-  width:100%;
-  padding:10px;
-  margin-top:14px;
-  border:1px solid #ddd;
-  background:white;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-/* EMPTY */
-
-.empty{
-  text-align:center;
-  padding:50px 20px;
-  color:#777;
-}
-
-.back-button{
-  border:0;
-  background:none;
-  padding:0;
-  font-size:15px;
-  cursor:pointer;
-  margin-bottom:15px;
-}
-
-/* DESKTOP */
-
-@media(min-width:700px){
-
-  .category-grid{
-    grid-template-columns:repeat(4,1fr);
-  }
-
-  .grid{
-    grid-template-columns:repeat(4,1fr);
-  }
-
-  .bottom{
-    max-width:700px;
-    left:50%;
-    right:auto;
-    transform:translateX(-50%);
-    width:100%;
-    border-radius:18px 18px 0 0;
-  }
-}
-</style>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>My Wardrobe</title>
+
+  <meta name="theme-color" content="#111111" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+      padding-bottom: 80px;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: auto;
+      min-height: 100vh;
+      background: #fff;
+    }
+
+    /* HEADER */
+
+    header {
+      background: #111;
+      color: white;
+      padding: 22px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+    }
+
+    .header-subtitle {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    /* MAIN */
+
+    main {
+      padding: 20px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .page-description {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* SEARCH */
+
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: #111;
+    }
+
+    /* BUTTONS */
+
+    .primary-btn {
+      width: 100%;
+      border: none;
+      background: #111;
+      color: white;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .secondary-btn {
+      border: 1px solid #ddd;
+      background: white;
+      color: #111;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .danger-btn {
+      border: none;
+      background: #d32f2f;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    /* CATEGORY GRID */
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .category-card {
+      border: 1px solid #e2e2e2;
+      border-radius: 16px;
+      padding: 18px;
+      background: white;
+      min-height: 150px;
+      position: relative;
+      transition: 0.2s;
+    }
+
+    .category-card:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .category-main {
+      cursor: pointer;
+    }
+
+    .category-icon {
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+
+    .category-name {
+      font-size: 17px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .category-count {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .category-actions {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .small-action {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .small-action.delete {
+      color: #d32f2f;
+    }
+
+    /* BACK BUTTON */
+
+    .back-btn {
+      border: none;
+      background: none;
+      padding: 0;
+      margin-bottom: 18px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    /* CLOTHES */
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .item-card {
+      border: 1px solid #e3e3e3;
+      border-radius: 15px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .item-photo {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      background: #f0f0f0;
+    }
+
+    .item-placeholder {
+      height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f1f1;
+      font-size: 55px;
+    }
+
+    .item-info {
+      padding: 13px;
+    }
+
+    .item-name {
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .item-detail {
+      color: #777;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .delete-item-btn {
+      margin-top: 10px;
+      border: none;
+      background: #fff0f0;
+      color: #d32f2f;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* EMPTY */
+
+    .empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: #777;
+    }
+
+    .empty-icon {
+      font-size: 50px;
+      margin-bottom: 12px;
+    }
+
+    /* MODAL */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 18px;
+      padding: 22px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal h2 {
+      margin-bottom: 18px;
+      font-size: 21px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .form-group input:focus {
+      border-color: #111;
+    }
+
+    .icon-options {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 7px;
+    }
+
+    .icon-option {
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 22px;
+    }
+
+    .icon-option.selected {
+      border: 2px solid #111;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+    }
+
+    /* PHOTO PREVIEW */
+
+    .photo-preview {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* LOOKS */
+
+    .look-card {
+      border: 1px solid #ddd;
+      border-radius: 15px;
+      padding: 14px;
+      margin-bottom: 15px;
+    }
+
+    .look-title {
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .look-items {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .look-item img,
+    .look-item-placeholder {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #eee;
+    }
+
+    .look-item-placeholder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+    }
+
+    .look-item-name {
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    .delete-look {
+      margin-top: 12px;
+      border: none;
+      background: #fff0f0;
+      color: #d32f2f;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    /* BOTTOM NAV */
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: center;
+      z-index: 900;
+    }
+
+    .nav-inner {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+    }
+
+    .nav-btn {
+      flex: 1;
+      border: none;
+      background: white;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .nav-btn.active {
+      color: #111;
+      font-weight: bold;
+    }
+
+    .nav-icon {
+      font-size: 22px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* TOAST */
+
+    .toast {
+      position: fixed;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      display: none;
+      z-index: 2000;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    /* RESPONSIVE */
+
+    @media (min-width: 650px) {
+      .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .item-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      main {
+        padding: 16px;
+      }
+
+      .item-photo,
+      .item-placeholder {
+        height: 160px;
+      }
+
+      .category-card {
+        min-height: 140px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
+<div class="app">
 
-<h1>MY WARDROBE</h1>
+  <header>
+    <div>
+      <h1>My Wardrobe</h1>
+      <div class="header-subtitle">Your personal style collection</div>
+    </div>
+  </header>
 
-<input
-id="searchInput"
-class="search"
-type="search"
-placeholder="🔍 Search my wardrobe"
-autocomplete="off"
-
->
-
-</header>
-
-<main id="app"></main>
-
-<button
-id="fab"
-class="fab"
-type="button"
-
->
-
-＋ Add Category </button>
-
-<div class="bottom">
-
-<button
-id="wardrobeBtn"
-class="sel"
-type="button"
-
->
-
-👕<br>
-Wardrobe </button>
-
-<button
-id="lookBtn"
-type="button"
-
->
-
-✨<br>
-Create Look </button>
-
-<button
-id="savedBtn"
-type="button"
-
->
-
-♥<br>
-Saved Looks </button>
+  <main id="appContent"></main>
 
 </div>
 
-<!-- ADD CATEGORY MODAL -->
+<!-- BOTTOM NAV -->
 
-<div id="categoryModal" class="modal">
+<div class="bottom-nav">
+  <div class="nav-inner">
 
-<div class="sheet">
+    <button class="nav-btn active" id="navWardrobe" onclick="showWardrobe()">
+      <span class="nav-icon">👕</span>
+      Wardrobe
+    </button>
 
-<h2>Add Category</h2>
+    <button class="nav-btn" id="navLooks" onclick="showLooks()">
+      <span class="nav-icon">✨</span>
+      Looks
+    </button>
 
-<label for="categoryName">
-Category name
-</label>
+  </div>
+</div>
 
-<input
-id="categoryName"
-type="text"
-placeholder="e.g. Shirts, Gym Clothes, Work Clothes"
+<!-- CATEGORY MODAL -->
 
->
+<div class="modal-overlay" id="categoryModal">
 
-<label for="categoryIcon">
-Category icon
-</label>
+  <div class="modal">
 
-<input
-id="categoryIcon"
-type="text"
-placeholder="e.g. 👕"
-maxlength="2"
+    <h2 id="categoryModalTitle">Add Category</h2>
 
->
+    <div class="form-group">
+      <label>Category name</label>
+      <input
+        type="text"
+        id="categoryNameInput"
+        placeholder="e.g. Shirts"
+      />
+    </div>
 
-<div class="button-row">
+    <div class="form-group">
 
-<button
-id="cancelCategory"
-class="action-button"
-type="button"
+      <label>Choose an icon</label>
 
->
+      <div class="icon-options" id="iconOptions">
 
-Cancel </button>
+        <button class="icon-option" onclick="selectIcon('👕', this)">👕</button>
+        <button class="icon-option" onclick="selectIcon('👖', this)">👖</button>
+        <button class="icon-option" onclick="selectIcon('👗', this)">👗</button>
+        <button class="icon-option" onclick="selectIcon('🧥', this)">🧥</button>
+        <button class="icon-option" onclick="selectIcon('👚', this)">👚</button>
+        <button class="icon-option" onclick="selectIcon('👔', this)">👔</button>
+        <button class="icon-option" onclick="selectIcon('👟', this)">👟</button>
+        <button class="icon-option" onclick="selectIcon('👞', this)">👞</button>
+        <button class="icon-option" onclick="selectIcon('🩴', this)">🩴</button>
+        <button class="icon-option" onclick="selectIcon('👜', this)">👜</button>
+        <button class="icon-option" onclick="selectIcon('🎩', this)">🎩</button>
+        <button class="icon-option" onclick="selectIcon('🧢', this)">🧢</button>
 
-<button
-id="saveCategory"
-class="action-button primary"
-type="button"
+      </div>
 
->
+    </div>
 
-Add Category </button>
+    <div class="modal-buttons">
+
+      <button
+        class="secondary-btn"
+        onclick="closeCategoryModal()"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="primary-btn"
+        style="margin:0"
+        onclick="saveCategory()"
+      >
+        Save
+      </button>
+
+    </div>
+
+  </div>
 
 </div>
 
-</div>
-</div>
 
-<!-- ADD CLOTHES MODAL -->
+<!-- CLOTHING MODAL -->
 
-<div id="clothesModal" class="modal">
+<div class="modal-overlay" id="itemModal">
 
-<div class="sheet">
+  <div class="modal">
 
-<h2>Add Clothes</h2>
+    <h2>Add Clothing Item</h2>
 
-<div
-  id="preview"
-  class="preview"
->
-📷
-</div>
+    <div class="form-group">
+      <label>Name</label>
+      <input
+        type="text"
+        id="itemNameInput"
+        placeholder="e.g. White Oxford Shirt"
+      />
+    </div>
 
-<label for="photoInput">
-Photo
-</label>
+    <div class="form-group">
+      <label>Colour</label>
+      <input
+        type="text"
+        id="itemColorInput"
+        placeholder="e.g. White"
+      />
+    </div>
 
-<input
-id="photoInput"
-type="file"
-accept="image/*"
+    <div class="form-group">
+      <label>Brand (optional)</label>
+      <input
+        type="text"
+        id="itemBrandInput"
+        placeholder="e.g. Nike"
+      />
+    </div>
 
->
+    <div class="form-group">
 
-<label for="itemName">
-Item name
-</label>
+      <label>Photo</label>
 
-<input
-id="itemName"
-type="text"
-placeholder="e.g. White Oxford Shirt"
+      <input
+        type="file"
+        id="itemPhotoInput"
+        accept="image/*"
+        onchange="previewPhoto(event)"
+      />
 
->
+      <img
+        id="photoPreview"
+        class="photo-preview"
+      />
 
-<label>
-Category
-</label>
+    </div>
 
-<input
-id="selectedCategoryDisplay"
-type="text"
-disabled
+    <div class="modal-buttons">
 
->
+      <button
+        class="secondary-btn"
+        onclick="closeItemModal()"
+      >
+        Cancel
+      </button>
 
-<label for="itemColor">
-Colour
-</label>
+      <button
+        class="primary-btn"
+        style="margin:0"
+        onclick="saveItem()"
+      >
+        Add Item
+      </button>
 
-<input
-id="itemColor"
-type="text"
-placeholder="e.g. White"
+    </div>
 
->
-
-<label for="itemBrand">
-Brand (optional)
-</label>
-
-<input
-id="itemBrand"
-type="text"
-placeholder="e.g. Zara"
-
->
-
-<div class="button-row">
-
-<button
-id="cancelClothes"
-class="action-button"
-type="button"
-
->
-
-Cancel </button>
-
-<button
-id="saveClothes"
-class="action-button primary"
-type="button"
-
->
-
-Add to Wardrobe </button>
+  </div>
 
 </div>
 
+
+<!-- DELETE CATEGORY MODAL -->
+
+<div class="modal-overlay" id="deleteCategoryModal">
+
+  <div class="modal">
+
+    <h2>Delete Category?</h2>
+
+    <p id="deleteCategoryMessage" style="line-height:1.5;color:#555;"></p>
+
+    <div class="modal-buttons">
+
+      <button
+        class="secondary-btn"
+        onclick="closeDeleteCategoryModal()"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="danger-btn"
+        onclick="confirmDeleteCategory()"
+      >
+        Delete
+      </button>
+
+    </div>
+
+  </div>
+
 </div>
-</div>
+
+
+<div class="toast" id="toast"></div>
+
 
 <script>
 
-/* =========================================
-   STORAGE
-========================================= */
+  /* =========================
+     STORAGE
+  ========================= */
 
-var CATEGORY_KEY = "myWardrobeCategories";
-var ITEM_KEY = "myWardrobeItems";
-var LOOK_KEY = "myWardrobeLooks";
-
-
-function load(key){
-
-  try{
-
-    var data = localStorage.getItem(key);
-
-    if(!data){
-      return [];
-    }
-
-    return JSON.parse(data);
-
-  }catch(error){
-
-    console.error(error);
-
-    return [];
-  }
-}
+  const CATEGORY_KEY = "myWardrobeCategories";
+  const ITEM_KEY = "myWardrobeItems";
+  const LOOK_KEY = "myWardrobeLooks";
 
 
-function save(key,data){
+  let categories =
+    JSON.parse(localStorage.getItem(CATEGORY_KEY)) || [];
 
-  try{
+  let items =
+    JSON.parse(localStorage.getItem(ITEM_KEY)) || [];
+
+  let looks =
+    JSON.parse(localStorage.getItem(LOOK_KEY)) || [];
+
+
+  let currentCategoryId = null;
+
+  let editingCategoryId = null;
+
+  let categoryToDelete = null;
+
+  let selectedIcon = "👕";
+
+  let currentPhoto = "";
+
+
+  /* =========================
+     SAVE DATA
+  ========================= */
+
+  function saveData() {
 
     localStorage.setItem(
-      key,
-      JSON.stringify(data)
+      CATEGORY_KEY,
+      JSON.stringify(categories)
     );
 
-    return true;
-
-  }catch(error){
-
-    console.error(error);
-
-    alert(
-      "Your browser could not save this information. " +
-      "If you uploaded a large photo, try a smaller image."
+    localStorage.setItem(
+      ITEM_KEY,
+      JSON.stringify(items)
     );
 
-    return false;
-  }
-}
-
-
-var categories = load(CATEGORY_KEY);
-var items = load(ITEM_KEY);
-var looks = load(LOOK_KEY);
-
-
-/* =========================================
-   APP STATE
-========================================= */
-
-var currentPage = "categories";
-var currentCategoryId = null;
-var previewData = "";
-
-var selected = {
-  shirt:null,
-  pants:null,
-  shoes:null
-};
-
-
-/* =========================================
-   DOM
-========================================= */
-
-var app = document.getElementById("app");
-var searchInput = document.getElementById("searchInput");
-var fab = document.getElementById("fab");
-
-var wardrobeBtn = document.getElementById("wardrobeBtn");
-var lookBtn = document.getElementById("lookBtn");
-var savedBtn = document.getElementById("savedBtn");
-
-
-var categoryModal =
-  document.getElementById("categoryModal");
-
-var clothesModal =
-  document.getElementById("clothesModal");
-
-
-var categoryName =
-  document.getElementById("categoryName");
-
-var categoryIcon =
-  document.getElementById("categoryIcon");
-
-
-var photoInput =
-  document.getElementById("photoInput");
-
-var preview =
-  document.getElementById("preview");
-
-var itemName =
-  document.getElementById("itemName");
-
-var itemColor =
-  document.getElementById("itemColor");
-
-var itemBrand =
-  document.getElementById("itemBrand");
-
-var selectedCategoryDisplay =
-  document.getElementById("selectedCategoryDisplay");
-
-
-/* =========================================
-   ESCAPE HTML
-========================================= */
-
-function escapeHTML(value){
-
-  if(value === null || value === undefined){
-    return "";
+    localStorage.setItem(
+      LOOK_KEY,
+      JSON.stringify(looks)
+    );
   }
 
-  return String(value)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
+
+  /* =========================
+     INITIAL LOAD
+  ========================= */
+
+  renderCategories();
 
 
-/* =========================================
-   CATEGORY COUNT
-========================================= */
+  /* =========================
+     WARDROBE
+  ========================= */
 
-function countItems(categoryId){
+  function showWardrobe() {
 
-  var count = 0;
+    currentCategoryId = null;
 
-  for(var i=0;i<items.length;i++){
+    document
+      .getElementById("navWardrobe")
+      .classList.add("active");
 
-    if(items[i].categoryId === categoryId){
-      count++;
+    document
+      .getElementById("navLooks")
+      .classList.remove("active");
+
+    renderCategories();
+  }
+
+
+  function renderCategories() {
+
+    const content =
+      document.getElementById("appContent");
+
+    content.innerHTML = `
+
+      <h2 class="page-title">My Wardrobe</h2>
+
+      <p class="page-description">
+        Create your own categories and organise your clothes.
+      </p>
+
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="🔍 Search your wardrobe..."
+          oninput="searchWardrobe(this.value)"
+        />
+      </div>
+
+      <button
+        class="primary-btn"
+        onclick="openAddCategoryModal()"
+      >
+        + Add Category
+      </button>
+
+      <div id="categoryArea"></div>
+    `;
+
+    renderCategoryArea();
+  }
+
+
+  function renderCategoryArea() {
+
+    const area =
+      document.getElementById("categoryArea");
+
+    if (!area) return;
+
+
+    if (categories.length === 0) {
+
+      area.innerHTML = `
+
+        <div class="empty">
+
+          <div class="empty-icon">👗</div>
+
+          <h3>No categories yet</h3>
+
+          <p style="margin-top:8px;">
+            Create your first category to start building your wardrobe.
+          </p>
+
+        </div>
+
+      `;
+
+      return;
     }
+
+
+    let html = `<div class="category-grid">`;
+
+
+    categories.forEach(category => {
+
+      const count =
+        items.filter(
+          item => item.categoryId === category.id
+        ).length;
+
+
+      html += `
+
+        <div class="category-card">
+
+          <div
+            class="category-main"
+            onclick="openCategory('${category.id}')"
+          >
+
+            <div class="category-icon">
+              ${category.icon || "👕"}
+            </div>
+
+            <div class="category-name">
+              ${escapeHTML(category.name)}
+            </div>
+
+            <div class="category-count">
+              ${count} ${count === 1 ? "item" : "items"}
+            </div>
+
+          </div>
+
+
+          <div class="category-actions">
+
+            <button
+              class="small-action"
+              title="Edit category"
+              onclick="event.stopPropagation(); openEditCategoryModal('${category.id}')"
+            >
+              ✏️
+            </button>
+
+            <button
+              class="small-action delete"
+              title="Delete category"
+              onclick="event.stopPropagation(); openDeleteCategoryModal('${category.id}')"
+            >
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+
+    html += `</div>`;
+
+    area.innerHTML = html;
   }
 
-  return count;
-}
+
+  /* =========================
+     OPEN CATEGORY
+  ========================= */
+
+  function openCategory(categoryId) {
+
+    currentCategoryId = categoryId;
+
+    const category =
+      categories.find(
+        c => c.id === categoryId
+      );
+
+    if (!category) return;
 
 
-/* =========================================
-   RENDER
-========================================= */
+    const categoryItems =
+      items.filter(
+        item => item.categoryId === categoryId
+      );
 
-function render(){
 
-  if(currentPage === "categories"){
+    const content =
+      document.getElementById("appContent");
+
+
+    content.innerHTML = `
+
+      <button
+        class="back-btn"
+        onclick="showWardrobe()"
+      >
+        ← Back to My Wardrobe
+      </button>
+
+      <h2 class="page-title">
+        ${category.icon || "👕"}
+        ${escapeHTML(category.name)}
+      </h2>
+
+      <p class="page-description">
+        ${categoryItems.length}
+        ${categoryItems.length === 1 ? "item" : "items"}
+      </p>
+
+      <button
+        class="primary-btn"
+        onclick="openItemModal()"
+      >
+        + Add Clothing
+      </button>
+
+      <div id="itemArea"></div>
+
+    `;
+
+
+    renderItems(categoryItems);
+  }
+
+
+  /* =========================
+     ITEMS
+  ========================= */
+
+  function renderItems(categoryItems) {
+
+    const area =
+      document.getElementById("itemArea");
+
+    if (!area) return;
+
+
+    if (categoryItems.length === 0) {
+
+      area.innerHTML = `
+
+        <div class="empty">
+
+          <div class="empty-icon">👕</div>
+
+          <h3>No clothes yet</h3>
+
+          <p style="margin-top:8px;">
+            Add your first item to this category.
+          </p>
+
+        </div>
+
+      `;
+
+      return;
+    }
+
+
+    let html = `<div class="item-grid">`;
+
+
+    categoryItems.forEach(item => {
+
+      html += `
+
+        <div class="item-card">
+
+          ${
+            item.photo
+
+              ? `<img
+                   class="item-photo"
+                   src="${item.photo}"
+                   alt="${escapeHTML(item.name)}"
+                 >`
+
+              : `<div class="item-placeholder">
+                   👕
+                 </div>`
+          }
+
+          <div class="item-info">
+
+            <div class="item-name">
+              ${escapeHTML(item.name)}
+            </div>
+
+            ${
+              item.color
+                ? `<div class="item-detail">
+                     🎨 ${escapeHTML(item.color)}
+                   </div>`
+                : ""
+            }
+
+            ${
+              item.brand
+                ? `<div class="item-detail">
+                     🏷️ ${escapeHTML(item.brand)}
+                   </div>`
+                : ""
+            }
+
+            <button
+              class="delete-item-btn"
+              onclick="deleteItem('${item.id}')"
+            >
+              🗑️ Delete
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+
+    html += `</div>`;
+
+    area.innerHTML = html;
+  }
+
+
+  /* =========================
+     CATEGORY MODAL
+  ========================= */
+
+  function openAddCategoryModal() {
+
+    editingCategoryId = null;
+
+    document
+      .getElementById("categoryModalTitle")
+      .textContent = "Add Category";
+
+    document
+      .getElementById("categoryNameInput")
+      .value = "";
+
+    selectedIcon = "👕";
+
+    updateSelectedIcon();
+
+    document
+      .getElementById("categoryModal")
+      .classList.add("active");
+  }
+
+
+  function openEditCategoryModal(categoryId) {
+
+    const category =
+      categories.find(
+        c => c.id === categoryId
+      );
+
+    if (!category) return;
+
+
+    editingCategoryId = categoryId;
+
+    document
+      .getElementById("categoryModalTitle")
+      .textContent = "Edit Category";
+
+
+    document
+      .getElementById("categoryNameInput")
+      .value = category.name;
+
+
+    selectedIcon =
+      category.icon || "👕";
+
+
+    updateSelectedIcon();
+
+
+    document
+      .getElementById("categoryModal")
+      .classList.add("active");
+  }
+
+
+  function closeCategoryModal() {
+
+    document
+      .getElementById("categoryModal")
+      .classList.remove("active");
+
+    editingCategoryId = null;
+  }
+
+
+  function selectIcon(icon, button) {
+
+    selectedIcon = icon;
+
+    updateSelectedIcon();
+  }
+
+
+  function updateSelectedIcon() {
+
+    const buttons =
+      document.querySelectorAll(
+        ".icon-option"
+      );
+
+
+    buttons.forEach(button => {
+
+      if (
+        button.textContent.trim() ===
+        selectedIcon
+      ) {
+
+        button.classList.add("selected");
+
+      } else {
+
+        button.classList.remove("selected");
+
+      }
+
+    });
+
+  }
+
+
+  /* =========================
+     SAVE CATEGORY
+  ========================= */
+
+  function saveCategory() {
+
+    const name =
+      document
+        .getElementById("categoryNameInput")
+        .value
+        .trim();
+
+
+    if (!name) {
+
+      showToast(
+        "Please enter a category name."
+      );
+
+      return;
+    }
+
+
+    /* EDIT EXISTING CATEGORY */
+
+    if (editingCategoryId) {
+
+      const category =
+        categories.find(
+          c => c.id === editingCategoryId
+        );
+
+
+      if (category) {
+
+        category.name = name;
+
+        category.icon = selectedIcon;
+
+      }
+
+
+      saveData();
+
+      closeCategoryModal();
+
+      renderCategories();
+
+      showToast(
+        "Category updated successfully."
+      );
+
+      return;
+    }
+
+
+    /* ADD NEW CATEGORY */
+
+    const alreadyExists =
+      categories.some(
+        category =>
+          category.name.toLowerCase() ===
+          name.toLowerCase()
+      );
+
+
+    if (alreadyExists) {
+
+      showToast(
+        "A category with that name already exists."
+      );
+
+      return;
+    }
+
+
+    const newCategory = {
+
+      id:
+        Date.now().toString(),
+
+      name: name,
+
+      icon: selectedIcon
+
+    };
+
+
+    categories.push(newCategory);
+
+    saveData();
+
+    closeCategoryModal();
 
     renderCategories();
 
-  }else if(currentPage === "items"){
-
-    renderCategoryItems();
-
-  }else if(currentPage === "looks"){
-
-    renderLooks();
-
-  }else if(currentPage === "saved"){
-
-    renderSavedLooks();
-  }
-}
-
-
-/* =========================================
-   CATEGORY PAGE
-========================================= */
-
-function renderCategories(){
-
-  searchInput.placeholder =
-    "🔍 Search categories";
-
-  fab.style.display = "block";
-  fab.textContent = "＋ Add Category";
-
-
-  var query =
-    searchInput.value
-      .trim()
-      .toLowerCase();
-
-
-  var filtered = categories.filter(
-    function(category){
-
-      return category.name
-        .toLowerCase()
-        .indexOf(query) !== -1;
-    }
-  );
-
-
-  var html =
-    '<div class="title">' +
-
-      "<h2>My Categories</h2>" +
-
-      '<span class="count">' +
-        categories.length +
-        " categories" +
-      "</span>" +
-
-    "</div>";
-
-
-  if(filtered.length === 0){
-
-    html +=
-      '<div class="empty">' +
-
-        "You haven't created any categories yet." +
-
-        "<br><br>" +
-
-        "Tap ＋ Add Category to create your first one." +
-
-      "</div>";
-
-  }else{
-
-    html +=
-      '<div class="category-grid">';
-
-
-    for(var i=0;i<filtered.length;i++){
-
-      var category = filtered[i];
-
-      html +=
-
-        '<button ' +
-
-          'class="category-card" ' +
-
-          'type="button" ' +
-
-          'data-id="' +
-            escapeHTML(category.id) +
-          '">' +
-
-          '<div class="category-icon">' +
-            escapeHTML(category.icon || "👕") +
-          "</div>" +
-
-          '<div class="category-name">' +
-            escapeHTML(category.name) +
-          "</div>" +
-
-          '<div class="category-count">' +
-            countItems(category.id) +
-            (
-              countItems(category.id) === 1
-                ? " item"
-                : " items"
-            ) +
-          "</div>" +
-
-        "</button>";
-    }
-
-
-    html += "</div>";
-  }
-
-
-  app.innerHTML = html;
-
-
-  var buttons =
-    app.querySelectorAll(".category-card");
-
-
-  for(var j=0;j<buttons.length;j++){
-
-    buttons[j].addEventListener(
-      "click",
-      function(){
-
-        currentCategoryId =
-          this.getAttribute("data-id");
-
-        currentPage = "items";
-
-        searchInput.value = "";
-
-        render();
-      }
+    showToast(
+      "Category added successfully."
     );
   }
-}
 
 
-/* =========================================
-   CATEGORY ITEMS PAGE
-========================================= */
+  /* =========================
+     DELETE CATEGORY
+  ========================= */
 
-function renderCategoryItems(){
+  function openDeleteCategoryModal(categoryId) {
 
-  var category =
-    categories.find(
-      function(c){
-        return String(c.id) === String(currentCategoryId);
-      }
-    );
-
-
-  if(!category){
-
-    currentPage = "categories";
-
-    render();
-
-    return;
-  }
-
-
-  searchInput.placeholder =
-    "🔍 Search clothes";
-
-
-  fab.style.display = "block";
-  fab.textContent = "＋ Add Clothes";
-
-
-  var query =
-    searchInput.value
-      .trim()
-      .toLowerCase();
-
-
-  var categoryItems =
-    items.filter(
-      function(item){
-
-        var sameCategory =
-          String(item.categoryId) ===
-          String(currentCategoryId);
-
-
-        var searchable =
-          (
-            (item.name || "") +
-            " " +
-            (item.color || "") +
-            " " +
-            (item.brand || "")
-          ).toLowerCase();
-
-
-        return (
-          sameCategory &&
-          searchable.indexOf(query) !== -1
-        );
-      }
-    );
-
-
-  var html =
-
-    '<button ' +
-      'class="back-button" ' +
-      'id="backToCategories" ' +
-      'type="button">' +
-      "← All Categories" +
-    "</button>" +
-
-
-    '<div class="title">' +
-
-      "<h2>" +
-
-        escapeHTML(category.icon || "👕") +
-        " " +
-        escapeHTML(category.name) +
-
-      "</h2>" +
-
-      '<span class="count">' +
-        categoryItems.length +
-        " items" +
-      "</span>" +
-
-    "</div>";
-
-
-  if(categoryItems.length === 0){
-
-    html +=
-
-      '<div class="empty">' +
-
-        "This category is empty." +
-
-        "<br><br>" +
-
-        "Tap ＋ Add Clothes to add your first item." +
-
-      "</div>";
-
-  }else{
-
-    html += '<div class="grid">';
-
-
-    for(var i=0;i<categoryItems.length;i++){
-
-      html += createClothingCard(
-        categoryItems[i]
+    const category =
+      categories.find(
+        c => c.id === categoryId
       );
+
+    if (!category) return;
+
+
+    categoryToDelete = categoryId;
+
+
+    const itemCount =
+      items.filter(
+        item =>
+          item.categoryId === categoryId
+      ).length;
+
+
+    let message = `
+
+      Are you sure you want to delete
+
+      <strong>
+        ${escapeHTML(category.icon || "")}
+        ${escapeHTML(category.name)}
+      </strong>?
+
+    `;
+
+
+    if (itemCount > 0) {
+
+      message += `
+
+        <br><br>
+
+        This category contains
+        <strong>${itemCount}</strong>
+        ${itemCount === 1 ? "clothing item" : "clothing items"}.
+
+        <br>
+
+        Deleting the category will also
+        delete these clothing items.
+
+      `;
+
+    } else {
+
+      message += `
+
+        <br><br>
+
+        This category is empty.
+
+      `;
+
     }
 
 
-    html += "</div>";
+    document
+      .getElementById("deleteCategoryMessage")
+      .innerHTML = message;
+
+
+    document
+      .getElementById("deleteCategoryModal")
+      .classList.add("active");
   }
 
 
-  app.innerHTML = html;
+  function closeDeleteCategoryModal() {
 
+    document
+      .getElementById("deleteCategoryModal")
+      .classList.remove("active");
 
-  document
-    .getElementById("backToCategories")
-    .addEventListener(
-      "click",
-      function(){
-
-        currentCategoryId = null;
-        currentPage = "categories";
-        searchInput.value = "";
-
-        render();
-      }
-    );
-}
-
-
-/* =========================================
-   CLOTHING CARD
-========================================= */
-
-function createClothingCard(item){
-
-  var imageHTML = item.photo
-
-    ?
-
-      '<img src="' +
-      item.photo +
-      '" alt="' +
-      escapeHTML(item.name) +
-      '">'
-
-    :
-
-      escapeHTML(item.emoji || "👕");
-
-
-  return (
-
-    '<div class="card">' +
-
-      '<div class="photo">' +
-        imageHTML +
-      "</div>" +
-
-      '<div class="info">' +
-
-        '<div class="name">' +
-          escapeHTML(item.name) +
-        "</div>" +
-
-        (
-          item.color
-            ?
-              '<div class="meta">' +
-                escapeHTML(item.color) +
-              "</div>"
-            :
-              ""
-        ) +
-
-        (
-          item.brand
-            ?
-              '<div class="meta">' +
-                escapeHTML(item.brand) +
-              "</div>"
-            :
-              ""
-        ) +
-
-      "</div>" +
-
-    "</div>"
-  );
-}
-
-
-/* =========================================
-   ADD CATEGORY
-========================================= */
-
-function openCategoryModal(){
-
-  categoryModal.classList.add("open");
-
-  categoryName.focus();
-}
-
-
-function closeCategoryModal(){
-
-  categoryModal.classList.remove("open");
-
-  categoryName.value = "";
-  categoryIcon.value = "";
-}
-
-
-function saveCategory(){
-
-  var name =
-    categoryName.value.trim();
-
-
-  if(!name){
-
-    alert(
-      "Please enter a category name."
-    );
-
-    categoryName.focus();
-
-    return;
+    categoryToDelete = null;
   }
 
 
-  var exists =
-    categories.some(
-      function(category){
+  function confirmDeleteCategory() {
 
-        return category.name
-          .toLowerCase() ===
-          name.toLowerCase();
-      }
+    if (!categoryToDelete) return;
+
+
+    const category =
+      categories.find(
+        c => c.id === categoryToDelete
+      );
+
+
+    /* DELETE CATEGORY */
+
+    categories =
+      categories.filter(
+        c => c.id !== categoryToDelete
+      );
+
+
+    /* DELETE ALL CLOTHES IN CATEGORY */
+
+    items =
+      items.filter(
+        item =>
+          item.categoryId !== categoryToDelete
+      );
+
+
+    saveData();
+
+
+    closeDeleteCategoryModal();
+
+
+    currentCategoryId = null;
+
+
+    renderCategories();
+
+
+    showToast(
+      `"${category ? category.name : "Category"}" deleted.`
     );
 
-
-  if(exists){
-
-    alert(
-      "You already have a category with this name."
-    );
-
-    return;
   }
 
 
-  var newCategory = {
+  /* =========================
+     ITEM MODAL
+  ========================= */
 
-    id:
-      "category-" +
-      Date.now() +
-      "-" +
-      Math.random()
-        .toString(36)
-        .substring(2,8),
+  function openItemModal() {
 
-    name:name,
+    document
+      .getElementById("itemNameInput")
+      .value = "";
 
-    icon:
-      categoryIcon.value.trim() ||
-      "👕"
-  };
+    document
+      .getElementById("itemColorInput")
+      .value = "";
+
+    document
+      .getElementById("itemBrandInput")
+      .value = "";
+
+    document
+      .getElementById("itemPhotoInput")
+      .value = "";
+
+    document
+      .getElementById("photoPreview")
+      .style.display = "none";
+
+    currentPhoto = "";
 
 
-  categories.push(newCategory);
-
-
-  if(!save(CATEGORY_KEY,categories)){
-    return;
+    document
+      .getElementById("itemModal")
+      .classList.add("active");
   }
 
 
-  closeCategoryModal();
+  function closeItemModal() {
 
-  searchInput.value = "";
-
-  render();
-}
-
-
-/* =========================================
-   ADD CLOTHES
-========================================= */
-
-function openClothesModal(){
-
-  var category =
-    categories.find(
-      function(c){
-        return String(c.id) ===
-          String(currentCategoryId);
-      }
-    );
-
-
-  if(!category){
-
-    alert(
-      "Please open a category first."
-    );
-
-    return;
+    document
+      .getElementById("itemModal")
+      .classList.remove("active");
   }
 
 
-  selectedCategoryDisplay.value =
-    category.name;
+  /* =========================
+     PHOTO
+  ========================= */
 
+  function previewPhoto(event) {
 
-  clothesModal.classList.add("open");
-
-  itemName.focus();
-}
-
-
-function closeClothesModal(){
-
-  clothesModal.classList.remove("open");
-
-  previewData = "";
-
-  photoInput.value = "";
-
-  preview.innerHTML = "📷";
-
-  itemName.value = "";
-  itemColor.value = "";
-  itemBrand.value = "";
-}
-
-
-photoInput.addEventListener(
-  "change",
-  function(event){
-
-    var file =
-      event.target.files &&
+    const file =
       event.target.files[0];
 
-
-    if(!file){
-      return;
-    }
+    if (!file) return;
 
 
-    if(!file.type.startsWith("image/")){
-
-      alert(
-        "Please choose an image."
-      );
-
-      photoInput.value = "";
-
-      return;
-    }
-
-
-    var reader =
+    const reader =
       new FileReader();
 
 
-    reader.onload =
-      function(){
+    reader.onload = function(e) {
 
-        previewData =
-          reader.result;
-
-
-        preview.innerHTML =
-          '<img src="' +
-          previewData +
-          '" alt="Preview">';
-      };
+      currentPhoto =
+        e.target.result;
 
 
-    reader.onerror =
-      function(){
-
-        alert(
-          "The photo could not be loaded."
+      const preview =
+        document.getElementById(
+          "photoPreview"
         );
-      };
+
+
+      preview.src =
+        currentPhoto;
+
+      preview.style.display =
+        "block";
+
+    };
 
 
     reader.readAsDataURL(file);
   }
-);
 
 
-function getEmoji(categoryName){
+  /* =========================
+     SAVE ITEM
+  ========================= */
 
-  var name =
-    categoryName.toLowerCase();
+  function saveItem() {
 
+    if (!currentCategoryId) {
 
-  if(
-    name.indexOf("shoe") !== -1 ||
-    name.indexOf("foot") !== -1
-  ){
-    return "👟";
-  }
+      showToast(
+        "Please open a category first."
+      );
 
-
-  if(
-    name.indexOf("pant") !== -1 ||
-    name.indexOf("jean") !== -1 ||
-    name.indexOf("short") !== -1
-  ){
-    return "👖";
-  }
-
-
-  if(
-    name.indexOf("jacket") !== -1 ||
-    name.indexOf("coat") !== -1
-  ){
-    return "🧥";
-  }
-
-
-  if(
-    name.indexOf("accessor") !== -1
-  ){
-    return "⌚";
-  }
-
-
-  return "👕";
-}
-
-
-function saveClothes(){
-
-  var name =
-    itemName.value.trim();
-
-
-  if(!name){
-
-    alert(
-      "Please enter an item name."
-    );
-
-    itemName.focus();
-
-    return;
-  }
-
-
-  var category =
-    categories.find(
-      function(c){
-        return String(c.id) ===
-          String(currentCategoryId);
-      }
-    );
-
-
-  if(!category){
-
-    alert(
-      "Please choose a category first."
-    );
-
-    return;
-  }
-
-
-  var newItem = {
-
-    id:
-      "item-" +
-      Date.now() +
-      "-" +
-      Math.random()
-        .toString(36)
-        .substring(2,8),
-
-    name:name,
-
-    categoryId:
-      category.id,
-
-    color:
-      itemColor.value.trim(),
-
-    brand:
-      itemBrand.value.trim(),
-
-    photo:
-      previewData || "",
-
-    emoji:
-      getEmoji(category.name)
-  };
-
-
-  items.unshift(newItem);
-
-
-  if(!save(ITEM_KEY,items)){
-
-    items.shift();
-
-    return;
-  }
-
-
-  closeClothesModal();
-
-  searchInput.value = "";
-
-  render();
-}
-
-
-/* =========================================
-   FAB
-========================================= */
-
-fab.addEventListener(
-  "click",
-  function(){
-
-    if(currentPage === "categories"){
-
-      openCategoryModal();
-
-    }else if(currentPage === "items"){
-
-      openClothesModal();
+      return;
     }
-  }
-);
 
 
-/* =========================================
-   MODAL BUTTONS
-========================================= */
-
-document
-  .getElementById("cancelCategory")
-  .addEventListener(
-    "click",
-    closeCategoryModal
-  );
+    const name =
+      document
+        .getElementById("itemNameInput")
+        .value
+        .trim();
 
 
-document
-  .getElementById("saveCategory")
-  .addEventListener(
-    "click",
-    saveCategory
-  );
+    const color =
+      document
+        .getElementById("itemColorInput")
+        .value
+        .trim();
 
 
-document
-  .getElementById("cancelClothes")
-  .addEventListener(
-    "click",
-    closeClothesModal
-  );
+    const brand =
+      document
+        .getElementById("itemBrandInput")
+        .value
+        .trim();
 
 
-document
-  .getElementById("saveClothes")
-  .addEventListener(
-    "click",
-    saveClothes
-  );
+    if (!name) {
 
+      showToast(
+        "Please enter the clothing name."
+      );
 
-categoryModal.addEventListener(
-  "click",
-  function(event){
-
-    if(event.target === categoryModal){
-      closeCategoryModal();
+      return;
     }
+
+
+    const newItem = {
+
+      id:
+        Date.now().toString(),
+
+      name: name,
+
+      categoryId:
+        currentCategoryId,
+
+      color: color,
+
+      brand: brand,
+
+      photo: currentPhoto,
+
+      emoji: "👕"
+
+    };
+
+
+    items.push(newItem);
+
+    saveData();
+
+    closeItemModal();
+
+    openCategory(currentCategoryId);
+
+    showToast(
+      "Clothing item added."
+    );
   }
-);
 
 
-clothesModal.addEventListener(
-  "click",
-  function(event){
+  /* =========================
+     DELETE ITEM
+  ========================= */
 
-    if(event.target === clothesModal){
-      closeClothesModal();
+  function deleteItem(itemId) {
+
+    const item =
+      items.find(
+        i => i.id === itemId
+      );
+
+    if (!item) return;
+
+
+    const confirmed =
+      confirm(
+        `Delete "${item.name}" from your wardrobe?`
+      );
+
+
+    if (!confirmed) return;
+
+
+    items =
+      items.filter(
+        i => i.id !== itemId
+      );
+
+
+    saveData();
+
+
+    if (currentCategoryId) {
+
+      openCategory(
+        currentCategoryId
+      );
+
     }
-  }
-);
 
 
-/* =========================================
-   SEARCH
-========================================= */
-
-searchInput.addEventListener(
-  "input",
-  function(){
-
-    render();
-  }
-);
-
-
-/* =========================================
-   CREATE LOOK
-========================================= */
-
-function renderLooks(){
-
-  searchInput.placeholder =
-    "🔍 Search my wardrobe";
-
-  fab.style.display = "none";
-
-
-  var categoryMap = {};
-
-
-  for(var i=0;i<categories.length;i++){
-
-    categoryMap[categories[i].id] =
-      categories[i];
-  }
-
-
-  var availableItems =
-    items.filter(
-      function(item){
-
-        return categoryMap[item.categoryId];
-      }
+    showToast(
+      "Clothing item deleted."
     );
+  }
 
 
-  var shirts =
-    availableItems.filter(
-      function(item){
+  /* =========================
+     SEARCH
+  ========================= */
 
-        return categoryMap[item.categoryId]
-          .name
-          .toLowerCase()
-          .indexOf("shirt") !== -1;
-      }
-    );
+  function searchWardrobe(query) {
+
+    query =
+      query.trim().toLowerCase();
 
 
-  var pants =
-    availableItems.filter(
-      function(item){
+    const area =
+      document.getElementById(
+        "categoryArea"
+      );
 
-        var n =
-          categoryMap[item.categoryId]
-            .name
-            .toLowerCase();
+
+    if (!area) return;
+
+
+    if (!query) {
+
+      renderCategoryArea();
+
+      return;
+    }
+
+
+    const results =
+      items.filter(item => {
 
         return (
-          n.indexOf("pant") !== -1 ||
-          n.indexOf("jean") !== -1 ||
-          n.indexOf("trouser") !== -1
+
+          item.name
+            .toLowerCase()
+            .includes(query)
+
+          ||
+
+          (item.color || "")
+            .toLowerCase()
+            .includes(query)
+
+          ||
+
+          (item.brand || "")
+            .toLowerCase()
+            .includes(query)
+
         );
-      }
-    );
+
+      });
 
 
-  var shoes =
-    availableItems.filter(
-      function(item){
+    if (results.length === 0) {
 
-        return categoryMap[item.categoryId]
-          .name
-          .toLowerCase()
-          .indexOf("shoe") !== -1;
-      }
-    );
+      area.innerHTML = `
 
+        <div class="empty">
 
-  var html =
+          <div class="empty-icon">
+            🔍
+          </div>
 
-    '<div class="title">' +
-      "<h2>Create a Look</h2>" +
-    "</div>" +
+          <h3>No items found</h3>
 
+          <p style="margin-top:8px;">
+            Try another search.
+          </p>
 
-    '<div class="look">' +
-      "<b>1. Choose a shirt</b>" +
-      '<div class="lookrow">' +
-        createLookItems(shirts,"shirt") +
-      "</div>" +
-    "</div>" +
+        </div>
+
+      `;
+
+      return;
+    }
 
 
-    '<div class="look">' +
-      "<b>2. Choose pants</b>" +
-      '<div class="lookrow">' +
-        createLookItems(pants,"pants") +
-      "</div>" +
-    "</div>" +
+    let html =
+      `<div class="item-grid">`;
 
 
-    '<div class="look">' +
-      "<b>3. Choose shoes</b>" +
-      '<div class="lookrow">' +
-        createLookItems(shoes,"shoes") +
-      "</div>" +
-    "</div>" +
+    results.forEach(item => {
 
-
-    '<button ' +
-      'id="saveLookButton" ' +
-      'class="primary" ' +
-      'type="button" ' +
-      'style="width:100%;padding:14px;border-radius:12px;margin-top:16px;border:0;">' +
-
-      "♥ Save This Look" +
-
-    "</button>";
-
-
-  app.innerHTML = html;
-
-
-  var buttons =
-    app.querySelectorAll(".mini");
-
-
-  for(var j=0;j<buttons.length;j++){
-
-    buttons[j].addEventListener(
-      "click",
-      function(){
-
-        chooseLookItem(
-          this.getAttribute("data-type"),
-          this.getAttribute("data-id")
+      const category =
+        categories.find(
+          c =>
+            c.id === item.categoryId
         );
-      }
+
+
+      html += `
+
+        <div class="item-card">
+
+          ${
+            item.photo
+
+              ? `<img
+                   class="item-photo"
+                   src="${item.photo}"
+                   alt="${escapeHTML(item.name)}"
+                 >`
+
+              : `<div class="item-placeholder">
+                   👕
+                 </div>`
+          }
+
+          <div class="item-info">
+
+            <div class="item-name">
+              ${escapeHTML(item.name)}
+            </div>
+
+            <div class="item-detail">
+              📁
+              ${
+                category
+                  ? escapeHTML(category.name)
+                  : "Unknown"
+              }
+            </div>
+
+            ${
+              item.color
+                ? `<div class="item-detail">
+                     🎨 ${escapeHTML(item.color)}
+                   </div>`
+                : ""
+            }
+
+            ${
+              item.brand
+                ? `<div class="item-detail">
+                     🏷️ ${escapeHTML(item.brand)}
+                   </div>`
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+
+    html += `</div>`;
+
+    area.innerHTML = html;
+  }
+
+
+  /* =========================
+     CREATE LOOK / SAVED LOOKS
+  ========================= */
+
+  function showLooks() {
+
+    document
+      .getElementById("navWardrobe")
+      .classList.remove("active");
+
+    document
+      .getElementById("navLooks")
+      .classList.add("active");
+
+
+    const content =
+      document.getElementById(
+        "appContent"
+      );
+
+
+    content.innerHTML = `
+
+      <h2 class="page-title">
+        Create Look
+      </h2>
+
+      <p class="page-description">
+        Select items from your wardrobe to create an outfit.
+      </p>
+
+      <button
+        class="primary-btn"
+        onclick="createRandomLook()"
+      >
+        ✨ Create Look
+      </button>
+
+      <h3 style="margin-bottom:15px;">
+        Saved Looks
+      </h3>
+
+      <div id="looksArea"></div>
+
+    `;
+
+
+    renderLooks();
+  }
+
+
+  function createRandomLook() {
+
+    if (items.length < 1) {
+
+      showToast(
+        "Add some clothes first."
+      );
+
+      return;
+    }
+
+
+    const shuffled =
+      [...items].sort(
+        () => Math.random() - 0.5
+      );
+
+
+    const selected =
+      shuffled.slice(
+        0,
+        Math.min(3, shuffled.length)
+      );
+
+
+    looks.push({
+
+      id:
+        Date.now().toString(),
+
+      createdAt:
+        new Date().toISOString(),
+
+      items:
+        selected
+
+    });
+
+
+    saveData();
+
+    renderLooks();
+
+
+    showToast(
+      "New look created."
     );
   }
+
+
+  function renderLooks() {
+
+    const area =
+      document.getElementById(
+        "looksArea"
+      );
+
+    if (!area) return;
+
+
+    if (looks.length === 0) {
+
+      area.innerHTML = `
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            ✨
+          </div>
+
+          <h3>No saved looks</h3>
+
+          <p style="margin-top:8px;">
+            Create your first look.
+          </p>
+
+        </div>
+
+      `;
+
+      return;
+    }
+
+
+    let html = "";
+
+
+    [...looks]
+      .reverse()
+      .forEach((look, index) => {
+
+        html += `
+
+          <div class="look-card">
+
+            <div class="look-title">
+              Look ${looks.length - index}
+            </div>
+
+            <div class="look-items">
+
+        `;
+
+
+        look.items.forEach(item => {
+
+          html += `
+
+            <div class="look-item">
+
+              ${
+                item.photo
+
+                  ? `<img
+                       src="${item.photo}"
+                       alt="${escapeHTML(item.name)}"
+                     >`
+
+                  : `<div class="look-item-placeholder">
+                       👕
+                     </div>`
+              }
+
+              <div class="look-item-name">
+                ${escapeHTML(item.name)}
+              </div>
+
+            </div>
+
+          `;
+
+        });
+
+
+        html += `
+
+            </div>
+
+            <button
+              class="delete-look"
+              onclick="deleteLook('${look.id}')"
+            >
+              🗑️ Delete Look
+            </button>
+
+          </div>
+
+        `;
+
+      });
+
+
+    area.innerHTML = html;
+  }
+
+
+  function deleteLook(lookId) {
+
+    const confirmed =
+      confirm(
+        "Delete this saved look?"
+      );
+
+
+    if (!confirmed) return;
+
+
+    looks =
+      looks.filter(
+        look =>
+          look.id !== lookId
+      );
+
+
+    saveData();
+
+    renderLooks();
+
+    showToast(
+      "Look deleted."
+    );
+  }
+
+
+  /* =========================
+     UTILITIES
+  ========================= */
+
+  function showToast(message) {
+
+    const toast =
+      document.getElementById(
+        "toast"
+      );
+
+
+    toast.textContent =
+      message;
+
+
+    toast.classList.add(
+      "show"
+    );
+
+
+    setTimeout(
+      () => {
+
+        toast.classList.remove(
+          "show"
+        );
+
+      },
+      2500
+    );
+
+  }
+
+
+  function escapeHTML(value) {
+
+    if (!value) return "";
+
+
+    return String(value)
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
+
+  }
+
+
+  /* =========================
+     CLOSE MODALS WHEN
+     CLICKING OUTSIDE
+  ========================= */
+
+  document
+    .getElementById("categoryModal")
+    .addEventListener(
+      "click",
+      function(event) {
+
+        if (
+          event.target === this
+        ) {
+
+          closeCategoryModal();
+
+        }
+
+      }
+    );
 
 
   document
-    .getElementById("saveLookButton")
+    .getElementById("itemModal")
     .addEventListener(
       "click",
-      saveLook
-    );
-}
+      function(event) {
 
+        if (
+          event.target === this
+        ) {
 
-function createLookItems(list,type){
+          closeItemModal();
 
-  if(list.length === 0){
+        }
 
-    return (
-      '<div style="padding:15px;color:#777;">' +
-        "No matching items yet." +
-      "</div>"
-    );
-  }
-
-
-  var html = "";
-
-
-  for(var i=0;i<list.length;i++){
-
-    var item = list[i];
-
-
-    var imageHTML = item.photo
-
-      ?
-
-        '<img src="' +
-        item.photo +
-        '" alt="' +
-        escapeHTML(item.name) +
-        '">'
-
-      :
-
-        escapeHTML(item.emoji || "👕");
-
-
-    var isSelected =
-      selected[type] &&
-      selected[type].id === item.id;
-
-
-    html +=
-
-      '<button ' +
-        'type="button" ' +
-        'class="mini ' +
-        (isSelected ? "selected" : "") +
-        '" ' +
-        'data-type="' +
-        escapeHTML(type) +
-        '" ' +
-        'data-id="' +
-        escapeHTML(item.id) +
-        '">' +
-
-        '<div class="photo">' +
-          imageHTML +
-        "</div>" +
-
-        "<b>" +
-          escapeHTML(item.name) +
-        "</b>" +
-
-      "</button>";
-  }
-
-
-  return html;
-}
-
-
-function chooseLookItem(type,id){
-
-  var found =
-    items.find(
-      function(item){
-        return String(item.id) === String(id);
       }
     );
 
 
-  selected[type] = found || null;
-
-  render();
-}
-
-
-function saveLook(){
-
-  var chosen = [];
-
-
-  if(selected.shirt){
-    chosen.push(selected.shirt);
-  }
-
-  if(selected.pants){
-    chosen.push(selected.pants);
-  }
-
-  if(selected.shoes){
-    chosen.push(selected.shoes);
-  }
-
-
-  if(chosen.length < 2){
-
-    alert(
-      "Choose at least two items first."
-    );
-
-    return;
-  }
-
-
-  looks.unshift(chosen);
-
-
-  if(!save(LOOK_KEY,looks)){
-    return;
-  }
-
-
-  selected = {
-    shirt:null,
-    pants:null,
-    shoes:null
-  };
-
-
-  showSaved();
-}
-
-
-/* =========================================
-   SAVED LOOKS
-========================================= */
-
-function renderSavedLooks(){
-
-  searchInput.placeholder =
-    "🔍 Search my wardrobe";
-
-  fab.style.display = "none";
-
-
-  var html =
-
-    '<div class="title">' +
-
-      "<h2>Saved Looks</h2>" +
-
-      '<span class="count">' +
-        looks.length +
-      "</span>" +
-
-    "</div>";
-
-
-  if(looks.length === 0){
-
-    html +=
-
-      '<div class="empty">' +
-
-        "No saved looks yet." +
-
-        "<br><br>" +
-
-        "Create a look and save it here." +
-
-      "</div>";
-
-
-    app.innerHTML = html;
-
-    return;
-  }
-
-
-  for(var i=0;i<looks.length;i++){
-
-    var look =
-      looks[i];
-
-
-    html +=
-
-      '<div class="saved-item">' +
-
-        "<b>Look " +
-          (i+1) +
-        "</b>" +
-
-        '<div class="saved-items">';
-
-
-    for(var j=0;j<look.length;j++){
-
-      var item =
-        look[j];
-
-
-      var imageHTML = item.photo
-
-        ?
-
-          '<img src="' +
-          item.photo +
-          '" alt="' +
-          escapeHTML(item.name) +
-          '">'
-
-        :
-
-          escapeHTML(item.emoji || "👕");
-
-
-      html +=
-
-        '<div class="saved-mini">' +
-
-          '<div class="photo">' +
-            imageHTML +
-          "</div>" +
-
-          "<div>" +
-            escapeHTML(item.name) +
-          "</div>" +
-
-        "</div>";
-    }
-
-
-    html +=
-
-        "</div>" +
-
-        '<button ' +
-          'class="delete-button" ' +
-          'type="button" ' +
-          'data-index="' +
-          i +
-          '">' +
-
-          "Delete Look" +
-
-        "</button>" +
-
-      "</div>";
-  }
-
-
-  app.innerHTML = html;
-
-
-  var deleteButtons =
-    app.querySelectorAll(".delete-button");
-
-
-  for(var k=0;k<deleteButtons.length;k++){
-
-    deleteButtons[k].addEventListener(
+  document
+    .getElementById("deleteCategoryModal")
+    .addEventListener(
       "click",
-      function(){
+      function(event) {
 
-        deleteLook(
-          parseInt(
-            this.getAttribute("data-index"),
-            10
-          )
-        );
+        if (
+          event.target === this
+        ) {
+
+          closeDeleteCategoryModal();
+
+        }
+
       }
     );
-  }
-}
-
-
-function deleteLook(index){
-
-  if(!confirm("Delete this saved look?")){
-    return;
-  }
-
-
-  looks.splice(index,1);
-
-  save(LOOK_KEY,looks);
-
-  render();
-}
-
-
-/* =========================================
-   BOTTOM NAVIGATION
-========================================= */
-
-function updateNavigation(){
-
-  wardrobeBtn.classList.remove("sel");
-  lookBtn.classList.remove("sel");
-  savedBtn.classList.remove("sel");
-
-
-  if(
-    currentPage === "categories" ||
-    currentPage === "items"
-  ){
-    wardrobeBtn.classList.add("sel");
-  }
-
-
-  if(currentPage === "looks"){
-    lookBtn.classList.add("sel");
-  }
-
-
-  if(currentPage === "saved"){
-    savedBtn.classList.add("sel");
-  }
-}
-
-
-wardrobeBtn.addEventListener(
-  "click",
-  function(){
-
-    currentPage = "categories";
-    currentCategoryId = null;
-    searchInput.value = "";
-
-    updateNavigation();
-    render();
-  }
-);
-
-
-lookBtn.addEventListener(
-  "click",
-  function(){
-
-    currentPage = "looks";
-    searchInput.value = "";
-
-    updateNavigation();
-    render();
-  }
-);
-
-
-savedBtn.addEventListener(
-  "click",
-  function(){
-
-    currentPage = "saved";
-    searchInput.value = "";
-
-    updateNavigation();
-    render();
-  }
-);
-
-
-/* =========================================
-   ESC KEY
-========================================= */
-
-document.addEventListener(
-  "keydown",
-  function(event){
-
-    if(event.key === "Escape"){
-
-      if(categoryModal.classList.contains("open")){
-        closeCategoryModal();
-      }
-
-      if(clothesModal.classList.contains("open")){
-        closeClothesModal();
-      }
-    }
-  }
-);
-
-
-/* =========================================
-   START
-========================================= */
-
-updateNavigation();
-render();
-
-
-/* =========================================
-   SERVICE WORKER
-========================================= */
-
-if("serviceWorker" in navigator){
-
-  window.addEventListener(
-    "load",
-    function(){
-
-      navigator.serviceWorker
-        .register("./service-worker.js")
-        .then(function(){
-
-          console.log(
-            "My Wardrobe service worker registered."
-          );
-
-        })
-        .catch(function(error){
-
-          console.log(
-            "Service worker registration failed:",
-            error
-          );
-        });
-    }
-  );
-}
 
 </script>
 
