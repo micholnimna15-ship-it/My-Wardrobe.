@@ -1,105 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <meta name="theme-color" content="#111111">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="My Wardrobe">
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
 
   <title>My Wardrobe</title>
-
-  <meta name="theme-color" content="#111111" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="apple-touch-icon" href="./icons/icon-180.png" />
 
   <style>
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f5f5;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f6f6;
       color: #111;
-      padding-bottom: 80px;
     }
 
     button,
     input {
-      font-family: inherit;
+      font: inherit;
     }
 
     button {
       cursor: pointer;
     }
 
-    .app {
-      max-width: 900px;
-      margin: auto;
+    .hidden {
+      display: none !important;
+    }
+
+    /* AUTH */
+
+    #authScreen {
       min-height: 100vh;
-      background: #fff;
-    }
-
-    /* HEADER */
-
-    header {
-      background: #111;
-      color: white;
-      padding: 22px 20px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #111, #333);
     }
 
-    header h1 {
-      font-size: 24px;
-    }
-
-    .header-subtitle {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-top: 4px;
-    }
-
-    /* MAIN */
-
-    main {
-      padding: 20px;
-    }
-
-    .page-title {
-      font-size: 24px;
-      margin-bottom: 5px;
-    }
-
-    .page-description {
-      color: #777;
-      font-size: 14px;
-      margin-bottom: 20px;
-    }
-
-    /* SEARCH */
-
-    .search-box {
-      margin-bottom: 20px;
-    }
-
-    .search-box input {
+    .auth-card {
       width: 100%;
-      padding: 14px;
+      max-width: 420px;
+      background: white;
+      border-radius: 24px;
+      padding: 30px 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      text-align: center;
+      color: #777;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
       border: 1px solid #ddd;
       border-radius: 12px;
-      font-size: 15px;
+      padding: 13px 14px;
+      background: #fafafa;
       outline: none;
     }
 
-    .search-box input:focus {
+    input:focus {
       border-color: #111;
+      background: white;
     }
-
-    /* BUTTONS */
 
     .primary-btn {
       width: 100%;
@@ -108,49 +105,152 @@
       color: white;
       padding: 14px;
       border-radius: 12px;
-      font-size: 15px;
-      font-weight: bold;
-      margin-bottom: 20px;
+      font-weight: 700;
+      margin-top: 5px;
+    }
+
+    .primary-btn:active {
+      transform: scale(.98);
     }
 
     .secondary-btn {
       border: 1px solid #ddd;
       background: white;
       color: #111;
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: 10px;
-      font-weight: bold;
+      font-weight: 600;
     }
 
-    .danger-btn {
+    .auth-switch {
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .auth-switch button {
       border: none;
-      background: #d32f2f;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-weight: bold;
+      background: none;
+      color: #111;
+      font-weight: 700;
+      padding: 0;
     }
 
-    /* CATEGORY GRID */
+    .message {
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .message.error {
+      display: block;
+      background: #ffe7e7;
+      color: #a00000;
+    }
+
+    .message.success {
+      display: block;
+      background: #e7f8ec;
+      color: #176b2c;
+    }
+
+    /* APP */
+
+    #appScreen {
+      min-height: 100vh;
+      padding-bottom: 85px;
+    }
+
+    .topbar {
+      background: white;
+      padding: 18px 18px 15px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid #eee;
+    }
+
+    .topbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .app-title {
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .user-email {
+      color: #888;
+      font-size: 12px;
+      margin-top: 3px;
+      max-width: 230px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .logout-btn {
+      border: none;
+      background: #f1f1f1;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .content {
+      padding: 18px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2 {
+      font-size: 20px;
+      margin: 0;
+    }
 
     .category-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
+      gap: 12px;
+    }
+
+    @media (min-width: 650px) {
+      .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
 
     .category-card {
-      border: 1px solid #e2e2e2;
-      border-radius: 16px;
-      padding: 18px;
       background: white;
-      min-height: 150px;
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 125px;
+      border: 1px solid #eee;
       position: relative;
-      transition: 0.2s;
-    }
-
-    .category-card:hover {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
 
     .category-main {
@@ -158,231 +258,151 @@
     }
 
     .category-icon {
-      font-size: 38px;
-      margin-bottom: 10px;
+      font-size: 35px;
+      margin-bottom: 8px;
     }
 
     .category-name {
       font-size: 17px;
-      font-weight: bold;
-      margin-bottom: 5px;
+      font-weight: 750;
     }
 
     .category-count {
-      font-size: 13px;
-      color: #777;
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
     }
 
     .category-actions {
       position: absolute;
-      right: 10px;
-      bottom: 10px;
+      right: 8px;
+      top: 8px;
       display: flex;
-      gap: 6px;
+      gap: 3px;
     }
 
-    .small-action {
-      width: 34px;
-      height: 34px;
-      border: 1px solid #ddd;
-      background: white;
+    .icon-btn {
+      border: none;
+      background: #f2f2f2;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 14px;
     }
 
-    .small-action.delete {
-      color: #d32f2f;
+    .add-category-card {
+      background: #111;
+      color: white;
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 125px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
     }
 
-    /* BACK BUTTON */
+    /* CLOTHES */
 
     .back-btn {
       border: none;
       background: none;
       padding: 0;
-      margin-bottom: 18px;
+      margin-bottom: 15px;
+      font-weight: 700;
       font-size: 15px;
-      font-weight: bold;
     }
 
-    /* CLOTHES */
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
 
-    .item-grid {
+    .category-header h2 {
+      margin: 0;
+      font-size: 23px;
+    }
+
+    .clothes-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
     }
 
-    .item-card {
-      border: 1px solid #e3e3e3;
-      border-radius: 15px;
-      overflow: hidden;
+    @media (min-width: 650px) {
+      .clothes-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .clothing-card {
       background: white;
+      border-radius: 17px;
+      overflow: hidden;
+      border: 1px solid #eee;
     }
 
-    .item-photo {
+    .clothing-photo {
       width: 100%;
-      height: 190px;
+      aspect-ratio: 1;
       object-fit: cover;
-      background: #f0f0f0;
+      background: #eee;
+      display: block;
     }
 
-    .item-placeholder {
-      height: 190px;
+    .no-photo {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #eee;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f1f1f1;
-      font-size: 55px;
+      font-size: 40px;
     }
 
-    .item-info {
-      padding: 13px;
+    .clothing-info {
+      padding: 11px;
     }
 
-    .item-name {
-      font-weight: bold;
+    .clothing-name {
+      font-weight: 750;
       font-size: 15px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
-    .item-detail {
+    .clothing-detail {
       color: #777;
-      font-size: 13px;
+      font-size: 12px;
       margin-bottom: 3px;
     }
 
-    .delete-item-btn {
-      margin-top: 10px;
+    .delete-clothing {
       border: none;
-      background: #fff0f0;
-      color: #d32f2f;
-      padding: 8px 10px;
+      background: #ffe9e9;
+      color: #a00000;
       border-radius: 8px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    /* EMPTY */
-
-    .empty {
-      text-align: center;
-      padding: 50px 20px;
-      color: #777;
-    }
-
-    .empty-icon {
-      font-size: 50px;
-      margin-bottom: 12px;
-    }
-
-    /* MODAL */
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 1000;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 480px;
-      background: white;
-      border-radius: 18px;
-      padding: 22px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal h2 {
-      margin-bottom: 18px;
-      font-size: 21px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: bold;
-      margin-bottom: 7px;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      outline: none;
-      font-size: 14px;
-    }
-
-    .form-group input:focus {
-      border-color: #111;
-    }
-
-    .icon-options {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 7px;
-    }
-
-    .icon-option {
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 8px;
-      padding: 9px;
-      font-size: 22px;
-    }
-
-    .icon-option.selected {
-      border: 2px solid #111;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .modal-buttons button {
-      flex: 1;
-    }
-
-    /* PHOTO PREVIEW */
-
-    .photo-preview {
-      width: 100%;
-      max-height: 220px;
-      object-fit: cover;
-      border-radius: 10px;
-      margin-top: 10px;
-      display: none;
+      padding: 7px 9px;
+      font-size: 11px;
+      margin-top: 8px;
     }
 
     /* LOOKS */
 
     .look-card {
-      border: 1px solid #ddd;
-      border-radius: 15px;
-      padding: 14px;
+      background: white;
+      border-radius: 18px;
+      padding: 15px;
       margin-bottom: 15px;
+      border: 1px solid #eee;
     }
 
     .look-title {
-      font-weight: bold;
+      font-size: 17px;
+      font-weight: 750;
       margin-bottom: 12px;
     }
 
@@ -392,35 +412,27 @@
       gap: 8px;
     }
 
-    .look-item img,
-    .look-item-placeholder {
+    .look-item img {
       width: 100%;
-      height: 100px;
+      aspect-ratio: 1;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 10px;
       background: #eee;
     }
 
-    .look-item-placeholder {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 30px;
-    }
-
     .look-item-name {
-      font-size: 11px;
-      margin-top: 5px;
+      font-size: 10px;
+      margin-top: 4px;
+      color: #666;
     }
 
-    .delete-look {
-      margin-top: 12px;
-      border: none;
-      background: #fff0f0;
-      color: #d32f2f;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-weight: bold;
+    .empty {
+      background: white;
+      border-radius: 16px;
+      padding: 30px 20px;
+      text-align: center;
+      color: #888;
+      border: 1px solid #eee;
     }
 
     /* BOTTOM NAV */
@@ -430,83 +442,149 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 65px;
       background: white;
       border-top: 1px solid #ddd;
       display: flex;
-      justify-content: center;
-      z-index: 900;
-    }
-
-    .nav-inner {
-      width: 100%;
-      max-width: 900px;
-      display: flex;
+      justify-content: space-around;
+      padding: 8px 5px calc(8px + env(safe-area-inset-bottom));
+      z-index: 50;
     }
 
     .nav-btn {
-      flex: 1;
       border: none;
-      background: white;
-      font-size: 12px;
-      color: #777;
+      background: none;
+      color: #888;
+      font-size: 11px;
+      text-align: center;
+      min-width: 75px;
+      padding: 5px;
     }
 
     .nav-btn.active {
       color: #111;
-      font-weight: bold;
+      font-weight: 750;
     }
 
     .nav-icon {
-      font-size: 22px;
       display: block;
+      font-size: 21px;
       margin-bottom: 2px;
     }
 
-    /* TOAST */
+    /* MODAL */
 
-    .toast {
+    .modal {
       position: fixed;
-      bottom: 85px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #111;
-      color: white;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 13px;
-      display: none;
-      z-index: 2000;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
     }
 
-    .toast.show {
-      display: block;
+    .modal-card {
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      padding: 22px;
     }
-
-    /* RESPONSIVE */
 
     @media (min-width: 650px) {
-      .category-grid {
-        grid-template-columns: repeat(3, 1fr);
+      .modal {
+        align-items: center;
+        padding: 20px;
       }
 
-      .item-grid {
-        grid-template-columns: repeat(3, 1fr);
+      .modal-card {
+        border-radius: 20px;
       }
     }
 
-    @media (max-width: 480px) {
-      main {
-        padding: 16px;
-      }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
 
-      .item-photo,
-      .item-placeholder {
-        height: 160px;
-      }
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+    }
 
-      .category-card {
-        min-height: 140px;
+    .close-btn {
+      border: none;
+      background: #eee;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+    }
+
+    .photo-preview {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 15px;
+      display: block;
+      margin: 10px 0;
+      background: #eee;
+    }
+
+    .emoji-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .emoji-option {
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 10px;
+      width: 45px;
+      height: 45px;
+      font-size: 22px;
+    }
+
+    .emoji-option.selected {
+      border: 2px solid #111;
+      background: #f2f2f2;
+    }
+
+    .danger-btn {
+      width: 100%;
+      border: none;
+      background: #ffe7e7;
+      color: #a00000;
+      padding: 13px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px 20px;
+      color: #777;
+    }
+
+    .spinner {
+      margin: auto auto 15px;
+      width: 35px;
+      height: 35px;
+      border: 4px solid #ddd;
+      border-top-color: #111;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
     }
   </style>
@@ -514,573 +592,1580 @@
 
 <body>
 
-<div class="app">
+  <!-- ========================= -->
+  <!-- LOGIN / SIGN UP SCREEN -->
+  <!-- ========================= -->
 
-  <header>
-    <div>
-      <h1>My Wardrobe</h1>
-      <div class="header-subtitle">Your personal style collection</div>
-    </div>
-  </header>
+  <div id="authScreen">
 
-  <main id="appContent"></main>
+    <div class="auth-card">
 
-</div>
+      <div class="logo">👕 My Wardrobe</div>
+      <div class="auth-subtitle">Your clothes. Your account. Your wardrobe.</div>
 
-<!-- BOTTOM NAV -->
+      <div id="authMessage" class="message"></div>
 
-<div class="bottom-nav">
-  <div class="nav-inner">
+      <!-- LOGIN -->
 
-    <button class="nav-btn active" id="navWardrobe" onclick="showWardrobe()">
-      <span class="nav-icon">👕</span>
-      Wardrobe
-    </button>
+      <div id="loginForm">
 
-    <button class="nav-btn" id="navLooks" onclick="showLooks()">
-      <span class="nav-icon">✨</span>
-      Looks
-    </button>
+        <div class="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            id="loginEmail"
+            placeholder="Enter your email"
+            autocomplete="email"
+          >
+        </div>
 
-  </div>
-</div>
+        <div class="form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          >
+        </div>
 
-<!-- CATEGORY MODAL -->
+        <button class="primary-btn" onclick="login()">
+          Login
+        </button>
 
-<div class="modal-overlay" id="categoryModal">
+        <div class="auth-switch">
+          Don't have an account?
+          <button onclick="showSignup()">Create account</button>
+        </div>
 
-  <div class="modal">
+      </div>
 
-    <h2 id="categoryModalTitle">Add Category</h2>
 
-    <div class="form-group">
-      <label>Category name</label>
-      <input
-        type="text"
-        id="categoryNameInput"
-        placeholder="e.g. Shirts"
-      />
-    </div>
+      <!-- SIGN UP -->
 
-    <div class="form-group">
+      <div id="signupForm" class="hidden">
 
-      <label>Choose an icon</label>
+        <div class="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            id="signupEmail"
+            placeholder="Enter your email"
+            autocomplete="email"
+          >
+        </div>
 
-      <div class="icon-options" id="iconOptions">
+        <div class="form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            id="signupPassword"
+            placeholder="Create a password"
+            autocomplete="new-password"
+          >
+        </div>
 
-        <button class="icon-option" onclick="selectIcon('👕', this)">👕</button>
-        <button class="icon-option" onclick="selectIcon('👖', this)">👖</button>
-        <button class="icon-option" onclick="selectIcon('👗', this)">👗</button>
-        <button class="icon-option" onclick="selectIcon('🧥', this)">🧥</button>
-        <button class="icon-option" onclick="selectIcon('👚', this)">👚</button>
-        <button class="icon-option" onclick="selectIcon('👔', this)">👔</button>
-        <button class="icon-option" onclick="selectIcon('👟', this)">👟</button>
-        <button class="icon-option" onclick="selectIcon('👞', this)">👞</button>
-        <button class="icon-option" onclick="selectIcon('🩴', this)">🩴</button>
-        <button class="icon-option" onclick="selectIcon('👜', this)">👜</button>
-        <button class="icon-option" onclick="selectIcon('🎩', this)">🎩</button>
-        <button class="icon-option" onclick="selectIcon('🧢', this)">🧢</button>
+        <div class="form-group">
+          <label>Confirm password</label>
+          <input
+            type="password"
+            id="signupConfirm"
+            placeholder="Confirm your password"
+            autocomplete="new-password"
+          >
+        </div>
+
+        <button class="primary-btn" onclick="signup()">
+          Create Account
+        </button>
+
+        <div class="auth-switch">
+          Already have an account?
+          <button onclick="showLogin()">Login</button>
+        </div>
 
       </div>
 
     </div>
 
-    <div class="modal-buttons">
+  </div>
 
-      <button
-        class="secondary-btn"
-        onclick="closeCategoryModal()"
-      >
-        Cancel
-      </button>
 
-      <button
-        class="primary-btn"
-        style="margin:0"
-        onclick="saveCategory()"
-      >
-        Save
-      </button>
+  <!-- ========================= -->
+  <!-- MAIN APP -->
+  <!-- ========================= -->
+
+  <div id="appScreen" class="hidden">
+
+    <div class="topbar">
+
+      <div class="topbar-row">
+
+        <div>
+          <div class="app-title">My Wardrobe</div>
+          <div id="userEmail" class="user-email"></div>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">
+          Logout
+        </button>
+
+      </div>
 
     </div>
+
+
+    <main class="content">
+
+      <!-- HOME -->
+
+      <section id="homePage">
+
+        <div class="search-box">
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="🔍 Search your clothes..."
+            oninput="searchClothes()"
+          >
+        </div>
+
+        <div class="section-title">
+          <h2>My Categories</h2>
+        </div>
+
+        <div id="categoryGrid" class="category-grid"></div>
+
+      </section>
+
+
+      <!-- CATEGORY PAGE -->
+
+      <section id="categoryPage" class="hidden">
+
+        <button class="back-btn" onclick="goHome()">
+          ← Back to categories
+        </button>
+
+        <div class="category-header">
+
+          <h2 id="currentCategoryName"></h2>
+
+          <button
+            class="secondary-btn"
+            onclick="openAddClothingModal()"
+          >
+            + Add Clothes
+          </button>
+
+        </div>
+
+        <div id="clothesGrid" class="clothes-grid"></div>
+
+      </section>
+
+
+      <!-- SEARCH PAGE -->
+
+      <section id="searchPage" class="hidden">
+
+        <div class="section-title">
+          <h2>Search Results</h2>
+        </div>
+
+        <div id="searchResults" class="clothes-grid"></div>
+
+      </section>
+
+
+      <!-- LOOKS PAGE -->
+
+      <section id="looksPage" class="hidden">
+
+        <div class="section-title">
+
+          <h2>Saved Looks</h2>
+
+          <button
+            class="secondary-btn"
+            onclick="createLook()"
+          >
+            ✨ Create Look
+          </button>
+
+        </div>
+
+        <div id="looksContainer"></div>
+
+      </section>
+
+    </main>
+
+
+    <!-- BOTTOM NAV -->
+
+    <nav class="bottom-nav">
+
+      <button
+        class="nav-btn active"
+        id="homeNav"
+        onclick="showPage('home')"
+      >
+        <span class="nav-icon">🏠</span>
+        Home
+      </button>
+
+      <button
+        class="nav-btn"
+        id="lookNav"
+        onclick="showPage('looks')"
+      >
+        <span class="nav-icon">✨</span>
+        Looks
+      </button>
+
+    </nav>
 
   </div>
 
-</div>
 
+  <!-- ========================= -->
+  <!-- CATEGORY MODAL -->
+  <!-- ========================= -->
 
-<!-- CLOTHING MODAL -->
+  <div id="categoryModal" class="modal hidden">
 
-<div class="modal-overlay" id="itemModal">
+    <div class="modal-card">
 
-  <div class="modal">
+      <div class="modal-header">
 
-    <h2>Add Clothing Item</h2>
+        <h3 id="categoryModalTitle">
+          Add Category
+        </h3>
 
-    <div class="form-group">
-      <label>Name</label>
-      <input
-        type="text"
-        id="itemNameInput"
-        placeholder="e.g. White Oxford Shirt"
-      />
-    </div>
+        <button class="close-btn" onclick="closeCategoryModal()">
+          ✕
+        </button>
 
-    <div class="form-group">
-      <label>Colour</label>
-      <input
-        type="text"
-        id="itemColorInput"
-        placeholder="e.g. White"
-      />
-    </div>
+      </div>
 
-    <div class="form-group">
-      <label>Brand (optional)</label>
-      <input
-        type="text"
-        id="itemBrandInput"
-        placeholder="e.g. Nike"
-      />
-    </div>
+      <div class="form-group">
 
-    <div class="form-group">
+        <label>Category name</label>
 
-      <label>Photo</label>
-
-      <input
-        type="file"
-        id="itemPhotoInput"
-        accept="image/*"
-        onchange="previewPhoto(event)"
-      />
-
-      <img
-        id="photoPreview"
-        class="photo-preview"
-      />
-
-    </div>
-
-    <div class="modal-buttons">
-
-      <button
-        class="secondary-btn"
-        onclick="closeItemModal()"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="primary-btn"
-        style="margin:0"
-        onclick="saveItem()"
-      >
-        Add Item
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- DELETE CATEGORY MODAL -->
-
-<div class="modal-overlay" id="deleteCategoryModal">
-
-  <div class="modal">
-
-    <h2>Delete Category?</h2>
-
-    <p id="deleteCategoryMessage" style="line-height:1.5;color:#555;"></p>
-
-    <div class="modal-buttons">
-
-      <button
-        class="secondary-btn"
-        onclick="closeDeleteCategoryModal()"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="danger-btn"
-        onclick="confirmDeleteCategory()"
-      >
-        Delete
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<div class="toast" id="toast"></div>
-
-
-<script>
-
-  /* =========================
-     STORAGE
-  ========================= */
-
-  const CATEGORY_KEY = "myWardrobeCategories";
-  const ITEM_KEY = "myWardrobeItems";
-  const LOOK_KEY = "myWardrobeLooks";
-
-
-  let categories =
-    JSON.parse(localStorage.getItem(CATEGORY_KEY)) || [];
-
-  let items =
-    JSON.parse(localStorage.getItem(ITEM_KEY)) || [];
-
-  let looks =
-    JSON.parse(localStorage.getItem(LOOK_KEY)) || [];
-
-
-  let currentCategoryId = null;
-
-  let editingCategoryId = null;
-
-  let categoryToDelete = null;
-
-  let selectedIcon = "👕";
-
-  let currentPhoto = "";
-
-
-  /* =========================
-     SAVE DATA
-  ========================= */
-
-  function saveData() {
-
-    localStorage.setItem(
-      CATEGORY_KEY,
-      JSON.stringify(categories)
-    );
-
-    localStorage.setItem(
-      ITEM_KEY,
-      JSON.stringify(items)
-    );
-
-    localStorage.setItem(
-      LOOK_KEY,
-      JSON.stringify(looks)
-    );
-  }
-
-
-  /* =========================
-     INITIAL LOAD
-  ========================= */
-
-  renderCategories();
-
-
-  /* =========================
-     WARDROBE
-  ========================= */
-
-  function showWardrobe() {
-
-    currentCategoryId = null;
-
-    document
-      .getElementById("navWardrobe")
-      .classList.add("active");
-
-    document
-      .getElementById("navLooks")
-      .classList.remove("active");
-
-    renderCategories();
-  }
-
-
-  function renderCategories() {
-
-    const content =
-      document.getElementById("appContent");
-
-    content.innerHTML = `
-
-      <h2 class="page-title">My Wardrobe</h2>
-
-      <p class="page-description">
-        Create your own categories and organise your clothes.
-      </p>
-
-      <div class="search-box">
         <input
           type="text"
-          id="searchInput"
-          placeholder="🔍 Search your wardrobe..."
-          oninput="searchWardrobe(this.value)"
-        />
+          id="categoryNameInput"
+          placeholder="e.g. Shirts"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Choose an icon</label>
+
+        <div class="emoji-options">
+
+          <button class="emoji-option selected" onclick="selectEmoji(this,'👕')">👕</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'👖')">👖</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'👟')">👟</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'🧥')">🧥</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'🧢')">🧢</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'👔')">👔</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'👗')">👗</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'🩳')">🩳</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'🧦')">🧦</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'🎒')">🎒</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'👜')">👜</button>
+          <button class="emoji-option" onclick="selectEmoji(this,'💍')">💍</button>
+
+        </div>
+
       </div>
 
       <button
         class="primary-btn"
-        onclick="openAddCategoryModal()"
+        onclick="saveCategory()"
       >
-        + Add Category
+        Save Category
       </button>
 
-      <div id="categoryArea"></div>
-    `;
+      <button
+        id="deleteCategoryButton"
+        class="danger-btn hidden"
+        onclick="deleteCurrentCategory()"
+      >
+        Delete Category
+      </button>
 
-    renderCategoryArea();
-  }
+    </div>
 
-
-  function renderCategoryArea() {
-
-    const area =
-      document.getElementById("categoryArea");
-
-    if (!area) return;
+  </div>
 
 
-    if (categories.length === 0) {
+  <!-- ========================= -->
+  <!-- CLOTHING MODAL -->
+  <!-- ========================= -->
 
-      area.innerHTML = `
+  <div id="clothingModal" class="modal hidden">
 
-        <div class="empty">
+    <div class="modal-card">
 
-          <div class="empty-icon">👗</div>
+      <div class="modal-header">
 
-          <h3>No categories yet</h3>
+        <h3>Add Clothing</h3>
 
-          <p style="margin-top:8px;">
-            Create your first category to start building your wardrobe.
-          </p>
+        <button class="close-btn" onclick="closeClothingModal()">
+          ✕
+        </button>
 
+      </div>
+
+      <div class="form-group">
+
+        <label>Photo</label>
+
+        <input
+          type="file"
+          id="clothingPhoto"
+          accept="image/*"
+          onchange="previewPhoto()"
+        >
+
+        <img
+          id="photoPreview"
+          class="photo-preview hidden"
+          alt="Preview"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Name</label>
+
+        <input
+          type="text"
+          id="clothingName"
+          placeholder="e.g. White Oxford Shirt"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Colour</label>
+
+        <input
+          type="text"
+          id="clothingColor"
+          placeholder="e.g. White"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Brand (optional)</label>
+
+        <input
+          type="text"
+          id="clothingBrand"
+          placeholder="e.g. Nike"
+        >
+
+      </div>
+
+      <button
+        class="primary-btn"
+        id="saveClothingButton"
+        onclick="saveClothing()"
+      >
+        Add Clothing
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- CREATE LOOK MODAL -->
+  <!-- ========================= -->
+
+  <div id="lookModal" class="modal hidden">
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+
+        <h3>Save This Look</h3>
+
+        <button class="close-btn" onclick="closeLookModal()">
+          ✕
+        </button>
+
+      </div>
+
+      <div id="lookPreview" class="look-items"></div>
+
+      <div class="form-group" style="margin-top:20px;">
+
+        <label>Look name</label>
+
+        <input
+          type="text"
+          id="lookName"
+          placeholder="e.g. Casual Friday"
+        >
+
+      </div>
+
+      <button
+        class="primary-btn"
+        onclick="saveLook()"
+      >
+        Save Look
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- SUPABASE -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <script>
+
+    /* =====================================================
+       SUPABASE CONNECTION
+       ===================================================== */
+
+    const SUPABASE_URL =
+      "https://umtppiaeralgiqvefnbh.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_hgrE28tw0hGmNP929kPgYw_h5aPs0ey";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    /* =====================================================
+       APP DATA
+       ===================================================== */
+
+    let currentUser = null;
+
+    let categories = [];
+
+    let clothes = [];
+
+    let savedLooks = [];
+
+    let currentCategory = null;
+
+    let editingCategoryId = null;
+
+    let selectedEmoji = "👕";
+
+    let currentLookItems = [];
+
+
+    /* =====================================================
+       AUTH
+       ===================================================== */
+
+    async function checkSession() {
+
+      const {
+        data: { session }
+      } = await supabaseClient.auth.getSession();
+
+      if (session) {
+
+        currentUser = session.user;
+
+        await startApp();
+
+      } else {
+
+        showAuth();
+
+      }
+
+    }
+
+
+    supabaseClient.auth.onAuthStateChange(
+      async (event, session) => {
+
+        if (session) {
+
+          currentUser = session.user;
+
+          await startApp();
+
+        } else {
+
+          currentUser = null;
+
+          showAuth();
+
+        }
+
+      }
+    );
+
+
+    function showAuth() {
+
+      document
+        .getElementById("authScreen")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("appScreen")
+        .classList.add("hidden");
+
+    }
+
+
+    function showLogin() {
+
+      document
+        .getElementById("loginForm")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("signupForm")
+        .classList.add("hidden");
+
+      clearAuthMessage();
+
+    }
+
+
+    function showSignup() {
+
+      document
+        .getElementById("loginForm")
+        .classList.add("hidden");
+
+      document
+        .getElementById("signupForm")
+        .classList.remove("hidden");
+
+      clearAuthMessage();
+
+    }
+
+
+    function showAuthMessage(message, type) {
+
+      const box =
+        document.getElementById("authMessage");
+
+      box.textContent = message;
+
+      box.className =
+        "message " + type;
+
+    }
+
+
+    function clearAuthMessage() {
+
+      const box =
+        document.getElementById("authMessage");
+
+      box.textContent = "";
+
+      box.className = "message";
+
+    }
+
+
+    async function signup() {
+
+      const email =
+        document.getElementById("signupEmail")
+          .value
+          .trim();
+
+      const password =
+        document.getElementById("signupPassword")
+          .value;
+
+      const confirm =
+        document.getElementById("signupConfirm")
+          .value;
+
+
+      if (!email || !password) {
+
+        showAuthMessage(
+          "Please enter your email and password.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      if (password.length < 6) {
+
+        showAuthMessage(
+          "Password must be at least 6 characters.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      if (password !== confirm) {
+
+        showAuthMessage(
+          "Passwords do not match.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      showAuthMessage(
+        "Creating your account...",
+        "success"
+      );
+
+
+      const {
+        data,
+        error
+      } = await supabaseClient.auth.signUp({
+
+        email: email,
+
+        password: password,
+
+        options: {
+          emailRedirectTo:
+            window.location.href.split("?")[0]
+        }
+
+      });
+
+
+      if (error) {
+
+        showAuthMessage(
+          error.message,
+          "error"
+        );
+
+        return;
+      }
+
+
+      if (data.session) {
+
+        showAuthMessage(
+          "Account created successfully!",
+          "success"
+        );
+
+      } else {
+
+        showAuthMessage(
+          "Account created! Please check your email and verify your account before logging in.",
+          "success"
+        );
+
+      }
+
+    }
+
+
+    async function login() {
+
+      const email =
+        document.getElementById("loginEmail")
+          .value
+          .trim();
+
+      const password =
+        document.getElementById("loginPassword")
+          .value;
+
+
+      if (!email || !password) {
+
+        showAuthMessage(
+          "Please enter your email and password.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      showAuthMessage(
+        "Logging in...",
+        "success"
+      );
+
+
+      const {
+        data,
+        error
+      } = await supabaseClient.auth.signInWithPassword({
+
+        email: email,
+
+        password: password
+
+      });
+
+
+      if (error) {
+
+        showAuthMessage(
+          error.message,
+          "error"
+        );
+
+        return;
+      }
+
+
+      currentUser = data.user;
+
+      await startApp();
+
+    }
+
+
+    async function logout() {
+
+      await supabaseClient.auth.signOut();
+
+      categories = [];
+
+      clothes = [];
+
+      savedLooks = [];
+
+      currentUser = null;
+
+      showAuth();
+
+    }
+
+
+    /* =====================================================
+       START APP
+       ===================================================== */
+
+    async function startApp() {
+
+      document
+        .getElementById("authScreen")
+        .classList.add("hidden");
+
+      document
+        .getElementById("appScreen")
+        .classList.remove("hidden");
+
+
+      document
+        .getElementById("userEmail")
+        .textContent =
+        currentUser.email;
+
+
+      showPage("home");
+
+
+      await loadAllData();
+
+    }
+
+
+    /* =====================================================
+       LOAD DATA
+       ===================================================== */
+
+    async function loadAllData() {
+
+      showLoading();
+
+
+      const categoryResult =
+        await supabaseClient
+          .from("categories")
+          .select("*")
+          .order("created_at", {
+            ascending: true
+          });
+
+
+      if (categoryResult.error) {
+
+        alert(
+          "Could not load categories: " +
+          categoryResult.error.message
+        );
+
+        return;
+      }
+
+
+      categories =
+        categoryResult.data || [];
+
+
+      const clothingResult =
+        await supabaseClient
+          .from("clothing_items")
+          .select("*")
+          .order("created_at", {
+            ascending: true
+          });
+
+
+      if (clothingResult.error) {
+
+        alert(
+          "Could not load clothes: " +
+          clothingResult.error.message
+        );
+
+        return;
+      }
+
+
+      clothes =
+        clothingResult.data || [];
+
+
+      const looksResult =
+        await supabaseClient
+          .from("saved_looks")
+          .select("*")
+          .order("created_at", {
+            ascending: false
+          });
+
+
+      if (looksResult.error) {
+
+        alert(
+          "Could not load looks: " +
+          looksResult.error.message
+        );
+
+        return;
+      }
+
+
+      savedLooks =
+        looksResult.data || [];
+
+
+      renderCategories();
+
+      renderLooks();
+
+    }
+
+
+    function showLoading() {
+
+      document
+        .getElementById("categoryGrid")
+        .innerHTML = `
+          <div class="loading" style="grid-column:1/-1;">
+            <div class="spinner"></div>
+            Loading your wardrobe...
+          </div>
+        `;
+
+    }
+
+
+    /* =====================================================
+       PAGES
+       ===================================================== */
+
+    function showPage(page) {
+
+      document
+        .getElementById("homePage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("categoryPage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("searchPage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("looksPage")
+        .classList.add("hidden");
+
+
+      document
+        .getElementById("homeNav")
+        .classList.remove("active");
+
+      document
+        .getElementById("lookNav")
+        .classList.remove("active");
+
+
+      if (page === "home") {
+
+        document
+          .getElementById("homePage")
+          .classList.remove("hidden");
+
+        document
+          .getElementById("homeNav")
+          .classList.add("active");
+
+        renderCategories();
+
+      }
+
+
+      if (page === "looks") {
+
+        document
+          .getElementById("looksPage")
+          .classList.remove("hidden");
+
+        document
+          .getElementById("lookNav")
+          .classList.add("active");
+
+        renderLooks();
+
+      }
+
+    }
+
+
+    function goHome() {
+
+      currentCategory = null;
+
+      showPage("home");
+
+    }
+
+
+    /* =====================================================
+       CATEGORIES
+       ===================================================== */
+
+    function renderCategories() {
+
+      const grid =
+        document.getElementById("categoryGrid");
+
+
+      let html = "";
+
+
+      categories.forEach(category => {
+
+        const count =
+          clothes.filter(
+            item =>
+              item.category_id === category.id
+          ).length;
+
+
+        html += `
+
+          <div class="category-card">
+
+            <div
+              class="category-main"
+              onclick="openCategory('${category.id}')"
+            >
+
+              <div class="category-icon">
+                ${escapeHtml(category.icon || "👕")}
+              </div>
+
+              <div class="category-name">
+                ${escapeHtml(category.name)}
+              </div>
+
+              <div class="category-count">
+                ${count}
+                ${count === 1 ? "item" : "items"}
+              </div>
+
+            </div>
+
+            <div class="category-actions">
+
+              <button
+                class="icon-btn"
+                onclick="openEditCategory('${category.id}')"
+              >
+                ✏️
+              </button>
+
+              <button
+                class="icon-btn"
+                onclick="confirmDeleteCategory('${category.id}')"
+              >
+                🗑️
+              </button>
+
+            </div>
+
+          </div>
+
+        `;
+
+      });
+
+
+      html += `
+
+        <div
+          class="add-category-card"
+          onclick="openAddCategoryModal()"
+        >
+          + Add Category
         </div>
 
       `;
 
-      return;
+
+      if (
+        categories.length === 0
+      ) {
+
+        html = `
+
+          <div
+            class="empty"
+            style="grid-column:1/-1;"
+          >
+
+            <div style="font-size:45px;">
+              👕
+            </div>
+
+            <h3>No categories yet</h3>
+
+            <p>
+              Create your first category to start
+              building your wardrobe.
+            </p>
+
+            <button
+              class="primary-btn"
+              onclick="openAddCategoryModal()"
+            >
+              + Add Category
+            </button>
+
+          </div>
+
+        `;
+
+      }
+
+
+      grid.innerHTML = html;
+
     }
 
 
-    let html = `<div class="category-grid">`;
+    function openAddCategoryModal() {
+
+      editingCategoryId = null;
+
+      selectedEmoji = "👕";
+
+      document
+        .getElementById("categoryModalTitle")
+        .textContent = "Add Category";
+
+      document
+        .getElementById("categoryNameInput")
+        .value = "";
 
 
-    categories.forEach(category => {
+      document
+        .getElementById("deleteCategoryButton")
+        .classList.add("hidden");
+
+
+      document
+        .querySelectorAll(".emoji-option")
+        .forEach(button => {
+
+          button.classList.remove("selected");
+
+          if (
+            button.textContent === "👕"
+          ) {
+            button.classList.add("selected");
+          }
+
+        });
+
+
+      document
+        .getElementById("categoryModal")
+        .classList.remove("hidden");
+
+    }
+
+
+    function openEditCategory(id) {
+
+      const category =
+        categories.find(
+          item => item.id === id
+        );
+
+
+      if (!category) return;
+
+
+      editingCategoryId = id;
+
+      selectedEmoji =
+        category.icon || "👕";
+
+
+      document
+        .getElementById("categoryModalTitle")
+        .textContent = "Edit Category";
+
+
+      document
+        .getElementById("categoryNameInput")
+        .value = category.name;
+
+
+      document
+        .getElementById("deleteCategoryButton")
+        .classList.remove("hidden");
+
+
+      document
+        .querySelectorAll(".emoji-option")
+        .forEach(button => {
+
+          button.classList.toggle(
+            "selected",
+            button.textContent === selectedEmoji
+          );
+
+        });
+
+
+      document
+        .getElementById("categoryModal")
+        .classList.remove("hidden");
+
+    }
+
+
+    function selectEmoji(button, emoji) {
+
+      selectedEmoji = emoji;
+
+
+      document
+        .querySelectorAll(".emoji-option")
+        .forEach(item =>
+          item.classList.remove("selected")
+        );
+
+
+      button.classList.add("selected");
+
+    }
+
+
+    function closeCategoryModal() {
+
+      document
+        .getElementById("categoryModal")
+        .classList.add("hidden");
+
+    }
+
+
+    async function saveCategory() {
+
+      const name =
+        document
+          .getElementById("categoryNameInput")
+          .value
+          .trim();
+
+
+      if (!name) {
+
+        alert("Please enter a category name.");
+
+        return;
+      }
+
+
+      if (editingCategoryId) {
+
+        const {
+          error
+        } = await supabaseClient
+          .from("categories")
+          .update({
+
+            name: name,
+
+            icon: selectedEmoji
+
+          })
+          .eq("id", editingCategoryId);
+
+
+        if (error) {
+
+          alert(error.message);
+
+          return;
+        }
+
+
+      } else {
+
+        const {
+          error
+        } = await supabaseClient
+          .from("categories")
+          .insert({
+
+            user_id: currentUser.id,
+
+            name: name,
+
+            icon: selectedEmoji
+
+          });
+
+
+        if (error) {
+
+          alert(error.message);
+
+          return;
+        }
+
+      }
+
+
+      closeCategoryModal();
+
+      await loadAllData();
+
+    }
+
+
+    async function deleteCurrentCategory() {
+
+      if (!editingCategoryId) return;
+
+
+      const category =
+        categories.find(
+          item => item.id === editingCategoryId
+        );
+
+
+      if (!category) return;
+
 
       const count =
-        items.filter(
-          item => item.categoryId === category.id
+        clothes.filter(
+          item =>
+            item.category_id === editingCategoryId
         ).length;
 
 
-      html += `
-
-        <div class="category-card">
-
-          <div
-            class="category-main"
-            onclick="openCategory('${category.id}')"
-          >
-
-            <div class="category-icon">
-              ${category.icon || "👕"}
-            </div>
-
-            <div class="category-name">
-              ${escapeHTML(category.name)}
-            </div>
-
-            <div class="category-count">
-              ${count} ${count === 1 ? "item" : "items"}
-            </div>
-
-          </div>
+      const confirmed =
+        confirm(
+          `Delete "${category.name}"?\n\n` +
+          `This category contains ${count} ` +
+          `${count === 1 ? "item" : "items"}.\n\n` +
+          `All clothes inside this category will also be deleted.`
+        );
 
 
-          <div class="category-actions">
-
-            <button
-              class="small-action"
-              title="Edit category"
-              onclick="event.stopPropagation(); openEditCategoryModal('${category.id}')"
-            >
-              ✏️
-            </button>
-
-            <button
-              class="small-action delete"
-              title="Delete category"
-              onclick="event.stopPropagation(); openDeleteCategoryModal('${category.id}')"
-            >
-              🗑️
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    });
+      if (!confirmed) return;
 
 
-    html += `</div>`;
+      /*
+       * Remove photos belonging to this category.
+       */
 
-    area.innerHTML = html;
-  }
-
-
-  /* =========================
-     OPEN CATEGORY
-  ========================= */
-
-  function openCategory(categoryId) {
-
-    currentCategoryId = categoryId;
-
-    const category =
-      categories.find(
-        c => c.id === categoryId
-      );
-
-    if (!category) return;
+      const categoryClothes =
+        clothes.filter(
+          item =>
+            item.category_id === editingCategoryId
+        );
 
 
-    const categoryItems =
-      items.filter(
-        item => item.categoryId === categoryId
-      );
+      for (const item of categoryClothes) {
+
+        if (item.photo_url) {
+
+          await supabaseClient
+            .storage
+            .from("wardrobe-photos")
+            .remove([item.photo_url]);
+
+        }
+
+      }
 
 
-    const content =
-      document.getElementById("appContent");
+      const {
+        error
+      } = await supabaseClient
+        .from("categories")
+        .delete()
+        .eq("id", editingCategoryId);
 
 
-    content.innerHTML = `
+      if (error) {
 
-      <button
-        class="back-btn"
-        onclick="showWardrobe()"
-      >
-        ← Back to My Wardrobe
-      </button>
+        alert(error.message);
 
-      <h2 class="page-title">
-        ${category.icon || "👕"}
-        ${escapeHTML(category.name)}
-      </h2>
-
-      <p class="page-description">
-        ${categoryItems.length}
-        ${categoryItems.length === 1 ? "item" : "items"}
-      </p>
-
-      <button
-        class="primary-btn"
-        onclick="openItemModal()"
-      >
-        + Add Clothing
-      </button>
-
-      <div id="itemArea"></div>
-
-    `;
+        return;
+      }
 
 
-    renderItems(categoryItems);
-  }
+      closeCategoryModal();
 
+      currentCategory = null;
 
-  /* =========================
-     ITEMS
-  ========================= */
+      await loadAllData();
 
-  function renderItems(categoryItems) {
-
-    const area =
-      document.getElementById("itemArea");
-
-    if (!area) return;
-
-
-    if (categoryItems.length === 0) {
-
-      area.innerHTML = `
-
-        <div class="empty">
-
-          <div class="empty-icon">👕</div>
-
-          <h3>No clothes yet</h3>
-
-          <p style="margin-top:8px;">
-            Add your first item to this category.
-          </p>
-
-        </div>
-
-      `;
-
-      return;
     }
 
 
-    let html = `<div class="item-grid">`;
+    function confirmDeleteCategory(id) {
+
+      const category =
+        categories.find(
+          item => item.id === id
+        );
 
 
-    categoryItems.forEach(item => {
+      if (!category) return;
 
-      html += `
 
-        <div class="item-card">
+      const count =
+        clothes.filter(
+          item =>
+            item.category_id === id
+        ).length;
 
-          ${
-            item.photo
 
-              ? `<img
-                   class="item-photo"
-                   src="${item.photo}"
-                   alt="${escapeHTML(item.name)}"
-                 >`
+      const confirmed =
+        confirm(
+          `Delete "${category.name}"?\n\n` +
+          `It contains ${count} ` +
+          `${count === 1 ? "item" : "items"}.\n\n` +
+          `All clothes in this category will be deleted.`
+        );
 
-              : `<div class="item-placeholder">
-                   👕
-                 </div>`
-          }
 
-          <div class="item-info">
+      if (!confirmed) return;
 
-            <div class="item-name">
-              ${escapeHTML(item.name)}
+
+      editingCategoryId = id;
+
+      deleteCurrentCategory();
+
+    }
+
+
+    /* =====================================================
+       OPEN CATEGORY
+       ===================================================== */
+
+    function openCategory(id) {
+
+      currentCategory =
+        categories.find(
+          category => category.id === id
+        );
+
+
+      if (!currentCategory) return;
+
+
+      document
+        .getElementById("homePage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("categoryPage")
+        .classList.remove("hidden");
+
+
+      document
+        .getElementById("currentCategoryName")
+        .textContent =
+        currentCategory.icon +
+        " " +
+        currentCategory.name;
+
+
+      renderClothes();
+
+    }
+
+
+    /* =====================================================
+       CLOTHING
+       ===================================================== */
+
+    function renderClothes() {
+
+      const grid =
+        document.getElementById("clothesGrid");
+
+
+      if (!currentCategory) {
+
+        grid.innerHTML = "";
+
+        return;
+      }
+
+
+      const categoryClothes =
+        clothes.filter(
+          item =>
+            item.category_id === currentCategory.id
+        );
+
+
+      if (categoryClothes.length === 0) {
+
+        grid.innerHTML = `
+
+          <div
+            class="empty"
+            style="grid-column:1/-1;"
+          >
+
+            <div style="font-size:45px;">
+              👚
+            </div>
+
+            <h3>No clothes yet</h3>
+
+            <p>
+              Add clothes to this category.
+            </p>
+
+            <button
+              class="primary-btn"
+              onclick="openAddClothingModal()"
+            >
+              + Add Clothing
+            </button>
+
+          </div>
+
+        `;
+
+        return;
+      }
+
+
+      grid.innerHTML = categoryClothes
+        .map(item => clothingCard(item))
+        .join("");
+
+
+      loadPhotoUrls(categoryClothes);
+
+    }
+
+
+    function clothingCard(item) {
+
+      const details = [];
+
+
+      if (item.color)
+        details.push(
+          escapeHtml(item.color)
+        );
+
+
+      if (item.brand)
+        details.push(
+          escapeHtml(item.brand)
+        );
+
+
+      return `
+
+        <div
+          class="clothing-card"
+          id="clothing-${item.id}"
+        >
+
+          <div id="photo-${item.id}">
+            <div class="no-photo">👕</div>
+          </div>
+
+          <div class="clothing-info">
+
+            <div class="clothing-name">
+              ${escapeHtml(item.name)}
             </div>
 
             ${
-              item.color
-                ? `<div class="item-detail">
-                     🎨 ${escapeHTML(item.color)}
-                   </div>`
-                : ""
-            }
-
-            ${
-              item.brand
-                ? `<div class="item-detail">
-                     🏷️ ${escapeHTML(item.brand)}
-                   </div>`
+              details.length
+                ? `
+                  <div class="clothing-detail">
+                    ${details.join(" • ")}
+                  </div>
+                `
                 : ""
             }
 
             <button
-              class="delete-item-btn"
-              onclick="deleteItem('${item.id}')"
+              class="delete-clothing"
+              onclick="deleteClothing('${item.id}')"
             >
               🗑️ Delete
             </button>
@@ -1091,421 +2176,121 @@
 
       `;
 
-    });
+    }
 
 
-    html += `</div>`;
+    async function loadPhotoUrls(items) {
 
-    area.innerHTML = html;
-  }
+      for (const item of items) {
 
-
-  /* =========================
-     CATEGORY MODAL
-  ========================= */
-
-  function openAddCategoryModal() {
-
-    editingCategoryId = null;
-
-    document
-      .getElementById("categoryModalTitle")
-      .textContent = "Add Category";
-
-    document
-      .getElementById("categoryNameInput")
-      .value = "";
-
-    selectedIcon = "👕";
-
-    updateSelectedIcon();
-
-    document
-      .getElementById("categoryModal")
-      .classList.add("active");
-  }
+        if (!item.photo_url)
+          continue;
 
 
-  function openEditCategoryModal(categoryId) {
-
-    const category =
-      categories.find(
-        c => c.id === categoryId
-      );
-
-    if (!category) return;
-
-
-    editingCategoryId = categoryId;
-
-    document
-      .getElementById("categoryModalTitle")
-      .textContent = "Edit Category";
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .storage
+            .from("wardrobe-photos")
+            .createSignedUrl(
+              item.photo_url,
+              3600
+            );
 
 
-    document
-      .getElementById("categoryNameInput")
-      .value = category.name;
+        if (
+          error ||
+          !data ||
+          !data.signedUrl
+        ) {
+          continue;
+        }
 
 
-    selectedIcon =
-      category.icon || "👕";
+        const container =
+          document.getElementById(
+            "photo-" + item.id
+          );
 
 
-    updateSelectedIcon();
+        if (!container)
+          continue;
 
 
-    document
-      .getElementById("categoryModal")
-      .classList.add("active");
-  }
+        container.innerHTML = `
 
+          <img
+            class="clothing-photo"
+            src="${data.signedUrl}"
+            alt="${escapeHtml(item.name)}"
+          >
 
-  function closeCategoryModal() {
-
-    document
-      .getElementById("categoryModal")
-      .classList.remove("active");
-
-    editingCategoryId = null;
-  }
-
-
-  function selectIcon(icon, button) {
-
-    selectedIcon = icon;
-
-    updateSelectedIcon();
-  }
-
-
-  function updateSelectedIcon() {
-
-    const buttons =
-      document.querySelectorAll(
-        ".icon-option"
-      );
-
-
-    buttons.forEach(button => {
-
-      if (
-        button.textContent.trim() ===
-        selectedIcon
-      ) {
-
-        button.classList.add("selected");
-
-      } else {
-
-        button.classList.remove("selected");
+        `;
 
       }
 
-    });
-
-  }
+    }
 
 
-  /* =========================
-     SAVE CATEGORY
-  ========================= */
+    function openAddClothingModal() {
 
-  function saveCategory() {
+      if (!currentCategory) {
 
-    const name =
+        alert("Please open a category first.");
+
+        return;
+      }
+
+
       document
-        .getElementById("categoryNameInput")
-        .value
-        .trim();
+        .getElementById("clothingName")
+        .value = "";
 
 
-    if (!name) {
+      document
+        .getElementById("clothingColor")
+        .value = "";
 
-      showToast(
-        "Please enter a category name."
-      );
 
-      return;
-    }
+      document
+        .getElementById("clothingBrand")
+        .value = "";
 
 
-    /* EDIT EXISTING CATEGORY */
+      document
+        .getElementById("clothingPhoto")
+        .value = "";
 
-    if (editingCategoryId) {
 
-      const category =
-        categories.find(
-          c => c.id === editingCategoryId
-        );
+      document
+        .getElementById("photoPreview")
+        .classList.add("hidden");
 
 
-      if (category) {
-
-        category.name = name;
-
-        category.icon = selectedIcon;
-
-      }
-
-
-      saveData();
-
-      closeCategoryModal();
-
-      renderCategories();
-
-      showToast(
-        "Category updated successfully."
-      );
-
-      return;
-    }
-
-
-    /* ADD NEW CATEGORY */
-
-    const alreadyExists =
-      categories.some(
-        category =>
-          category.name.toLowerCase() ===
-          name.toLowerCase()
-      );
-
-
-    if (alreadyExists) {
-
-      showToast(
-        "A category with that name already exists."
-      );
-
-      return;
-    }
-
-
-    const newCategory = {
-
-      id:
-        Date.now().toString(),
-
-      name: name,
-
-      icon: selectedIcon
-
-    };
-
-
-    categories.push(newCategory);
-
-    saveData();
-
-    closeCategoryModal();
-
-    renderCategories();
-
-    showToast(
-      "Category added successfully."
-    );
-  }
-
-
-  /* =========================
-     DELETE CATEGORY
-  ========================= */
-
-  function openDeleteCategoryModal(categoryId) {
-
-    const category =
-      categories.find(
-        c => c.id === categoryId
-      );
-
-    if (!category) return;
-
-
-    categoryToDelete = categoryId;
-
-
-    const itemCount =
-      items.filter(
-        item =>
-          item.categoryId === categoryId
-      ).length;
-
-
-    let message = `
-
-      Are you sure you want to delete
-
-      <strong>
-        ${escapeHTML(category.icon || "")}
-        ${escapeHTML(category.name)}
-      </strong>?
-
-    `;
-
-
-    if (itemCount > 0) {
-
-      message += `
-
-        <br><br>
-
-        This category contains
-        <strong>${itemCount}</strong>
-        ${itemCount === 1 ? "clothing item" : "clothing items"}.
-
-        <br>
-
-        Deleting the category will also
-        delete these clothing items.
-
-      `;
-
-    } else {
-
-      message += `
-
-        <br><br>
-
-        This category is empty.
-
-      `;
+      document
+        .getElementById("clothingModal")
+        .classList.remove("hidden");
 
     }
 
 
-    document
-      .getElementById("deleteCategoryMessage")
-      .innerHTML = message;
+    function closeClothingModal() {
+
+      document
+        .getElementById("clothingModal")
+        .classList.add("hidden");
+
+    }
 
 
-    document
-      .getElementById("deleteCategoryModal")
-      .classList.add("active");
-  }
+    function previewPhoto() {
 
-
-  function closeDeleteCategoryModal() {
-
-    document
-      .getElementById("deleteCategoryModal")
-      .classList.remove("active");
-
-    categoryToDelete = null;
-  }
-
-
-  function confirmDeleteCategory() {
-
-    if (!categoryToDelete) return;
-
-
-    const category =
-      categories.find(
-        c => c.id === categoryToDelete
-      );
-
-
-    /* DELETE CATEGORY */
-
-    categories =
-      categories.filter(
-        c => c.id !== categoryToDelete
-      );
-
-
-    /* DELETE ALL CLOTHES IN CATEGORY */
-
-    items =
-      items.filter(
-        item =>
-          item.categoryId !== categoryToDelete
-      );
-
-
-    saveData();
-
-
-    closeDeleteCategoryModal();
-
-
-    currentCategoryId = null;
-
-
-    renderCategories();
-
-
-    showToast(
-      `"${category ? category.name : "Category"}" deleted.`
-    );
-
-  }
-
-
-  /* =========================
-     ITEM MODAL
-  ========================= */
-
-  function openItemModal() {
-
-    document
-      .getElementById("itemNameInput")
-      .value = "";
-
-    document
-      .getElementById("itemColorInput")
-      .value = "";
-
-    document
-      .getElementById("itemBrandInput")
-      .value = "";
-
-    document
-      .getElementById("itemPhotoInput")
-      .value = "";
-
-    document
-      .getElementById("photoPreview")
-      .style.display = "none";
-
-    currentPhoto = "";
-
-
-    document
-      .getElementById("itemModal")
-      .classList.add("active");
-  }
-
-
-  function closeItemModal() {
-
-    document
-      .getElementById("itemModal")
-      .classList.remove("active");
-  }
-
-
-  /* =========================
-     PHOTO
-  ========================= */
-
-  function previewPhoto(event) {
-
-    const file =
-      event.target.files[0];
-
-    if (!file) return;
-
-
-    const reader =
-      new FileReader();
-
-
-    reader.onload = function(e) {
-
-      currentPhoto =
-        e.target.result;
+      const file =
+        document
+          .getElementById("clothingPhoto")
+          .files[0];
 
 
       const preview =
@@ -1514,661 +2299,1074 @@
         );
 
 
-      preview.src =
-        currentPhoto;
+      if (!file) {
 
-      preview.style.display =
-        "block";
+        preview.classList.add("hidden");
 
-    };
-
-
-    reader.readAsDataURL(file);
-  }
+        return;
+      }
 
 
-  /* =========================
-     SAVE ITEM
-  ========================= */
-
-  function saveItem() {
-
-    if (!currentCategoryId) {
-
-      showToast(
-        "Please open a category first."
-      );
-
-      return;
-    }
+      const url =
+        URL.createObjectURL(file);
 
 
-    const name =
-      document
-        .getElementById("itemNameInput")
-        .value
-        .trim();
+      preview.src = url;
 
-
-    const color =
-      document
-        .getElementById("itemColorInput")
-        .value
-        .trim();
-
-
-    const brand =
-      document
-        .getElementById("itemBrandInput")
-        .value
-        .trim();
-
-
-    if (!name) {
-
-      showToast(
-        "Please enter the clothing name."
-      );
-
-      return;
-    }
-
-
-    const newItem = {
-
-      id:
-        Date.now().toString(),
-
-      name: name,
-
-      categoryId:
-        currentCategoryId,
-
-      color: color,
-
-      brand: brand,
-
-      photo: currentPhoto,
-
-      emoji: "👕"
-
-    };
-
-
-    items.push(newItem);
-
-    saveData();
-
-    closeItemModal();
-
-    openCategory(currentCategoryId);
-
-    showToast(
-      "Clothing item added."
-    );
-  }
-
-
-  /* =========================
-     DELETE ITEM
-  ========================= */
-
-  function deleteItem(itemId) {
-
-    const item =
-      items.find(
-        i => i.id === itemId
-      );
-
-    if (!item) return;
-
-
-    const confirmed =
-      confirm(
-        `Delete "${item.name}" from your wardrobe?`
-      );
-
-
-    if (!confirmed) return;
-
-
-    items =
-      items.filter(
-        i => i.id !== itemId
-      );
-
-
-    saveData();
-
-
-    if (currentCategoryId) {
-
-      openCategory(
-        currentCategoryId
-      );
+      preview.classList.remove("hidden");
 
     }
 
 
-    showToast(
-      "Clothing item deleted."
-    );
-  }
+    async function saveClothing() {
+
+      const name =
+        document
+          .getElementById("clothingName")
+          .value
+          .trim();
 
 
-  /* =========================
-     SEARCH
-  ========================= */
-
-  function searchWardrobe(query) {
-
-    query =
-      query.trim().toLowerCase();
+      const color =
+        document
+          .getElementById("clothingColor")
+          .value
+          .trim();
 
 
-    const area =
-      document.getElementById(
-        "categoryArea"
-      );
+      const brand =
+        document
+          .getElementById("clothingBrand")
+          .value
+          .trim();
 
 
-    if (!area) return;
+      const file =
+        document
+          .getElementById("clothingPhoto")
+          .files[0];
 
 
-    if (!query) {
+      if (!name) {
 
-      renderCategoryArea();
+        alert("Please enter a clothing name.");
 
-      return;
-    }
-
-
-    const results =
-      items.filter(item => {
-
-        return (
-
-          item.name
-            .toLowerCase()
-            .includes(query)
-
-          ||
-
-          (item.color || "")
-            .toLowerCase()
-            .includes(query)
-
-          ||
-
-          (item.brand || "")
-            .toLowerCase()
-            .includes(query)
-
-        );
-
-      });
+        return;
+      }
 
 
-    if (results.length === 0) {
-
-      area.innerHTML = `
-
-        <div class="empty">
-
-          <div class="empty-icon">
-            🔍
-          </div>
-
-          <h3>No items found</h3>
-
-          <p style="margin-top:8px;">
-            Try another search.
-          </p>
-
-        </div>
-
-      `;
-
-      return;
-    }
-
-
-    let html =
-      `<div class="item-grid">`;
-
-
-    results.forEach(item => {
-
-      const category =
-        categories.find(
-          c =>
-            c.id === item.categoryId
+      const button =
+        document.getElementById(
+          "saveClothingButton"
         );
 
 
-      html += `
+      button.disabled = true;
 
-        <div class="item-card">
+      button.textContent =
+        "Saving...";
 
-          ${
-            item.photo
 
-              ? `<img
-                   class="item-photo"
-                   src="${item.photo}"
-                   alt="${escapeHTML(item.name)}"
-                 >`
+      let photoPath = null;
 
-              : `<div class="item-placeholder">
-                   👕
-                 </div>`
-          }
 
-          <div class="item-info">
+      /*
+       * Upload photo to private Supabase Storage.
+       */
 
-            <div class="item-name">
-              ${escapeHTML(item.name)}
-            </div>
+      if (file) {
 
-            <div class="item-detail">
-              📁
-              ${
-                category
-                  ? escapeHTML(category.name)
-                  : "Unknown"
+        const extension =
+          file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+        const filename =
+          crypto.randomUUID() +
+          "." +
+          extension;
+
+
+        photoPath =
+          currentUser.id +
+          "/" +
+          filename;
+
+
+        const {
+          error
+        } =
+          await supabaseClient
+            .storage
+            .from("wardrobe-photos")
+            .upload(
+              photoPath,
+              file,
+              {
+                cacheControl: "3600",
+                upsert: false
               }
-            </div>
-
-            ${
-              item.color
-                ? `<div class="item-detail">
-                     🎨 ${escapeHTML(item.color)}
-                   </div>`
-                : ""
-            }
-
-            ${
-              item.brand
-                ? `<div class="item-detail">
-                     🏷️ ${escapeHTML(item.brand)}
-                   </div>`
-                : ""
-            }
-
-          </div>
-
-        </div>
-
-      `;
-
-    });
+            );
 
 
-    html += `</div>`;
+        if (error) {
 
-    area.innerHTML = html;
-  }
+          alert(
+            "Photo upload failed: " +
+            error.message
+          );
 
+          button.disabled = false;
 
-  /* =========================
-     CREATE LOOK / SAVED LOOKS
-  ========================= */
+          button.textContent =
+            "Add Clothing";
 
-  function showLooks() {
+          return;
+        }
 
-    document
-      .getElementById("navWardrobe")
-      .classList.remove("active");
-
-    document
-      .getElementById("navLooks")
-      .classList.add("active");
+      }
 
 
-    const content =
-      document.getElementById(
-        "appContent"
-      );
+      /*
+       * Save clothing record.
+       */
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("clothing_items")
+          .insert({
+
+            user_id:
+              currentUser.id,
+
+            category_id:
+              currentCategory.id,
+
+            name: name,
+
+            color: color || null,
+
+            brand: brand || null,
+
+            photo_url:
+              photoPath
+
+          });
 
 
-    content.innerHTML = `
+      if (error) {
 
-      <h2 class="page-title">
-        Create Look
-      </h2>
+        if (photoPath) {
 
-      <p class="page-description">
-        Select items from your wardrobe to create an outfit.
-      </p>
+          await supabaseClient
+            .storage
+            .from("wardrobe-photos")
+            .remove([photoPath]);
 
-      <button
-        class="primary-btn"
-        onclick="createRandomLook()"
-      >
-        ✨ Create Look
-      </button>
-
-      <h3 style="margin-bottom:15px;">
-        Saved Looks
-      </h3>
-
-      <div id="looksArea"></div>
-
-    `;
+        }
 
 
-    renderLooks();
-  }
+        alert(error.message);
+
+        button.disabled = false;
+
+        button.textContent =
+          "Add Clothing";
+
+        return;
+      }
 
 
-  function createRandomLook() {
+      button.disabled = false;
 
-    if (items.length < 1) {
+      button.textContent =
+        "Add Clothing";
 
-      showToast(
-        "Add some clothes first."
-      );
 
-      return;
+      closeClothingModal();
+
+      await loadAllData();
+
+      openCategory(currentCategory.id);
+
     }
 
 
-    const shuffled =
-      [...items].sort(
-        () => Math.random() - 0.5
-      );
+    async function deleteClothing(id) {
+
+      const item =
+        clothes.find(
+          clothing =>
+            clothing.id === id
+        );
 
 
-    const selected =
-      shuffled.slice(
-        0,
-        Math.min(3, shuffled.length)
-      );
+      if (!item) return;
 
 
-    looks.push({
-
-      id:
-        Date.now().toString(),
-
-      createdAt:
-        new Date().toISOString(),
-
-      items:
-        selected
-
-    });
+      const confirmed =
+        confirm(
+          `Delete "${item.name}"?`
+        );
 
 
-    saveData();
-
-    renderLooks();
-
-
-    showToast(
-      "New look created."
-    );
-  }
+      if (!confirmed)
+        return;
 
 
-  function renderLooks() {
+      /*
+       * Delete private photo.
+       */
 
-    const area =
-      document.getElementById(
-        "looksArea"
-      );
+      if (item.photo_url) {
 
-    if (!area) return;
+        await supabaseClient
+          .storage
+          .from("wardrobe-photos")
+          .remove([item.photo_url]);
+
+      }
 
 
-    if (looks.length === 0) {
+      /*
+       * Delete database record.
+       */
 
-      area.innerHTML = `
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("clothing_items")
+          .delete()
+          .eq("id", id);
 
-        <div class="empty">
 
-          <div class="empty-icon">
-            ✨
-          </div>
+      if (error) {
 
-          <h3>No saved looks</h3>
+        alert(error.message);
 
-          <p style="margin-top:8px;">
-            Create your first look.
-          </p>
+        return;
+      }
 
-        </div>
 
-      `;
+      await loadAllData();
 
-      return;
+      if (currentCategory) {
+
+        openCategory(
+          currentCategory.id
+        );
+
+      }
+
     }
 
 
-    let html = "";
+    /* =====================================================
+       SEARCH
+       ===================================================== */
+
+    function searchClothes() {
+
+      const search =
+        document
+          .getElementById("searchInput")
+          .value
+          .toLowerCase()
+          .trim();
 
 
-    [...looks]
-      .reverse()
-      .forEach((look, index) => {
+      if (!search) {
 
-        html += `
+        document
+          .getElementById("searchPage")
+          .classList.add("hidden");
 
-          <div class="look-card">
+        document
+          .getElementById("homePage")
+          .classList.remove("hidden");
 
-            <div class="look-title">
-              Look ${looks.length - index}
-            </div>
-
-            <div class="look-items">
-
-        `;
+        return;
+      }
 
 
-        look.items.forEach(item => {
+      document
+        .getElementById("homePage")
+        .classList.add("hidden");
 
-          html += `
+      document
+        .getElementById("categoryPage")
+        .classList.add("hidden");
 
-            <div class="look-item">
+      document
+        .getElementById("looksPage")
+        .classList.add("hidden");
 
-              ${
-                item.photo
+      document
+        .getElementById("searchPage")
+        .classList.remove("hidden");
 
-                  ? `<img
-                       src="${item.photo}"
-                       alt="${escapeHTML(item.name)}"
-                     >`
 
-                  : `<div class="look-item-placeholder">
-                       👕
-                     </div>`
-              }
+      const results =
+        clothes.filter(item => {
 
-              <div class="look-item-name">
-                ${escapeHTML(item.name)}
-              </div>
+          const category =
+            categories.find(
+              c =>
+                c.id === item.category_id
+            );
 
-            </div>
 
-          `;
+          const text = [
+
+            item.name,
+
+            item.color,
+
+            item.brand,
+
+            category
+              ? category.name
+              : ""
+
+          ]
+            .join(" ")
+            .toLowerCase();
+
+
+          return text.includes(search);
 
         });
 
 
-        html += `
+      const container =
+        document.getElementById(
+          "searchResults"
+        );
 
+
+      if (!results.length) {
+
+        container.innerHTML = `
+
+          <div
+            class="empty"
+            style="grid-column:1/-1;"
+          >
+            No clothes found.
+          </div>
+
+        `;
+
+        return;
+      }
+
+
+      container.innerHTML =
+        results
+          .map(item =>
+            clothingCard(item)
+          )
+          .join("");
+
+
+      loadPhotoUrls(results);
+
+    }
+
+
+    /* =====================================================
+       SAVED LOOKS
+       ===================================================== */
+
+    async function createLook() {
+
+      if (clothes.length === 0) {
+
+        alert(
+          "Add some clothes first before creating a look."
+        );
+
+        return;
+      }
+
+
+      /*
+       * Try to choose one item from
+       * different categories.
+       */
+
+      const shuffled =
+        [...clothes]
+          .sort(
+            () => Math.random() - 0.5
+          );
+
+
+      const selected = [];
+
+      const usedCategories =
+        new Set();
+
+
+      for (const item of shuffled) {
+
+        if (
+          !usedCategories.has(
+            item.category_id
+          )
+        ) {
+
+          selected.push(item);
+
+          usedCategories.add(
+            item.category_id
+          );
+
+        }
+
+
+        if (selected.length >= 3)
+          break;
+
+      }
+
+
+      /*
+       * If there aren't enough categories,
+       * fill with random clothes.
+       */
+
+      if (selected.length < 3) {
+
+        for (const item of shuffled) {
+
+          if (
+            !selected.some(
+              x => x.id === item.id
+            )
+          ) {
+
+            selected.push(item);
+
+          }
+
+
+          if (selected.length >= 3)
+            break;
+
+        }
+
+      }
+
+
+      currentLookItems =
+        selected;
+
+
+      const preview =
+        document.getElementById(
+          "lookPreview"
+        );
+
+
+      preview.innerHTML =
+        selected
+          .map(
+            item => `
+
+              <div class="look-item">
+
+                <div
+                  id="look-photo-${item.id}"
+                  style="
+                    width:100%;
+                    aspect-ratio:1;
+                    border-radius:10px;
+                    background:#eee;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                  "
+                >
+                  👕
+                </div>
+
+                <div class="look-item-name">
+                  ${escapeHtml(item.name)}
+                </div>
+
+              </div>
+
+            `
+          )
+          .join("");
+
+
+      document
+        .getElementById("lookName")
+        .value = "";
+
+
+      document
+        .getElementById("lookModal")
+        .classList.remove("hidden");
+
+
+      /*
+       * Load signed private image URLs.
+       */
+
+      for (const item of selected) {
+
+        if (!item.photo_url)
+          continue;
+
+
+        const {
+          data
+        } =
+          await supabaseClient
+            .storage
+            .from("wardrobe-photos")
+            .createSignedUrl(
+              item.photo_url,
+              3600
+            );
+
+
+        if (
+          !data ||
+          !data.signedUrl
+        )
+          continue;
+
+
+        const box =
+          document.getElementById(
+            "look-photo-" + item.id
+          );
+
+
+        if (box) {
+
+          box.innerHTML = `
+
+            <img
+              src="${data.signedUrl}"
+              style="
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                border-radius:10px;
+              "
+            >
+
+          `;
+
+        }
+
+      }
+
+    }
+
+
+    function closeLookModal() {
+
+      document
+        .getElementById("lookModal")
+        .classList.add("hidden");
+
+    }
+
+
+    async function saveLook() {
+
+      const name =
+        document
+          .getElementById("lookName")
+          .value
+          .trim() ||
+        "My Look";
+
+
+      if (!currentLookItems.length)
+        return;
+
+
+      /*
+       * Create saved look.
+       */
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("saved_looks")
+          .insert({
+
+            user_id:
+              currentUser.id,
+
+            name: name
+
+          })
+          .select()
+          .single();
+
+
+      if (error) {
+
+        alert(error.message);
+
+        return;
+      }
+
+
+      /*
+       * Add clothing items to look.
+       */
+
+      const rows =
+        currentLookItems.map(
+          item => ({
+
+            look_id:
+              data.id,
+
+            clothing_item_id:
+              item.id
+
+          })
+        );
+
+
+      const {
+        error: itemError
+      } =
+        await supabaseClient
+          .from("look_items")
+          .insert(rows);
+
+
+      if (itemError) {
+
+        alert(itemError.message);
+
+        return;
+      }
+
+
+      closeLookModal();
+
+      await loadAllData();
+
+      showPage("looks");
+
+    }
+
+
+    async function renderLooks() {
+
+      const container =
+        document.getElementById(
+          "looksContainer"
+        );
+
+
+      if (!savedLooks.length) {
+
+        container.innerHTML = `
+
+          <div class="empty">
+
+            <div style="font-size:45px;">
+              ✨
             </div>
 
+            <h3>No saved looks yet</h3>
+
+            <p>
+              Create a look from your wardrobe
+              and save it here.
+            </p>
+
             <button
-              class="delete-look"
-              onclick="deleteLook('${look.id}')"
+              class="primary-btn"
+              onclick="createLook()"
             >
-              🗑️ Delete Look
+              ✨ Create Look
             </button>
 
           </div>
 
         `;
 
-      });
+        return;
+      }
 
 
-    area.innerHTML = html;
-  }
+      container.innerHTML = "";
 
 
-  function deleteLook(lookId) {
+      /*
+       * Load all look items in one query.
+       */
 
-    const confirmed =
-      confirm(
-        "Delete this saved look?"
-      );
-
-
-    if (!confirmed) return;
-
-
-    looks =
-      looks.filter(
-        look =>
-          look.id !== lookId
-      );
+      const {
+        data: lookItems,
+        error
+      } =
+        await supabaseClient
+          .from("look_items")
+          .select("*");
 
 
-    saveData();
+      if (error) {
 
-    renderLooks();
+        container.innerHTML =
+          `<div class="empty">
+            Could not load looks.
+          </div>`;
 
-    showToast(
-      "Look deleted."
-    );
-  }
-
-
-  /* =========================
-     UTILITIES
-  ========================= */
-
-  function showToast(message) {
-
-    const toast =
-      document.getElementById(
-        "toast"
-      );
+        return;
+      }
 
 
-    toast.textContent =
-      message;
+      for (const look of savedLooks) {
+
+        const items =
+          (lookItems || [])
+            .filter(
+              item =>
+                item.look_id === look.id
+            )
+            .map(
+              link =>
+                clothes.find(
+                  clothing =>
+                    clothing.id ===
+                    link.clothing_item_id
+                )
+            )
+            .filter(Boolean);
 
 
-    toast.classList.add(
-      "show"
-    );
+        const card =
+          document.createElement(
+            "div"
+          );
 
 
-    setTimeout(
-      () => {
+        card.className =
+          "look-card";
 
-        toast.classList.remove(
-          "show"
+
+        card.innerHTML = `
+
+          <div class="look-title">
+            ${escapeHtml(look.name)}
+          </div>
+
+          <div class="look-items">
+
+            ${
+              items.length
+                ? items
+                    .map(
+                      item => `
+
+                        <div
+                          class="look-item"
+                          id="saved-look-${look.id}-${item.id}"
+                        >
+
+                          <div
+                            style="
+                              width:100%;
+                              aspect-ratio:1;
+                              background:#eee;
+                              border-radius:10px;
+                              display:flex;
+                              align-items:center;
+                              justify-content:center;
+                            "
+                          >
+                            👕
+                          </div>
+
+                          <div class="look-item-name">
+                            ${escapeHtml(item.name)}
+                          </div>
+
+                        </div>
+
+                      `
+                    )
+                    .join("")
+                : `
+                    <div
+                      style="
+                        color:#888;
+                        grid-column:1/-1;
+                      "
+                    >
+                      No items
+                    </div>
+                  `
+            }
+
+          </div>
+
+          <button
+            class="delete-clothing"
+            onclick="deleteLook('${look.id}')"
+          >
+            🗑️ Delete Look
+          </button>
+
+        `;
+
+
+        container.appendChild(card);
+
+
+        /*
+         * Load private signed photos.
+         */
+
+        for (const item of items) {
+
+          if (!item.photo_url)
+            continue;
+
+
+          const {
+            data
+          } =
+            await supabaseClient
+              .storage
+              .from("wardrobe-photos")
+              .createSignedUrl(
+                item.photo_url,
+                3600
+              );
+
+
+          if (
+            !data ||
+            !data.signedUrl
+          )
+            continue;
+
+
+          const box =
+            document.getElementById(
+              `saved-look-${look.id}-${item.id}`
+            );
+
+
+          if (box) {
+
+            const imageBox =
+              box.querySelector(
+                "div"
+              );
+
+
+            imageBox.innerHTML = `
+
+              <img
+                src="${data.signedUrl}"
+                style="
+                  width:100%;
+                  height:100%;
+                  object-fit:cover;
+                  border-radius:10px;
+                "
+              >
+
+            `;
+
+          }
+
+        }
+
+      }
+
+    }
+
+
+    async function deleteLook(id) {
+
+      const look =
+        savedLooks.find(
+          item =>
+            item.id === id
         );
 
-      },
-      2500
-    );
 
-  }
+      if (!look) return;
 
 
-  function escapeHTML(value) {
+      const confirmed =
+        confirm(
+          `Delete "${look.name}"?`
+        );
 
-    if (!value) return "";
+
+      if (!confirmed)
+        return;
 
 
-    return String(value)
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("saved_looks")
+          .delete()
+          .eq("id", id);
+
+
+      if (error) {
+
+        alert(error.message);
+
+        return;
+      }
+
+
+      await loadAllData();
+
+      renderLooks();
+
+    }
+
+
+    /* =====================================================
+       SECURITY / HTML ESCAPING
+       ===================================================== */
+
+    function escapeHtml(value) {
+
+      if (value === null ||
+          value === undefined) {
+
+        return "";
+
+      }
+
+
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    /* =====================================================
+       CLOSE MODALS WHEN CLICKING BACKGROUND
+       ===================================================== */
+
+    document
+      .getElementById("categoryModal")
+      .addEventListener(
+        "click",
+        function(event) {
+
+          if (
+            event.target === this
+          ) {
+
+            closeCategoryModal();
+
+          }
+
+        }
       );
 
-  }
 
+    document
+      .getElementById("clothingModal")
+      .addEventListener(
+        "click",
+        function(event) {
 
-  /* =========================
-     CLOSE MODALS WHEN
-     CLICKING OUTSIDE
-  ========================= */
+          if (
+            event.target === this
+          ) {
 
-  document
-    .getElementById("categoryModal")
-    .addEventListener(
-      "click",
-      function(event) {
+            closeClothingModal();
 
-        if (
-          event.target === this
-        ) {
-
-          closeCategoryModal();
+          }
 
         }
-
-      }
-    );
+      );
 
 
-  document
-    .getElementById("itemModal")
-    .addEventListener(
-      "click",
-      function(event) {
+    document
+      .getElementById("lookModal")
+      .addEventListener(
+        "click",
+        function(event) {
 
-        if (
-          event.target === this
-        ) {
+          if (
+            event.target === this
+          ) {
 
-          closeItemModal();
+            closeLookModal();
 
-        }
-
-      }
-    );
-
-
-  document
-    .getElementById("deleteCategoryModal")
-    .addEventListener(
-      "click",
-      function(event) {
-
-        if (
-          event.target === this
-        ) {
-
-          closeDeleteCategoryModal();
+          }
 
         }
+      );
 
-      }
-    );
 
-</script>
+    /* =====================================================
+       SERVICE WORKER
+       ===================================================== */
+
+    if (
+      "serviceWorker" in navigator
+    ) {
+
+      window.addEventListener(
+        "load",
+        function() {
+
+          navigator.serviceWorker
+            .register(
+              "./service-worker.js"
+            )
+            .catch(
+              error =>
+                console.log(
+                  "Service worker registration failed:",
+                  error
+                )
+            );
+
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    checkSession();
+
+  </script>
 
 </body>
 </html>
