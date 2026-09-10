@@ -2,1615 +2,2137 @@
 
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1, viewport-fit=cover"
+<meta name="theme-color" content="#faf9f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="My Wardrobe">
 
->
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
 
-  <meta name="theme-color" content="#faf9f7">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="My Wardrobe">
+<title>My Wardrobe</title>
 
-  <link rel="manifest" href="./manifest.json">
-  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+<style>
+*{
+  box-sizing:border-box;
+}
 
-  <title>My Wardrobe</title>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#faf9f7;
+  color:#171717;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+header{
+  padding:22px 18px 10px;
+  position:sticky;
+  top:0;
+  background:rgba(250,249,247,.95);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  z-index:5;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #faf9f7;
-      color: #171717;
-    }
+h1{
+  margin:0 0 15px;
+  font-size:28px;
+}
 
-    header {
-      padding: 22px 18px 10px;
-      position: sticky;
-      top: 0;
-      background: rgba(250, 249, 247, 0.94);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      z-index: 5;
-    }
+h2{
+  margin:0;
+}
 
-    h1 {
-      margin: 0 0 15px;
-      font-size: 28px;
-    }
+.search{
+  width:100%;
+  padding:13px 15px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  background:white;
+  font-size:15px;
+  outline:none;
+}
 
-    h2 {
-      margin: 0;
-    }
+.search:focus{
+  border-color:#999;
+}
 
-    .search {
-      width: 100%;
-      padding: 13px 15px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background: white;
-      font-size: 15px;
-      outline: none;
-    }
+main{
+  padding:10px 18px 110px;
+  max-width:1000px;
+  margin:auto;
+}
 
-    .search:focus {
-      border-color: #999;
-    }
+.title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:14px 0;
+}
 
-    nav {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 12px 0;
-      scrollbar-width: none;
-    }
+.count{
+  color:#777;
+  font-size:14px;
+}
 
-    nav::-webkit-scrollbar {
-      display: none;
-    }
+/* CATEGORY GRID */
 
-    .chip {
-      border: 0;
-      background: #eee;
-      padding: 9px 14px;
-      border-radius: 20px;
-      white-space: nowrap;
-      cursor: pointer;
-    }
+.category-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+}
 
-    .chip.active {
-      background: #171717;
-      color: white;
-    }
+.category-card{
+  background:white;
+  border-radius:18px;
+  padding:22px 16px;
+  min-height:145px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  cursor:pointer;
+  border:0;
+  text-align:left;
+}
 
-    main {
-      padding: 8px 18px 110px;
-    }
+.category-icon{
+  font-size:45px;
+  margin-bottom:14px;
+}
 
-    .title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 12px 0;
-    }
+.category-name{
+  font-size:17px;
+  font-weight:600;
+}
 
-    .count {
-      color: #777;
-      font-size: 14px;
-    }
+.category-count{
+  margin-top:5px;
+  color:#777;
+  font-size:13px;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
+/* CLOTHING GRID */
 
-    .card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    }
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
 
-    .photo {
-      height: 210px;
-      background: #f0efed;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 58px;
-      overflow: hidden;
-    }
+.card{
+  background:white;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
 
-    .photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+.photo{
+  height:210px;
+  background:#f0efed;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:58px;
+  overflow:hidden;
+}
 
-    .info {
-      padding: 11px;
-    }
+.photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 
-    .name {
-      font-weight: 600;
-    }
+.info{
+  padding:11px;
+}
 
-    .meta {
-      font-size: 13px;
-      color: #777;
-      margin-top: 4px;
-    }
+.name{
+  font-weight:600;
+}
 
-    .fab {
-      position: fixed;
-      right: 20px;
-      bottom: 80px;
-      border: 0;
-      background: #171717;
-      color: white;
-      border-radius: 30px;
-      padding: 15px 20px;
-      font-size: 15px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      z-index: 9;
-    }
+.meta{
+  font-size:13px;
+  color:#777;
+  margin-top:4px;
+}
 
-    .bottom {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 4px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom));
-      z-index: 10;
-    }
+/* BUTTONS */
 
-    .bottom button {
-      border: 0;
-      background: none;
-      padding: 6px 12px;
-      color: #666;
-      cursor: pointer;
-      font-size: 13px;
-    }
+.button-row{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
 
-    .bottom .sel {
-      color: #111;
-      font-weight: bold;
-    }
+.action-button{
+  flex:1;
+  padding:13px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  background:white;
+  cursor:pointer;
+  font-size:14px;
+}
 
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      z-index: 20;
-      align-items: flex-end;
-    }
+.primary{
+  background:#171717!important;
+  color:white!important;
+  border-color:#171717!important;
+}
 
-    .modal.open {
-      display: flex;
-    }
+.fab{
+  position:fixed;
+  right:20px;
+  bottom:80px;
+  border:0;
+  background:#171717;
+  color:white;
+  border-radius:30px;
+  padding:15px 20px;
+  font-size:15px;
+  box-shadow:0 5px 20px rgba(0,0,0,.2);
+  cursor:pointer;
+  z-index:9;
+}
 
-    .sheet {
-      background: white;
-      width: 100%;
-      border-radius: 22px 22px 0 0;
-      padding: 20px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
+/* BOTTOM NAV */
 
-    .sheet h2 {
-      margin-top: 0;
-    }
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:white;
+  border-top:1px solid #eee;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 4px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom));
+  z-index:10;
+}
 
-    label {
-      display: block;
-      font-size: 13px;
-      color: #555;
-      margin: 12px 0 5px;
-    }
+.bottom button{
+  border:0;
+  background:none;
+  padding:6px 12px;
+  color:#666;
+  cursor:pointer;
+  font-size:13px;
+}
 
-    input,
-    select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 15px;
-      background: white;
-    }
+.bottom .sel{
+  color:#111;
+  font-weight:bold;
+}
 
-    .preview {
-      height: 170px;
-      border-radius: 14px;
-      background: #f1f0ee;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      font-size: 50px;
-      margin-bottom: 4px;
-    }
+/* MODAL */
 
-    .preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:20;
+  align-items:flex-end;
+}
 
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-    }
+.modal.open{
+  display:flex;
+}
 
-    .actions button {
-      flex: 1;
-      padding: 13px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      background: white;
-      cursor: pointer;
-    }
+.sheet{
+  background:white;
+  width:100%;
+  border-radius:22px 22px 0 0;
+  padding:20px;
+  max-height:90vh;
+  overflow-y:auto;
+}
 
-    .primary {
-      background: #171717 !important;
-      color: white !important;
-      border-color: #171717 !important;
-    }
+.sheet h2{
+  margin-top:0;
+}
 
-    .look {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      margin-top: 14px;
-    }
+label{
+  display:block;
+  font-size:13px;
+  color:#555;
+  margin:12px 0 5px;
+}
 
-    .lookrow {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-top: 12px;
-      scrollbar-width: none;
-    }
+input,
+select{
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
+  background:white;
+}
 
-    .lookrow::-webkit-scrollbar {
-      display: none;
-    }
+.preview{
+  height:170px;
+  border-radius:14px;
+  background:#f1f0ee;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  font-size:50px;
+}
 
-    .mini {
-      min-width: 120px;
-      background: #f2f1ef;
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 8px;
-      cursor: pointer;
-      text-align: left;
-    }
+.preview img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
 
-    .mini.selected {
-      border-color: #171717;
-    }
+/* LOOKS */
 
-    .mini .photo {
-      height: 100px;
-      background: transparent;
-      font-size: 34px;
-      border-radius: 8px;
-    }
+.look{
+  background:white;
+  border-radius:16px;
+  padding:16px;
+  margin-top:14px;
+}
 
-    .mini b {
-      display: block;
-      font-size: 13px;
-      padding: 6px 2px 2px;
-    }
+.lookrow{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding-top:12px;
+}
 
-    .empty {
-      text-align: center;
-      padding: 50px 20px;
-      color: #777;
-    }
+.mini{
+  min-width:120px;
+  background:#f2f1ef;
+  border:2px solid transparent;
+  border-radius:12px;
+  padding:8px;
+  cursor:pointer;
+  text-align:left;
+}
 
-    .saved-item {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      margin-top: 14px;
-    }
+.mini.selected{
+  border-color:#171717;
+}
 
-    .saved-items {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      margin-top: 12px;
-    }
+.mini .photo{
+  height:100px;
+  background:transparent;
+  font-size:34px;
+}
 
-    .saved-mini {
-      min-width: 95px;
-      text-align: center;
-      font-size: 12px;
-    }
+.mini b{
+  display:block;
+  font-size:13px;
+  padding:6px 2px 2px;
+}
 
-    .saved-mini .photo {
-      height: 90px;
-      border-radius: 12px;
-      font-size: 32px;
-    }
+/* SAVED LOOKS */
 
-    .delete-look {
-      margin-top: 14px;
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+.saved-item{
+  background:white;
+  border-radius:16px;
+  padding:16px;
+  margin-top:14px;
+}
 
-    @media (min-width: 700px) {
-      main {
-        max-width: 900px;
-        margin: auto;
-      }
+.saved-items{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  margin-top:12px;
+}
 
-      header {
-        padding-left: max(18px, calc((100vw - 900px) / 2));
-        padding-right: max(18px, calc((100vw - 900px) / 2));
-      }
+.saved-mini{
+  min-width:95px;
+  text-align:center;
+  font-size:12px;
+}
 
-      .grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
+.saved-mini .photo{
+  height:90px;
+  border-radius:12px;
+  font-size:32px;
+}
 
-      .bottom {
-        max-width: 700px;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        width: 100%;
-        border-radius: 18px 18px 0 0;
-      }
-    }
-  </style>
+.delete-button{
+  width:100%;
+  padding:10px;
+  margin-top:14px;
+  border:1px solid #ddd;
+  background:white;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* EMPTY */
+
+.empty{
+  text-align:center;
+  padding:50px 20px;
+  color:#777;
+}
+
+.back-button{
+  border:0;
+  background:none;
+  padding:0;
+  font-size:15px;
+  cursor:pointer;
+  margin-bottom:15px;
+}
+
+/* DESKTOP */
+
+@media(min-width:700px){
+
+  .category-grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .bottom{
+    max-width:700px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+    width:100%;
+    border-radius:18px 18px 0 0;
+  }
+}
+</style>
 
 </head>
 
 <body>
 
-  <header>
-    <h1>MY WARDROBE</h1>
+<header>
 
-```
+<h1>MY WARDROBE</h1>
+
 <input
-  id="searchInput"
-  class="search"
-  type="search"
-  placeholder="🔍 Search my clothes"
-  autocomplete="off"
+id="searchInput"
+class="search"
+type="search"
+placeholder="🔍 Search my wardrobe"
+autocomplete="off"
+
 >
 
-<nav id="chips"></nav>
-```
+</header>
 
-  </header>
+<main id="app"></main>
 
-  <main id="app"></main>
+<button
+id="fab"
+class="fab"
+type="button"
 
-  <button id="addButton" class="fab" type="button">
-    ＋ Add Clothes
-  </button>
+>
 
-  <div class="bottom">
-    <button id="wardrobeBtn" class="sel" type="button">
-      👕<br>Wardrobe
-    </button>
+＋ Add Category </button>
 
-```
-<button id="lookBtn" type="button">
-  ✨<br>Create Look
-</button>
+<div class="bottom">
 
-<button id="savedBtn" type="button">
-  ♥<br>Saved Looks
-</button>
-```
+<button
+id="wardrobeBtn"
+class="sel"
+type="button"
 
-  </div>
+>
 
-  <!-- ADD CLOTHES MODAL -->
+👕<br>
+Wardrobe </button>
 
-  <div id="modal" class="modal">
+<button
+id="lookBtn"
+type="button"
 
-```
-<div class="sheet">
+>
 
-  <h2>Add Clothes</h2>
+✨<br>
+Create Look </button>
 
-  <div id="preview" class="preview">📷</div>
+<button
+id="savedBtn"
+type="button"
 
-  <label for="photoInput">Photo</label>
+>
 
-  <input
-    id="photoInput"
-    type="file"
-    accept="image/*"
-  >
-
-  <label for="nameInput">Item name</label>
-
-  <input
-    id="nameInput"
-    type="text"
-    placeholder="e.g. White Oxford Shirt"
-  >
-
-  <label for="categoryInput">Category</label>
-
-  <select id="categoryInput">
-    <option value="Shirts">Shirts</option>
-    <option value="Pants">Pants</option>
-    <option value="Jackets">Jackets</option>
-    <option value="Shoes">Shoes</option>
-    <option value="Accessories">Accessories</option>
-    <option value="Shorts">Shorts</option>
-    <option value="Other">Other</option>
-  </select>
-
-  <label for="colorInput">Colour</label>
-
-  <input
-    id="colorInput"
-    type="text"
-    placeholder="e.g. White"
-  >
-
-  <label for="brandInput">Brand (optional)</label>
-
-  <input
-    id="brandInput"
-    type="text"
-    placeholder="e.g. Zara"
-  >
-
-  <div class="actions">
-
-    <button id="cancelButton" type="button">
-      Cancel
-    </button>
-
-    <button id="saveButton" class="primary" type="button">
-      Add to Wardrobe
-    </button>
-
-  </div>
+♥<br>
+Saved Looks </button>
 
 </div>
-```
 
-  </div>
+<!-- ADD CATEGORY MODAL -->
 
-  <script>
+<div id="categoryModal" class="modal">
 
-    /* =========================================
-       MY WARDROBE
-       Main application
-       ========================================= */
+<div class="sheet">
 
-    var ITEMS_KEY = "myWardrobeItems";
-    var LOOKS_KEY = "myWardrobeLooks";
+<h2>Add Category</h2>
 
-    var currentCategory = "All";
-    var currentPage = "wardrobe";
-    var previewData = "";
+<label for="categoryName">
+Category name
+</label>
 
-    var selected = {
-      shirt: null,
-      pants: null,
-      shoes: null
-    };
+<input
+id="categoryName"
+type="text"
+placeholder="e.g. Shirts, Gym Clothes, Work Clothes"
 
-    var categories = [
-      "All",
-      "Shirts",
-      "Pants",
-      "Jackets",
-      "Shoes",
-      "Accessories",
-      "Shorts",
-      "Other"
-    ];
+>
 
-    var defaultItems = [
-      {
-        id: "default-1",
-        name: "White Shirt",
-        category: "Shirts",
-        color: "White",
-        brand: "",
-        emoji: "👕"
-      },
-      {
-        id: "default-2",
-        name: "Black Shirt",
-        category: "Shirts",
-        color: "Black",
-        brand: "",
-        emoji: "👕"
-      },
-      {
-        id: "default-3",
-        name: "Blue Shirt",
-        category: "Shirts",
-        color: "Blue",
-        brand: "",
-        emoji: "👕"
-      },
-      {
-        id: "default-4",
-        name: "Black Pants",
-        category: "Pants",
-        color: "Black",
-        brand: "",
-        emoji: "👖"
-      },
-      {
-        id: "default-5",
-        name: "Beige Chinos",
-        category: "Pants",
-        color: "Beige",
-        brand: "",
-        emoji: "👖"
-      },
-      {
-        id: "default-6",
-        name: "White Sneakers",
-        category: "Shoes",
-        color: "White",
-        brand: "",
-        emoji: "👟"
-      }
-    ];
+<label for="categoryIcon">
+Category icon
+</label>
 
-    var items = loadData(ITEMS_KEY);
-    var looks = loadData(LOOKS_KEY);
+<input
+id="categoryIcon"
+type="text"
+placeholder="e.g. 👕"
+maxlength="2"
 
-    if (!Array.isArray(items) || items.length === 0) {
-      items = defaultItems.slice();
-      saveData(ITEMS_KEY, items);
+>
+
+<div class="button-row">
+
+<button
+id="cancelCategory"
+class="action-button"
+type="button"
+
+>
+
+Cancel </button>
+
+<button
+id="saveCategory"
+class="action-button primary"
+type="button"
+
+>
+
+Add Category </button>
+
+</div>
+
+</div>
+</div>
+
+<!-- ADD CLOTHES MODAL -->
+
+<div id="clothesModal" class="modal">
+
+<div class="sheet">
+
+<h2>Add Clothes</h2>
+
+<div
+  id="preview"
+  class="preview"
+>
+📷
+</div>
+
+<label for="photoInput">
+Photo
+</label>
+
+<input
+id="photoInput"
+type="file"
+accept="image/*"
+
+>
+
+<label for="itemName">
+Item name
+</label>
+
+<input
+id="itemName"
+type="text"
+placeholder="e.g. White Oxford Shirt"
+
+>
+
+<label>
+Category
+</label>
+
+<input
+id="selectedCategoryDisplay"
+type="text"
+disabled
+
+>
+
+<label for="itemColor">
+Colour
+</label>
+
+<input
+id="itemColor"
+type="text"
+placeholder="e.g. White"
+
+>
+
+<label for="itemBrand">
+Brand (optional)
+</label>
+
+<input
+id="itemBrand"
+type="text"
+placeholder="e.g. Zara"
+
+>
+
+<div class="button-row">
+
+<button
+id="cancelClothes"
+class="action-button"
+type="button"
+
+>
+
+Cancel </button>
+
+<button
+id="saveClothes"
+class="action-button primary"
+type="button"
+
+>
+
+Add to Wardrobe </button>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+/* =========================================
+   STORAGE
+========================================= */
+
+var CATEGORY_KEY = "myWardrobeCategories";
+var ITEM_KEY = "myWardrobeItems";
+var LOOK_KEY = "myWardrobeLooks";
+
+
+function load(key){
+
+  try{
+
+    var data = localStorage.getItem(key);
+
+    if(!data){
+      return [];
     }
 
-    if (!Array.isArray(looks)) {
-      looks = [];
+    return JSON.parse(data);
+
+  }catch(error){
+
+    console.error(error);
+
+    return [];
+  }
+}
+
+
+function save(key,data){
+
+  try{
+
+    localStorage.setItem(
+      key,
+      JSON.stringify(data)
+    );
+
+    return true;
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Your browser could not save this information. " +
+      "If you uploaded a large photo, try a smaller image."
+    );
+
+    return false;
+  }
+}
+
+
+var categories = load(CATEGORY_KEY);
+var items = load(ITEM_KEY);
+var looks = load(LOOK_KEY);
+
+
+/* =========================================
+   APP STATE
+========================================= */
+
+var currentPage = "categories";
+var currentCategoryId = null;
+var previewData = "";
+
+var selected = {
+  shirt:null,
+  pants:null,
+  shoes:null
+};
+
+
+/* =========================================
+   DOM
+========================================= */
+
+var app = document.getElementById("app");
+var searchInput = document.getElementById("searchInput");
+var fab = document.getElementById("fab");
+
+var wardrobeBtn = document.getElementById("wardrobeBtn");
+var lookBtn = document.getElementById("lookBtn");
+var savedBtn = document.getElementById("savedBtn");
+
+
+var categoryModal =
+  document.getElementById("categoryModal");
+
+var clothesModal =
+  document.getElementById("clothesModal");
+
+
+var categoryName =
+  document.getElementById("categoryName");
+
+var categoryIcon =
+  document.getElementById("categoryIcon");
+
+
+var photoInput =
+  document.getElementById("photoInput");
+
+var preview =
+  document.getElementById("preview");
+
+var itemName =
+  document.getElementById("itemName");
+
+var itemColor =
+  document.getElementById("itemColor");
+
+var itemBrand =
+  document.getElementById("itemBrand");
+
+var selectedCategoryDisplay =
+  document.getElementById("selectedCategoryDisplay");
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHTML(value){
+
+  if(value === null || value === undefined){
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+/* =========================================
+   CATEGORY COUNT
+========================================= */
+
+function countItems(categoryId){
+
+  var count = 0;
+
+  for(var i=0;i<items.length;i++){
+
+    if(items[i].categoryId === categoryId){
+      count++;
     }
+  }
+
+  return count;
+}
 
 
-    /* =========================================
-       DOM ELEMENTS
-       ========================================= */
+/* =========================================
+   RENDER
+========================================= */
 
-    var app = document.getElementById("app");
-    var chips = document.getElementById("chips");
-    var searchInput = document.getElementById("searchInput");
+function render(){
 
-    var addButton = document.getElementById("addButton");
+  if(currentPage === "categories"){
 
-    var wardrobeBtn = document.getElementById("wardrobeBtn");
-    var lookBtn = document.getElementById("lookBtn");
-    var savedBtn = document.getElementById("savedBtn");
+    renderCategories();
 
-    var modal = document.getElementById("modal");
+  }else if(currentPage === "items"){
 
-    var preview = document.getElementById("preview");
-    var photoInput = document.getElementById("photoInput");
+    renderCategoryItems();
 
-    var nameInput = document.getElementById("nameInput");
-    var categoryInput = document.getElementById("categoryInput");
-    var colorInput = document.getElementById("colorInput");
-    var brandInput = document.getElementById("brandInput");
+  }else if(currentPage === "looks"){
 
-    var cancelButton = document.getElementById("cancelButton");
-    var saveButton = document.getElementById("saveButton");
+    renderLooks();
+
+  }else if(currentPage === "saved"){
+
+    renderSavedLooks();
+  }
+}
 
 
-    /* =========================================
-       LOCAL STORAGE
-       ========================================= */
+/* =========================================
+   CATEGORY PAGE
+========================================= */
 
-    function loadData(key) {
-      try {
-        var data = localStorage.getItem(key);
+function renderCategories(){
 
-        if (!data) {
-          return [];
-        }
+  searchInput.placeholder =
+    "🔍 Search categories";
 
-        return JSON.parse(data);
+  fab.style.display = "block";
+  fab.textContent = "＋ Add Category";
 
-      } catch (error) {
-        console.error("Could not load data:", error);
-        return [];
-      }
+
+  var query =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+
+  var filtered = categories.filter(
+    function(category){
+
+      return category.name
+        .toLowerCase()
+        .indexOf(query) !== -1;
     }
+  );
 
 
-    function saveData(key, data) {
-      try {
-        localStorage.setItem(key, JSON.stringify(data));
-        return true;
+  var html =
+    '<div class="title">' +
 
-      } catch (error) {
-        console.error("Could not save data:", error);
+      "<h2>My Categories</h2>" +
 
-        alert(
-          "Your browser could not save this item. " +
-          "The photo may be too large. Try a smaller photo."
-        );
+      '<span class="count">' +
+        categories.length +
+        " categories" +
+      "</span>" +
 
-        return false;
-      }
-    }
+    "</div>";
 
 
-    /* =========================================
-       ESCAPE HTML
-       ========================================= */
+  if(filtered.length === 0){
 
-    function escapeHTML(value) {
+    html +=
+      '<div class="empty">' +
 
-      if (value === null || value === undefined) {
-        return "";
-      }
+        "You haven't created any categories yet." +
 
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+        "<br><br>" +
+
+        "Tap ＋ Add Category to create your first one." +
+
+      "</div>";
+
+  }else{
+
+    html +=
+      '<div class="category-grid">';
 
 
-    /* =========================================
-       CATEGORY BUTTONS
-       ========================================= */
+    for(var i=0;i<filtered.length;i++){
 
-    function renderChips() {
+      var category = filtered[i];
 
-      var html = "";
+      html +=
 
-      for (var i = 0; i < categories.length; i++) {
+        '<button ' +
 
-        var category = categories[i];
+          'class="category-card" ' +
 
-        html +=
-          '<button type="button" class="chip ' +
-          (category === currentCategory ? "active" : "") +
-          '" data-category="' +
-          escapeHTML(category) +
+          'type="button" ' +
+
+          'data-id="' +
+            escapeHTML(category.id) +
           '">' +
-          escapeHTML(category) +
-          "</button>";
-      }
 
-      chips.innerHTML = html;
-
-      var chipButtons = chips.querySelectorAll(".chip");
-
-      for (var j = 0; j < chipButtons.length; j++) {
-
-        chipButtons[j].addEventListener("click", function () {
-
-          currentCategory = this.getAttribute("data-category");
-
-          showWardrobe();
-        });
-      }
-    }
-
-
-    /* =========================================
-       PAGE NAVIGATION
-       ========================================= */
-
-    function updateBottomButtons() {
-
-      wardrobeBtn.classList.remove("sel");
-      lookBtn.classList.remove("sel");
-      savedBtn.classList.remove("sel");
-
-      if (currentPage === "wardrobe") {
-        wardrobeBtn.classList.add("sel");
-      }
-
-      if (currentPage === "looks") {
-        lookBtn.classList.add("sel");
-      }
-
-      if (currentPage === "saved") {
-        savedBtn.classList.add("sel");
-      }
-    }
-
-
-    function showWardrobe() {
-
-      currentPage = "wardrobe";
-
-      addButton.style.display = "block";
-
-      updateBottomButtons();
-      renderChips();
-      render();
-    }
-
-
-    function showLooks() {
-
-      currentPage = "looks";
-
-      addButton.style.display = "none";
-
-      updateBottomButtons();
-      renderChips();
-      render();
-    }
-
-
-    function showSaved() {
-
-      currentPage = "saved";
-
-      addButton.style.display = "none";
-
-      updateBottomButtons();
-      renderChips();
-      render();
-    }
-
-
-    /* =========================================
-       SEARCH
-       ========================================= */
-
-    searchInput.addEventListener("input", function () {
-      render();
-    });
-
-
-    /* =========================================
-       CREATE ITEM CARD
-       ========================================= */
-
-    function createCard(item) {
-
-      var imageHTML = "";
-
-      if (item.photo) {
-
-        imageHTML =
-          '<img src="' +
-          item.photo +
-          '" alt="' +
-          escapeHTML(item.name) +
-          '">';
-
-      } else {
-
-        imageHTML = escapeHTML(item.emoji || "👕");
-      }
-
-      return (
-        '<div class="card">' +
-
-          '<div class="photo">' +
-            imageHTML +
+          '<div class="category-icon">' +
+            escapeHTML(category.icon || "👕") +
           "</div>" +
 
-          '<div class="info">' +
-
-            '<div class="name">' +
-              escapeHTML(item.name) +
-            "</div>" +
-
-            '<div class="meta">' +
-              escapeHTML(item.category) +
-              (item.color ? " · " + escapeHTML(item.color) : "") +
-            "</div>" +
-
-            (item.brand
-              ? '<div class="meta">' +
-                escapeHTML(item.brand) +
-                "</div>"
-              : "") +
-
+          '<div class="category-name">' +
+            escapeHTML(category.name) +
           "</div>" +
 
-        "</div>"
-      );
+          '<div class="category-count">' +
+            countItems(category.id) +
+            (
+              countItems(category.id) === 1
+                ? " item"
+                : " items"
+            ) +
+          "</div>" +
+
+        "</button>";
     }
 
 
-    /* =========================================
-       RENDER MAIN PAGE
-       ========================================= */
+    html += "</div>";
+  }
 
-    function render() {
 
-      if (currentPage === "wardrobe") {
+  app.innerHTML = html;
 
-        renderWardrobe();
 
-      } else if (currentPage === "looks") {
+  var buttons =
+    app.querySelectorAll(".category-card");
 
-        renderLooks();
 
-      } else if (currentPage === "saved") {
+  for(var j=0;j<buttons.length;j++){
 
-        renderSavedLooks();
+    buttons[j].addEventListener(
+      "click",
+      function(){
+
+        currentCategoryId =
+          this.getAttribute("data-id");
+
+        currentPage = "items";
+
+        searchInput.value = "";
+
+        render();
       }
-    }
+    );
+  }
+}
 
 
-    /* =========================================
-       WARDROBE
-       ========================================= */
+/* =========================================
+   CATEGORY ITEMS PAGE
+========================================= */
 
-    function renderWardrobe() {
+function renderCategoryItems(){
 
-      var query = searchInput.value
-        .trim()
-        .toLowerCase();
+  var category =
+    categories.find(
+      function(c){
+        return String(c.id) === String(currentCategoryId);
+      }
+    );
 
-      var filtered = [];
 
-      for (var i = 0; i < items.length; i++) {
+  if(!category){
 
-        var item = items[i];
+    currentPage = "categories";
 
-        var matchesCategory =
-          currentCategory === "All" ||
-          item.category === currentCategory;
+    render();
+
+    return;
+  }
+
+
+  searchInput.placeholder =
+    "🔍 Search clothes";
+
+
+  fab.style.display = "block";
+  fab.textContent = "＋ Add Clothes";
+
+
+  var query =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+
+  var categoryItems =
+    items.filter(
+      function(item){
+
+        var sameCategory =
+          String(item.categoryId) ===
+          String(currentCategoryId);
+
 
         var searchable =
           (
             (item.name || "") +
-            " " +
-            (item.category || "") +
             " " +
             (item.color || "") +
             " " +
             (item.brand || "")
           ).toLowerCase();
 
-        var matchesSearch =
-          searchable.indexOf(query) !== -1;
 
-        if (matchesCategory && matchesSearch) {
-          filtered.push(item);
-        }
-      }
-
-
-      var heading =
-        currentCategory === "All"
-          ? "All Clothes"
-          : currentCategory;
-
-
-      var html =
-        '<div class="title">' +
-
-          "<h2>" +
-            escapeHTML(heading) +
-          "</h2>" +
-
-          '<span class="count">' +
-            filtered.length +
-            " items" +
-          "</span>" +
-
-        "</div>";
-
-
-      if (filtered.length > 0) {
-
-        html += '<div class="grid">';
-
-        for (var j = 0; j < filtered.length; j++) {
-          html += createCard(filtered[j]);
-        }
-
-        html += "</div>";
-
-      } else {
-
-        html +=
-          '<div class="empty">' +
-            "No clothes found.<br><br>" +
-            "Tap ＋ Add Clothes to add something new." +
-          "</div>";
-      }
-
-
-      app.innerHTML = html;
-    }
-
-
-    /* =========================================
-       CREATE LOOK
-       ========================================= */
-
-    function renderLooks() {
-
-      var shirts = items.filter(function (item) {
-        return item.category === "Shirts";
-      });
-
-      var pants = items.filter(function (item) {
-        return item.category === "Pants";
-      });
-
-      var shoes = items.filter(function (item) {
-        return item.category === "Shoes";
-      });
-
-
-      var html =
-        '<div class="title">' +
-          "<h2>Create a Look</h2>" +
-        "</div>" +
-
-        '<div class="look">' +
-          "<b>1. Choose a shirt</b>" +
-          '<div class="lookrow">' +
-            createSelectionCards(shirts, "shirt") +
-          "</div>" +
-        "</div>" +
-
-        '<div class="look">' +
-          "<b>2. Choose pants</b>" +
-          '<div class="lookrow">' +
-            createSelectionCards(pants, "pants") +
-          "</div>" +
-        "</div>" +
-
-        '<div class="look">' +
-          "<b>3. Choose shoes</b>" +
-          '<div class="lookrow">' +
-            createSelectionCards(shoes, "shoes") +
-          "</div>" +
-        "</div>" +
-
-        '<button id="saveLookButton" ' +
-        'class="primary" ' +
-        'type="button" ' +
-        'style="width:100%;padding:14px;border-radius:12px;margin-top:16px;border:0;">' +
-          "♥ Save This Look" +
-        "</button>";
-
-
-      app.innerHTML = html;
-
-
-      var selectionButtons =
-        app.querySelectorAll(".mini");
-
-
-      for (var i = 0; i < selectionButtons.length; i++) {
-
-        selectionButtons[i].addEventListener(
-          "click",
-          function () {
-
-            var type =
-              this.getAttribute("data-type");
-
-            var itemId =
-              this.getAttribute("data-id");
-
-            choose(type, itemId);
-          }
+        return (
+          sameCategory &&
+          searchable.indexOf(query) !== -1
         );
       }
+    );
 
 
-      var saveLookButton =
-        document.getElementById("saveLookButton");
+  var html =
 
-      saveLookButton.addEventListener(
-        "click",
-        saveLook
+    '<button ' +
+      'class="back-button" ' +
+      'id="backToCategories" ' +
+      'type="button">' +
+      "← All Categories" +
+    "</button>" +
+
+
+    '<div class="title">' +
+
+      "<h2>" +
+
+        escapeHTML(category.icon || "👕") +
+        " " +
+        escapeHTML(category.name) +
+
+      "</h2>" +
+
+      '<span class="count">' +
+        categoryItems.length +
+        " items" +
+      "</span>" +
+
+    "</div>";
+
+
+  if(categoryItems.length === 0){
+
+    html +=
+
+      '<div class="empty">' +
+
+        "This category is empty." +
+
+        "<br><br>" +
+
+        "Tap ＋ Add Clothes to add your first item." +
+
+      "</div>";
+
+  }else{
+
+    html += '<div class="grid">';
+
+
+    for(var i=0;i<categoryItems.length;i++){
+
+      html += createClothingCard(
+        categoryItems[i]
       );
     }
 
 
-    function createSelectionCards(list, type) {
+    html += "</div>";
+  }
 
-      if (list.length === 0) {
 
-        return (
-          '<div style="padding:15px;color:#777;">' +
-            "No items available." +
-          "</div>"
-        );
+  app.innerHTML = html;
+
+
+  document
+    .getElementById("backToCategories")
+    .addEventListener(
+      "click",
+      function(){
+
+        currentCategoryId = null;
+        currentPage = "categories";
+        searchInput.value = "";
+
+        render();
       }
+    );
+}
 
 
-      var html = "";
+/* =========================================
+   CLOTHING CARD
+========================================= */
 
-      for (var i = 0; i < list.length; i++) {
+function createClothingCard(item){
 
-        var item = list[i];
+  var imageHTML = item.photo
 
-        var isSelected =
-          selected[type] &&
-          selected[type].id === item.id;
+    ?
 
+      '<img src="' +
+      item.photo +
+      '" alt="' +
+      escapeHTML(item.name) +
+      '">'
 
-        var imageHTML = "";
+    :
 
-        if (item.photo) {
-
-          imageHTML =
-            '<img src="' +
-            item.photo +
-            '" alt="' +
-            escapeHTML(item.name) +
-            '">';
-
-        } else {
-
-          imageHTML =
-            escapeHTML(item.emoji || "👕");
-        }
+      escapeHTML(item.emoji || "👕");
 
 
-        html +=
-          '<button type="button" ' +
-          'class="mini ' +
-          (isSelected ? "selected" : "") +
-          '" ' +
-          'data-type="' +
-          escapeHTML(type) +
-          '" ' +
-          'data-id="' +
-          escapeHTML(item.id) +
-          '">' +
+  return (
 
-            '<div class="photo">' +
-              imageHTML +
-            "</div>" +
+    '<div class="card">' +
 
-            "<b>" +
-              escapeHTML(item.name) +
-            "</b>" +
+      '<div class="photo">' +
+        imageHTML +
+      "</div>" +
 
-          "</button>";
+      '<div class="info">' +
+
+        '<div class="name">' +
+          escapeHTML(item.name) +
+        "</div>" +
+
+        (
+          item.color
+            ?
+              '<div class="meta">' +
+                escapeHTML(item.color) +
+              "</div>"
+            :
+              ""
+        ) +
+
+        (
+          item.brand
+            ?
+              '<div class="meta">' +
+                escapeHTML(item.brand) +
+              "</div>"
+            :
+              ""
+        ) +
+
+      "</div>" +
+
+    "</div>"
+  );
+}
+
+
+/* =========================================
+   ADD CATEGORY
+========================================= */
+
+function openCategoryModal(){
+
+  categoryModal.classList.add("open");
+
+  categoryName.focus();
+}
+
+
+function closeCategoryModal(){
+
+  categoryModal.classList.remove("open");
+
+  categoryName.value = "";
+  categoryIcon.value = "";
+}
+
+
+function saveCategory(){
+
+  var name =
+    categoryName.value.trim();
+
+
+  if(!name){
+
+    alert(
+      "Please enter a category name."
+    );
+
+    categoryName.focus();
+
+    return;
+  }
+
+
+  var exists =
+    categories.some(
+      function(category){
+
+        return category.name
+          .toLowerCase() ===
+          name.toLowerCase();
       }
+    );
 
-      return html;
+
+  if(exists){
+
+    alert(
+      "You already have a category with this name."
+    );
+
+    return;
+  }
+
+
+  var newCategory = {
+
+    id:
+      "category-" +
+      Date.now() +
+      "-" +
+      Math.random()
+        .toString(36)
+        .substring(2,8),
+
+    name:name,
+
+    icon:
+      categoryIcon.value.trim() ||
+      "👕"
+  };
+
+
+  categories.push(newCategory);
+
+
+  if(!save(CATEGORY_KEY,categories)){
+    return;
+  }
+
+
+  closeCategoryModal();
+
+  searchInput.value = "";
+
+  render();
+}
+
+
+/* =========================================
+   ADD CLOTHES
+========================================= */
+
+function openClothesModal(){
+
+  var category =
+    categories.find(
+      function(c){
+        return String(c.id) ===
+          String(currentCategoryId);
+      }
+    );
+
+
+  if(!category){
+
+    alert(
+      "Please open a category first."
+    );
+
+    return;
+  }
+
+
+  selectedCategoryDisplay.value =
+    category.name;
+
+
+  clothesModal.classList.add("open");
+
+  itemName.focus();
+}
+
+
+function closeClothesModal(){
+
+  clothesModal.classList.remove("open");
+
+  previewData = "";
+
+  photoInput.value = "";
+
+  preview.innerHTML = "📷";
+
+  itemName.value = "";
+  itemColor.value = "";
+  itemBrand.value = "";
+}
+
+
+photoInput.addEventListener(
+  "change",
+  function(event){
+
+    var file =
+      event.target.files &&
+      event.target.files[0];
+
+
+    if(!file){
+      return;
     }
 
 
-    function choose(type, itemId) {
-
-      var found = null;
-
-      for (var i = 0; i < items.length; i++) {
-
-        if (String(items[i].id) === String(itemId)) {
-
-          found = items[i];
-          break;
-        }
-      }
-
-      selected[type] = found;
-
-      render();
-    }
-
-
-    /* =========================================
-       SAVE LOOK
-       ========================================= */
-
-    function saveLook() {
-
-      var chosen = [];
-
-      if (selected.shirt) {
-        chosen.push(selected.shirt);
-      }
-
-      if (selected.pants) {
-        chosen.push(selected.pants);
-      }
-
-      if (selected.shoes) {
-        chosen.push(selected.shoes);
-      }
-
-
-      if (chosen.length < 2) {
-
-        alert(
-          "Choose at least two items first."
-        );
-
-        return;
-      }
-
-
-      looks.unshift(chosen);
-
-      if (!saveData(LOOKS_KEY, looks)) {
-        return;
-      }
-
-
-      selected = {
-        shirt: null,
-        pants: null,
-        shoes: null
-      };
-
-
-      showSaved();
-    }
-
-
-    /* =========================================
-       SAVED LOOKS
-       ========================================= */
-
-    function renderSavedLooks() {
-
-      var html =
-        '<div class="title">' +
-
-          "<h2>Saved Looks</h2>" +
-
-          '<span class="count">' +
-            looks.length +
-          "</span>" +
-
-        "</div>";
-
-
-      if (looks.length === 0) {
-
-        html +=
-          '<div class="empty">' +
-            "No saved looks yet.<br><br>" +
-            "Create a look and save it here." +
-          "</div>";
-
-        app.innerHTML = html;
-
-        return;
-      }
-
-
-      for (var i = 0; i < looks.length; i++) {
-
-        var look = looks[i];
-
-        html +=
-          '<div class="saved-item">' +
-
-            "<b>Look " +
-              (i + 1) +
-            "</b>" +
-
-            '<div class="saved-items">';
-
-
-        for (var j = 0; j < look.length; j++) {
-
-          var item = look[j];
-
-          var imageHTML = "";
-
-          if (item.photo) {
-
-            imageHTML =
-              '<img src="' +
-              item.photo +
-              '" alt="' +
-              escapeHTML(item.name) +
-              '">';
-
-          } else {
-
-            imageHTML =
-              escapeHTML(item.emoji || "👕");
-          }
-
-
-          html +=
-            '<div class="saved-mini">' +
-
-              '<div class="photo">' +
-                imageHTML +
-              "</div>" +
-
-              "<div>" +
-                escapeHTML(item.name) +
-              "</div>" +
-
-            "</div>";
-        }
-
-
-        html +=
-            "</div>" +
-
-            '<button ' +
-            'type="button" ' +
-            'class="delete-look" ' +
-            'data-index="' +
-            i +
-            '">' +
-              "Delete Look" +
-            "</button>" +
-
-          "</div>";
-      }
-
-
-      app.innerHTML = html;
-
-
-      var deleteButtons =
-        app.querySelectorAll(".delete-look");
-
-
-      for (var k = 0; k < deleteButtons.length; k++) {
-
-        deleteButtons[k].addEventListener(
-          "click",
-          function () {
-
-            var index =
-              parseInt(
-                this.getAttribute("data-index"),
-                10
-              );
-
-            deleteLook(index);
-          }
-        );
-      }
-    }
-
-
-    function deleteLook(index) {
-
-      if (!confirm("Delete this saved look?")) {
-        return;
-      }
-
-      looks.splice(index, 1);
-
-      saveData(LOOKS_KEY, looks);
-
-      renderSavedLooks();
-    }
-
-
-    /* =========================================
-       ADD CLOTHES MODAL
-       ========================================= */
-
-    function openAdd() {
-
-      modal.classList.add("open");
-
-      setTimeout(function () {
-        nameInput.focus();
-      }, 100);
-    }
-
-
-    function closeAdd() {
-
-      modal.classList.remove("open");
-
-      previewData = "";
+    if(!file.type.startsWith("image/")){
+
+      alert(
+        "Please choose an image."
+      );
 
       photoInput.value = "";
 
-      preview.innerHTML = "📷";
-
-      nameInput.value = "";
-      colorInput.value = "";
-      brandInput.value = "";
-
-      categoryInput.value = "Shirts";
+      return;
     }
 
 
-    addButton.addEventListener(
-      "click",
-      openAdd
-    );
+    var reader =
+      new FileReader();
 
 
-    cancelButton.addEventListener(
-      "click",
-      closeAdd
-    );
+    reader.onload =
+      function(){
+
+        previewData =
+          reader.result;
 
 
-    modal.addEventListener(
-      "click",
-      function (event) {
-
-        if (event.target === modal) {
-          closeAdd();
-        }
-      }
-    );
-
-
-    /* =========================================
-       PHOTO PREVIEW
-       ========================================= */
-
-    photoInput.addEventListener(
-      "change",
-      function (event) {
-
-        var file =
-          event.target.files &&
-          event.target.files[0];
-
-
-        if (!file) {
-          return;
-        }
-
-
-        if (!file.type.startsWith("image/")) {
-
-          alert("Please choose an image.");
-
-          photoInput.value = "";
-
-          return;
-        }
-
-
-        var reader =
-          new FileReader();
-
-
-        reader.onload = function () {
-
-          previewData =
-            reader.result;
-
-          preview.innerHTML =
-            '<img src="' +
-            previewData +
-            '" alt="Preview">';
-        };
-
-
-        reader.onerror = function () {
-
-          alert(
-            "The photo could not be loaded."
-          );
-        };
-
-
-        reader.readAsDataURL(file);
-      }
-    );
-
-
-    /* =========================================
-       CREATE EMOJI
-       ========================================= */
-
-    function getEmoji(category) {
-
-      if (category === "Shoes") {
-        return "👟";
-      }
-
-      if (
-        category === "Pants" ||
-        category === "Shorts"
-      ) {
-        return "👖";
-      }
-
-      if (category === "Accessories") {
-        return "⌚";
-      }
-
-      if (category === "Jackets") {
-        return "🧥";
-      }
-
-      return "👕";
-    }
-
-
-    /* =========================================
-       SAVE NEW CLOTHING ITEM
-       ========================================= */
-
-    saveButton.addEventListener(
-      "click",
-      saveItem
-    );
-
-
-    function saveItem() {
-
-      var itemName =
-        nameInput.value.trim();
-
-
-      if (!itemName) {
-
-        alert(
-          "Please enter an item name."
-        );
-
-        nameInput.focus();
-
-        return;
-      }
-
-
-      var newItem = {
-
-        id:
-          "item-" +
-          Date.now() +
-          "-" +
-          Math.random()
-            .toString(36)
-            .substring(2, 8),
-
-        name: itemName,
-
-        category:
-          categoryInput.value,
-
-        color:
-          colorInput.value.trim(),
-
-        brand:
-          brandInput.value.trim(),
-
-        emoji:
-          getEmoji(categoryInput.value),
-
-        photo:
-          previewData || ""
+        preview.innerHTML =
+          '<img src="' +
+          previewData +
+          '" alt="Preview">';
       };
 
 
-      items.unshift(newItem);
+    reader.onerror =
+      function(){
+
+        alert(
+          "The photo could not be loaded."
+        );
+      };
 
 
-      if (!saveData(ITEMS_KEY, items)) {
+    reader.readAsDataURL(file);
+  }
+);
 
-        items.shift();
 
-        return;
+function getEmoji(categoryName){
+
+  var name =
+    categoryName.toLowerCase();
+
+
+  if(
+    name.indexOf("shoe") !== -1 ||
+    name.indexOf("foot") !== -1
+  ){
+    return "👟";
+  }
+
+
+  if(
+    name.indexOf("pant") !== -1 ||
+    name.indexOf("jean") !== -1 ||
+    name.indexOf("short") !== -1
+  ){
+    return "👖";
+  }
+
+
+  if(
+    name.indexOf("jacket") !== -1 ||
+    name.indexOf("coat") !== -1
+  ){
+    return "🧥";
+  }
+
+
+  if(
+    name.indexOf("accessor") !== -1
+  ){
+    return "⌚";
+  }
+
+
+  return "👕";
+}
+
+
+function saveClothes(){
+
+  var name =
+    itemName.value.trim();
+
+
+  if(!name){
+
+    alert(
+      "Please enter an item name."
+    );
+
+    itemName.focus();
+
+    return;
+  }
+
+
+  var category =
+    categories.find(
+      function(c){
+        return String(c.id) ===
+          String(currentCategoryId);
       }
+    );
 
 
-      closeAdd();
+  if(!category){
 
-      currentCategory = "All";
+    alert(
+      "Please choose a category first."
+    );
 
-      showWardrobe();
+    return;
+  }
+
+
+  var newItem = {
+
+    id:
+      "item-" +
+      Date.now() +
+      "-" +
+      Math.random()
+        .toString(36)
+        .substring(2,8),
+
+    name:name,
+
+    categoryId:
+      category.id,
+
+    color:
+      itemColor.value.trim(),
+
+    brand:
+      itemBrand.value.trim(),
+
+    photo:
+      previewData || "",
+
+    emoji:
+      getEmoji(category.name)
+  };
+
+
+  items.unshift(newItem);
+
+
+  if(!save(ITEM_KEY,items)){
+
+    items.shift();
+
+    return;
+  }
+
+
+  closeClothesModal();
+
+  searchInput.value = "";
+
+  render();
+}
+
+
+/* =========================================
+   FAB
+========================================= */
+
+fab.addEventListener(
+  "click",
+  function(){
+
+    if(currentPage === "categories"){
+
+      openCategoryModal();
+
+    }else if(currentPage === "items"){
+
+      openClothesModal();
+    }
+  }
+);
+
+
+/* =========================================
+   MODAL BUTTONS
+========================================= */
+
+document
+  .getElementById("cancelCategory")
+  .addEventListener(
+    "click",
+    closeCategoryModal
+  );
+
+
+document
+  .getElementById("saveCategory")
+  .addEventListener(
+    "click",
+    saveCategory
+  );
+
+
+document
+  .getElementById("cancelClothes")
+  .addEventListener(
+    "click",
+    closeClothesModal
+  );
+
+
+document
+  .getElementById("saveClothes")
+  .addEventListener(
+    "click",
+    saveClothes
+  );
+
+
+categoryModal.addEventListener(
+  "click",
+  function(event){
+
+    if(event.target === categoryModal){
+      closeCategoryModal();
+    }
+  }
+);
+
+
+clothesModal.addEventListener(
+  "click",
+  function(event){
+
+    if(event.target === clothesModal){
+      closeClothesModal();
+    }
+  }
+);
+
+
+/* =========================================
+   SEARCH
+========================================= */
+
+searchInput.addEventListener(
+  "input",
+  function(){
+
+    render();
+  }
+);
+
+
+/* =========================================
+   CREATE LOOK
+========================================= */
+
+function renderLooks(){
+
+  searchInput.placeholder =
+    "🔍 Search my wardrobe";
+
+  fab.style.display = "none";
+
+
+  var categoryMap = {};
+
+
+  for(var i=0;i<categories.length;i++){
+
+    categoryMap[categories[i].id] =
+      categories[i];
+  }
+
+
+  var availableItems =
+    items.filter(
+      function(item){
+
+        return categoryMap[item.categoryId];
+      }
+    );
+
+
+  var shirts =
+    availableItems.filter(
+      function(item){
+
+        return categoryMap[item.categoryId]
+          .name
+          .toLowerCase()
+          .indexOf("shirt") !== -1;
+      }
+    );
+
+
+  var pants =
+    availableItems.filter(
+      function(item){
+
+        var n =
+          categoryMap[item.categoryId]
+            .name
+            .toLowerCase();
+
+        return (
+          n.indexOf("pant") !== -1 ||
+          n.indexOf("jean") !== -1 ||
+          n.indexOf("trouser") !== -1
+        );
+      }
+    );
+
+
+  var shoes =
+    availableItems.filter(
+      function(item){
+
+        return categoryMap[item.categoryId]
+          .name
+          .toLowerCase()
+          .indexOf("shoe") !== -1;
+      }
+    );
+
+
+  var html =
+
+    '<div class="title">' +
+      "<h2>Create a Look</h2>" +
+    "</div>" +
+
+
+    '<div class="look">' +
+      "<b>1. Choose a shirt</b>" +
+      '<div class="lookrow">' +
+        createLookItems(shirts,"shirt") +
+      "</div>" +
+    "</div>" +
+
+
+    '<div class="look">' +
+      "<b>2. Choose pants</b>" +
+      '<div class="lookrow">' +
+        createLookItems(pants,"pants") +
+      "</div>" +
+    "</div>" +
+
+
+    '<div class="look">' +
+      "<b>3. Choose shoes</b>" +
+      '<div class="lookrow">' +
+        createLookItems(shoes,"shoes") +
+      "</div>" +
+    "</div>" +
+
+
+    '<button ' +
+      'id="saveLookButton" ' +
+      'class="primary" ' +
+      'type="button" ' +
+      'style="width:100%;padding:14px;border-radius:12px;margin-top:16px;border:0;">' +
+
+      "♥ Save This Look" +
+
+    "</button>";
+
+
+  app.innerHTML = html;
+
+
+  var buttons =
+    app.querySelectorAll(".mini");
+
+
+  for(var j=0;j<buttons.length;j++){
+
+    buttons[j].addEventListener(
+      "click",
+      function(){
+
+        chooseLookItem(
+          this.getAttribute("data-type"),
+          this.getAttribute("data-id")
+        );
+      }
+    );
+  }
+
+
+  document
+    .getElementById("saveLookButton")
+    .addEventListener(
+      "click",
+      saveLook
+    );
+}
+
+
+function createLookItems(list,type){
+
+  if(list.length === 0){
+
+    return (
+      '<div style="padding:15px;color:#777;">' +
+        "No matching items yet." +
+      "</div>"
+    );
+  }
+
+
+  var html = "";
+
+
+  for(var i=0;i<list.length;i++){
+
+    var item = list[i];
+
+
+    var imageHTML = item.photo
+
+      ?
+
+        '<img src="' +
+        item.photo +
+        '" alt="' +
+        escapeHTML(item.name) +
+        '">'
+
+      :
+
+        escapeHTML(item.emoji || "👕");
+
+
+    var isSelected =
+      selected[type] &&
+      selected[type].id === item.id;
+
+
+    html +=
+
+      '<button ' +
+        'type="button" ' +
+        'class="mini ' +
+        (isSelected ? "selected" : "") +
+        '" ' +
+        'data-type="' +
+        escapeHTML(type) +
+        '" ' +
+        'data-id="' +
+        escapeHTML(item.id) +
+        '">' +
+
+        '<div class="photo">' +
+          imageHTML +
+        "</div>" +
+
+        "<b>" +
+          escapeHTML(item.name) +
+        "</b>" +
+
+      "</button>";
+  }
+
+
+  return html;
+}
+
+
+function chooseLookItem(type,id){
+
+  var found =
+    items.find(
+      function(item){
+        return String(item.id) === String(id);
+      }
+    );
+
+
+  selected[type] = found || null;
+
+  render();
+}
+
+
+function saveLook(){
+
+  var chosen = [];
+
+
+  if(selected.shirt){
+    chosen.push(selected.shirt);
+  }
+
+  if(selected.pants){
+    chosen.push(selected.pants);
+  }
+
+  if(selected.shoes){
+    chosen.push(selected.shoes);
+  }
+
+
+  if(chosen.length < 2){
+
+    alert(
+      "Choose at least two items first."
+    );
+
+    return;
+  }
+
+
+  looks.unshift(chosen);
+
+
+  if(!save(LOOK_KEY,looks)){
+    return;
+  }
+
+
+  selected = {
+    shirt:null,
+    pants:null,
+    shoes:null
+  };
+
+
+  showSaved();
+}
+
+
+/* =========================================
+   SAVED LOOKS
+========================================= */
+
+function renderSavedLooks(){
+
+  searchInput.placeholder =
+    "🔍 Search my wardrobe";
+
+  fab.style.display = "none";
+
+
+  var html =
+
+    '<div class="title">' +
+
+      "<h2>Saved Looks</h2>" +
+
+      '<span class="count">' +
+        looks.length +
+      "</span>" +
+
+    "</div>";
+
+
+  if(looks.length === 0){
+
+    html +=
+
+      '<div class="empty">' +
+
+        "No saved looks yet." +
+
+        "<br><br>" +
+
+        "Create a look and save it here." +
+
+      "</div>";
+
+
+    app.innerHTML = html;
+
+    return;
+  }
+
+
+  for(var i=0;i<looks.length;i++){
+
+    var look =
+      looks[i];
+
+
+    html +=
+
+      '<div class="saved-item">' +
+
+        "<b>Look " +
+          (i+1) +
+        "</b>" +
+
+        '<div class="saved-items">';
+
+
+    for(var j=0;j<look.length;j++){
+
+      var item =
+        look[j];
+
+
+      var imageHTML = item.photo
+
+        ?
+
+          '<img src="' +
+          item.photo +
+          '" alt="' +
+          escapeHTML(item.name) +
+          '">'
+
+        :
+
+          escapeHTML(item.emoji || "👕");
+
+
+      html +=
+
+        '<div class="saved-mini">' +
+
+          '<div class="photo">' +
+            imageHTML +
+          "</div>" +
+
+          "<div>" +
+            escapeHTML(item.name) +
+          "</div>" +
+
+        "</div>";
     }
 
 
-    /* =========================================
-       NAVIGATION BUTTONS
-       ========================================= */
+    html +=
 
-    wardrobeBtn.addEventListener(
+        "</div>" +
+
+        '<button ' +
+          'class="delete-button" ' +
+          'type="button" ' +
+          'data-index="' +
+          i +
+          '">' +
+
+          "Delete Look" +
+
+        "</button>" +
+
+      "</div>";
+  }
+
+
+  app.innerHTML = html;
+
+
+  var deleteButtons =
+    app.querySelectorAll(".delete-button");
+
+
+  for(var k=0;k<deleteButtons.length;k++){
+
+    deleteButtons[k].addEventListener(
       "click",
-      showWardrobe
-    );
+      function(){
 
-    lookBtn.addEventListener(
-      "click",
-      showLooks
-    );
-
-    savedBtn.addEventListener(
-      "click",
-      showSaved
-    );
-
-
-    /* =========================================
-       KEYBOARD SUPPORT
-       ========================================= */
-
-    document.addEventListener(
-      "keydown",
-      function (event) {
-
-        if (event.key === "Escape") {
-
-          if (modal.classList.contains("open")) {
-            closeAdd();
-          }
-        }
+        deleteLook(
+          parseInt(
+            this.getAttribute("data-index"),
+            10
+          )
+        );
       }
     );
+  }
+}
 
 
-    /* =========================================
-       START APPLICATION
-       ========================================= */
+function deleteLook(index){
 
-    renderChips();
-    showWardrobe();
+  if(!confirm("Delete this saved look?")){
+    return;
+  }
 
 
-    /* =========================================
-       SERVICE WORKER
-       ========================================= */
+  looks.splice(index,1);
 
-    if ("serviceWorker" in navigator) {
+  save(LOOK_KEY,looks);
 
-      window.addEventListener(
-        "load",
-        function () {
+  render();
+}
 
-          navigator.serviceWorker
-            .register("./service-worker.js")
-            .then(function () {
 
-              console.log(
-                "My Wardrobe service worker registered."
-              );
+/* =========================================
+   BOTTOM NAVIGATION
+========================================= */
 
-            })
-            .catch(function (error) {
+function updateNavigation(){
 
-              console.log(
-                "Service worker registration failed:",
-                error
-              );
+  wardrobeBtn.classList.remove("sel");
+  lookBtn.classList.remove("sel");
+  savedBtn.classList.remove("sel");
 
-            });
-        }
-      );
+
+  if(
+    currentPage === "categories" ||
+    currentPage === "items"
+  ){
+    wardrobeBtn.classList.add("sel");
+  }
+
+
+  if(currentPage === "looks"){
+    lookBtn.classList.add("sel");
+  }
+
+
+  if(currentPage === "saved"){
+    savedBtn.classList.add("sel");
+  }
+}
+
+
+wardrobeBtn.addEventListener(
+  "click",
+  function(){
+
+    currentPage = "categories";
+    currentCategoryId = null;
+    searchInput.value = "";
+
+    updateNavigation();
+    render();
+  }
+);
+
+
+lookBtn.addEventListener(
+  "click",
+  function(){
+
+    currentPage = "looks";
+    searchInput.value = "";
+
+    updateNavigation();
+    render();
+  }
+);
+
+
+savedBtn.addEventListener(
+  "click",
+  function(){
+
+    currentPage = "saved";
+    searchInput.value = "";
+
+    updateNavigation();
+    render();
+  }
+);
+
+
+/* =========================================
+   ESC KEY
+========================================= */
+
+document.addEventListener(
+  "keydown",
+  function(event){
+
+    if(event.key === "Escape"){
+
+      if(categoryModal.classList.contains("open")){
+        closeCategoryModal();
+      }
+
+      if(clothesModal.classList.contains("open")){
+        closeClothesModal();
+      }
     }
+  }
+);
 
-  </script>
+
+/* =========================================
+   START
+========================================= */
+
+updateNavigation();
+render();
+
+
+/* =========================================
+   SERVICE WORKER
+========================================= */
+
+if("serviceWorker" in navigator){
+
+  window.addEventListener(
+    "load",
+    function(){
+
+      navigator.serviceWorker
+        .register("./service-worker.js")
+        .then(function(){
+
+          console.log(
+            "My Wardrobe service worker registered."
+          );
+
+        })
+        .catch(function(error){
+
+          console.log(
+            "Service worker registration failed:",
+            error
+          );
+        });
+    }
+  );
+}
+
+</script>
 
 </body>
 </html>
