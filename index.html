@@ -97,6 +97,17 @@ button{cursor:pointer}
 .ai-missing h3{margin:0 0 5px}
 .ai-status{background:#edf8ee;color:#226b2a;border-radius:14px;padding:13px;margin:12px 0}
 
+
+.profile-menu-wrap{position:relative}
+.icon-btn{border:1px solid var(--line);background:#fff;width:40px;height:40px;border-radius:12px;font-size:22px;display:flex;align-items:center;justify-content:center}
+.profile-menu{position:absolute;right:0;top:48px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px #00000018;min-width:180px;overflow:hidden;z-index:60}
+.profile-menu button{width:100%;border:0;background:#fff;text-align:left;padding:12px 14px}
+.profile-menu button:hover{background:#f7f7f7}
+.profile-avatar{width:86px;height:86px;border-radius:50%;object-fit:cover;background:#eee;border:1px solid var(--line)}
+.avatar-fallback{width:86px;height:86px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:34px}
+.profile-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.fit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+
 @media(min-width:700px){
  .category-grid{grid-template-columns:repeat(4,1fr)}
  .clothing-grid{grid-template-columns:repeat(4,1fr)}
@@ -105,6 +116,148 @@ button{cursor:pointer}
  .modal{align-items:center;padding:20px}
  .modal-box{border-radius:25px}
 }
+
+/* ===== PREMIUM FASHION THEME ===== */
+:root{
+  --bg:#f7f5fb;
+  --card:rgba(255,255,255,.88);
+  --text:#17151d;
+  --muted:#756f7d;
+  --line:rgba(39,28,55,.10);
+  --dark:#21172c;
+  --soft:#f1edf6;
+  --danger:#ba3d53;
+  --purple:#7c5cff;
+  --pink:#ff78ab;
+  --blue:#6ab7ff;
+  --gold:#f5c76b;
+  --shadow:0 16px 45px rgba(66,43,91,.10);
+}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(160,125,255,.16),transparent 30%),
+    radial-gradient(circle at 95% 12%,rgba(255,133,184,.14),transparent 28%),
+    linear-gradient(180deg,#fbfaff 0%,#f7f5fb 55%,#f5f7fb 100%);
+  min-height:100vh;
+}
+.auth-box,.category-card,.clothing-card,.look-card,.result-card,.product-card,.ai-outfit-card,.modal-box{
+  box-shadow:var(--shadow);
+}
+.auth-box{
+  border:1px solid rgba(255,255,255,.8);
+  background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(251,248,255,.92));
+}
+.logo{
+  background:linear-gradient(90deg,#5b3de6,#c05bc7,#ff789d);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.primary{
+  background:linear-gradient(115deg,#5f46e8 0%,#8d5cf5 45%,#e465a7 100%);
+  box-shadow:0 10px 22px rgba(112,73,225,.22);
+  transition:.18s ease;
+}
+.primary:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(112,73,225,.26)}
+.secondary,.small-btn,.icon-btn{
+  background:rgba(255,255,255,.80);
+  backdrop-filter:blur(12px);
+  transition:.18s ease;
+}
+.secondary:hover,.small-btn:hover,.icon-btn:hover{transform:translateY(-1px);border-color:rgba(124,92,255,.28)}
+.topbar{
+  background:rgba(250,248,255,.78);
+  border-bottom:1px solid rgba(93,61,135,.08);
+  box-shadow:0 8px 30px rgba(54,34,73,.05);
+}
+.topbar-title{
+  background:linear-gradient(90deg,#21172c,#7955dd,#d75b9b);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(125deg,#251a35 0%,#6041c7 52%,#d95f9e 100%);
+  box-shadow:0 20px 45px rgba(76,49,128,.23);
+}
+.hero:after{
+  content:"";position:absolute;width:210px;height:210px;border-radius:50%;
+  right:-65px;top:-90px;background:rgba(255,255,255,.12);filter:blur(2px);
+}
+.hero p{color:rgba(255,255,255,.82)}
+.category-card,.clothing-card,.look-card,.product-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(250,247,255,.92));
+  border-color:rgba(83,57,112,.08);
+  transition:.2s ease;
+}
+.category-card:hover,.clothing-card:hover,.look-card:hover,.product-card:hover{transform:translateY(-3px)}
+.category-icon{
+  width:54px;height:54px;border-radius:17px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#eee9ff,#ffeaf4);box-shadow:inset 0 0 0 1px rgba(108,73,170,.08)
+}
+.clothing-photo{background:linear-gradient(145deg,#f7f4fb,#f0edf5)}
+.bottom-nav{
+  background:rgba(252,250,255,.88);
+  border-top:1px solid rgba(89,61,123,.09);
+  box-shadow:0 -10px 30px rgba(60,41,84,.06)
+}
+.nav-btn.active{color:#6849de}
+.modal{background:rgba(29,20,39,.48);backdrop-filter:blur(5px)}
+.modal-box{
+  background:linear-gradient(180deg,#fff,#fcfaff);
+  border:1px solid rgba(255,255,255,.8);
+}
+.field input,.field select,.field textarea,.searchbox input{
+  background:rgba(255,255,255,.82);
+  border-color:rgba(62,42,87,.12);
+  transition:.15s ease;
+}
+.field input:focus,.field select:focus,.field textarea:focus,.searchbox input:focus{
+  border-color:#8b6cf2;box-shadow:0 0 0 4px rgba(139,108,242,.10)
+}
+.chip.active{
+  background:linear-gradient(115deg,#6148e6,#d45d9e);
+  border-color:transparent;box-shadow:0 8px 16px rgba(116,72,211,.18)
+}
+.profile-menu{
+  background:rgba(255,255,255,.95);backdrop-filter:blur(18px);
+  border-color:rgba(66,39,91,.10);box-shadow:0 18px 45px rgba(55,36,75,.16)
+}
+.profile-avatar{box-shadow:0 8px 22px rgba(65,43,88,.14);border:3px solid #fff}
+.avatar-fallback{background:linear-gradient(145deg,#e9e2ff,#ffe0ee)}
+.ai-outfit-card{
+  background:linear-gradient(145deg,#fff,#fbf8ff);
+  border-color:rgba(106,74,167,.10)
+}
+.ai-status{background:linear-gradient(115deg,#e9fbef,#eefbf7);color:#246b43}
+.ai-missing{background:linear-gradient(120deg,#fff8e8,#fff0f6);border-color:#f0d8c4}
+.result-btn{background:linear-gradient(115deg,#5e45e4,#bc5db7)}
+.notice{background:linear-gradient(115deg,#f4f0ff,#fff2f8)}
+.photo-tools{
+  border:1px solid rgba(92,62,127,.10);
+  background:linear-gradient(145deg,#fbf9ff,#fff);
+  border-radius:18px;padding:14px;margin-top:10px
+}
+.photo-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.photo-frame{
+  min-height:165px;border:1px dashed rgba(91,62,125,.22);border-radius:16px;
+  background:linear-gradient(145deg,#faf8ff,#f5f2f8);display:flex;align-items:center;justify-content:center;
+  overflow:hidden;text-align:center;padding:10px;color:var(--muted);font-size:12px
+}
+.photo-frame img{width:100%;height:100%;min-height:145px;max-height:230px;object-fit:contain;border-radius:12px}
+.ai-clean-btn{
+  width:100%;border:0;border-radius:14px;padding:13px;font-weight:800;margin-top:12px;
+  background:linear-gradient(115deg,#684be6,#bd5ec6,#ef7da6);color:#fff;
+  box-shadow:0 10px 22px rgba(125,74,210,.20)
+}
+.ai-clean-btn:disabled{opacity:.55;cursor:not-allowed}
+.ai-clean-status{margin-top:9px;font-size:13px;color:var(--muted)}
+.mini-profile-btn{display:flex;align-items:center;gap:7px}
+.top-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#eee}
+@media(max-width:480px){
+ .hero{padding:21px}.hero h1{font-size:25px}
+ .fit-grid{grid-template-columns:1fr 1fr}
+ .photo-tools-grid{grid-template-columns:1fr 1fr}
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -138,7 +291,14 @@ button{cursor:pointer}
 <div id="appScreen" class="app hidden">
   <header class="topbar">
     <div class="topbar-title">My Wardrobe</div>
-    <button class="secondary" onclick="logout()">Log out</button>
+    <div class="profile-menu-wrap">
+      <button class="icon-btn mini-profile-btn" onclick="toggleProfileMenu(event)" aria-label="Profile menu"><span id="topAvatarSlot">👤</span><span>⋮</span></button>
+      <div id="profileMenu" class="profile-menu hidden">
+        <button onclick="openProfileModal()">👤 Profile</button>
+        <button onclick="openFitModal()">📏 My Fit</button>
+        <button class="danger" onclick="logout()">Log out</button>
+      </div>
+    </div>
   </header>
 
   <main class="container">
@@ -265,8 +425,24 @@ button{cursor:pointer}
   <div class="field"><label>Name</label><input id="clothingName" placeholder="e.g. Black Oxford Shirt"></div>
   <div class="field"><label>Colour</label><input id="clothingColor" placeholder="e.g. Black"></div>
   <div class="field"><label>Brand</label><input id="clothingBrand" placeholder="e.g. Uniqlo"></div>
-  <div class="field"><label>Photo</label><input id="clothingPhoto" type="file" accept="image/*" onchange="previewPhoto(event)"><img id="photoPreview" class="photo-preview hidden"></div>
-  <button class="primary" id="saveClothingButton" onclick="saveClothing()">Save clothing</button>
+  <div class="field"><label>Clothing photo</label><input id="clothingPhoto" type="file" accept="image/*" onchange="previewPhoto(event)"></div>
+  <div class="photo-tools">
+    <strong>✨ AI Photo Cleaner</strong>
+    <div class="muted" style="margin-top:4px">Choose a photo, then let AI create a cleaner wardrobe-style image while keeping the real clothing design and colour.</div>
+    <div class="photo-tools-grid">
+      <div>
+        <div class="muted" style="margin-bottom:5px">Original</div>
+        <div id="originalPhotoFrame" class="photo-frame">Choose a clothing photo</div>
+      </div>
+      <div>
+        <div class="muted" style="margin-bottom:5px">Cleaned</div>
+        <div id="cleanedPhotoFrame" class="photo-frame">AI preview appears here</div>
+      </div>
+    </div>
+    <button id="cleanPhotoButton" class="ai-clean-btn" type="button" onclick="cleanClothingPhoto()">✨ Clean with AI</button>
+    <div id="cleanPhotoStatus" class="ai-clean-status"></div>
+  </div>
+  <button class="primary" id="saveClothingButton" onclick="saveClothing()" style="margin-top:14px">Save clothing</button>
  </div>
 </div>
 
@@ -279,6 +455,68 @@ button{cursor:pointer}
  </div>
 </div>
 
+
+<div id="profileModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h2>My Profile</h2><button class="close" onclick="closeModal('profileModal')">×</button></div>
+
+    <div class="profile-row">
+      <div id="profileAvatarWrap"><div class="avatar-fallback">👤</div></div>
+      <div style="flex:1">
+        <div class="field"><label>Profile photo</label><input id="profilePhoto" type="file" accept="image/*" onchange="previewProfilePhoto(event)"></div>
+      </div>
+    </div>
+
+    <div class="field"><label>Name</label><input id="profileName" placeholder="Your name"></div>
+    <div class="field"><label>Gender</label>
+      <select id="profileGender">
+        <option value="">Prefer not to say</option>
+        <option value="Man">Man</option>
+        <option value="Woman">Woman</option>
+        <option value="Non-binary">Non-binary</option>
+        <option value="Custom">Custom</option>
+      </select>
+    </div>
+    <div class="field"><label>Birthday</label><input id="profileBirthday" type="date"></div>
+    <div class="field"><label>Country</label><select id="profileCountryMain">
+      <option value="Australia">Australia</option>
+      <option value="Sri Lanka">Sri Lanka</option>
+      <option value="UK">United Kingdom</option>
+      <option value="US">United States</option>
+      <option value="Canada">Canada</option>
+    </select></div>
+
+    <button class="primary" onclick="saveProfile()">Save profile</button>
+  </div>
+</div>
+
+<div id="fitModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h2>My Fit</h2><button class="close" onclick="closeModal('fitModal')">×</button></div>
+    <div class="notice">These measurements help the AI choose better sizes and more suitable online products.</div>
+
+    <div class="fit-grid">
+      <div class="field"><label>Height (cm)</label><input id="fitHeight" type="number" min="0" step="0.1" placeholder="175"></div>
+      <div class="field"><label>Chest (cm)</label><input id="fitChest" type="number" min="0" step="0.1" placeholder="96"></div>
+      <div class="field"><label>Waist (cm)</label><input id="fitWaist" type="number" min="0" step="0.1" placeholder="82"></div>
+      <div class="field"><label>Hips (cm)</label><input id="fitHips" type="number" min="0" step="0.1" placeholder="96"></div>
+      <div class="field"><label>Inseam (cm)</label><input id="fitInseam" type="number" min="0" step="0.1" placeholder="80"></div>
+      <div class="field"><label>Shoe size</label><input id="fitShoe" placeholder="e.g. AU 9 / EU 43"></div>
+      <div class="field"><label>Top size</label><input id="fitTop" placeholder="e.g. M / 40"></div>
+      <div class="field"><label>Bottom size</label><input id="fitBottom" placeholder="e.g. 32 / M"></div>
+    </div>
+
+    <div class="field"><label>Preferred fit</label>
+      <select id="fitPreference">
+        <option value="">Any</option>
+        <option>Slim</option><option>Regular</option><option>Relaxed</option><option>Oversized</option>
+      </select>
+    </div>
+
+    <button class="primary" onclick="saveFit()">Save My Fit</button>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL="https://umtppiaeralgiqvefnbh.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_hgrE28tw0hGmNP929kPgYw_h5aPs0ey";
@@ -287,8 +525,10 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHA
 // Secure Supabase Edge Function that holds your private SerpApi key.
 const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
+const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing";
 
-let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[];
+let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
+let selectedClothingFile=null,cleanedClothingFile=null;
 let currentCategoryId=null,editingCategoryId=null,editingClothingId=null,selectedOccasion="";
 let appStarted=false,appStarting=false;
 
@@ -347,7 +587,7 @@ async function startApp(){
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
  el("welcomeText").textContent="Welcome to My Wardrobe";
- try{await loadAllData();loadShoppingProfile();updateStoreList();renderCategories();renderLooks();showPage("home");appStarted=true}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();showPage("home");appStarted=true}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -433,20 +673,73 @@ function openClothingModal(id=null){
  el("clothingModalTitle").textContent=id?"Edit clothing":"Add clothing";
  el("clothingName").value=item?.name||"";el("clothingColor").value=item?.color||"";el("clothingBrand").value=item?.brand||"";
  if(item?.category_id)el("clothingCategory").value=item.category_id;else if(currentCategoryId)el("clothingCategory").value=currentCategoryId;
- el("clothingPhoto").value="";el("photoPreview").classList.add("hidden");el("photoPreview").src="";
+ el("clothingPhoto").value="";
+ selectedClothingFile=null;cleanedClothingFile=null;
+ el("originalPhotoFrame").innerHTML=item?.displayPhoto?`<img src="${safeAttributeUrl(item.displayPhoto)}" alt="Current clothing photo">`:"Choose a clothing photo";
+ el("cleanedPhotoFrame").textContent="AI preview appears here";
+ el("cleanPhotoStatus").textContent="";
+ el("cleanPhotoButton").disabled=false;
  el("clothingModal").classList.remove("hidden");
 }
+
 function previewPhoto(e){
  const file=e.target.files?.[0];if(!file)return;
- const url=URL.createObjectURL(file);el("photoPreview").src=url;el("photoPreview").classList.remove("hidden");
+ selectedClothingFile=file;cleanedClothingFile=null;
+ const url=URL.createObjectURL(file);
+ el("originalPhotoFrame").innerHTML=`<img src="${url}" alt="Original clothing photo">`;
+ el("cleanedPhotoFrame").textContent="AI preview appears here";
+ el("cleanPhotoStatus").textContent="Photo ready. Tap “Clean with AI” if you want a cleaner version.";
 }
+
+function fileToDataUrl(file){
+ return new Promise((resolve,reject)=>{
+  const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);
+ });
+}
+
+function base64ToFile(base64,mimeType="image/png",name="ai-cleaned.png"){
+ const bin=atob(base64);const bytes=new Uint8Array(bin.length);
+ for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+ return new File([bytes],name,{type:mimeType});
+}
+
+async function cleanClothingPhoto(){
+ if(!selectedClothingFile)return alert("Choose a clothing photo first.");
+ const btn=el("cleanPhotoButton");
+ btn.disabled=true;btn.textContent="✨ Cleaning…";
+ el("cleanPhotoStatus").textContent="AI is removing distractions and preparing a clean wardrobe-style image. This can take a little while.";
+ try{
+  const dataUrl=await fileToDataUrl(selectedClothingFile);
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  const headers={"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY};
+  headers["Authorization"]="Bearer "+(session?.access_token||SUPABASE_PUBLISHABLE_KEY);
+  const res=await fetch(CLEAN_API_URL,{
+   method:"POST",headers,
+   body:JSON.stringify({
+    imageBase64:String(dataUrl).split(",")[1],
+    mimeType:selectedClothingFile.type||"image/jpeg"
+   })
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok||!data.success||!data.imageBase64)throw new Error(data.error||"AI photo cleaning failed.");
+  cleanedClothingFile=base64ToFile(data.imageBase64,data.mimeType||"image/png");
+  el("cleanedPhotoFrame").innerHTML=`<img src="data:${data.mimeType||"image/png"};base64,${data.imageBase64}" alt="AI cleaned clothing photo">`;
+  el("cleanPhotoStatus").textContent="Done — the cleaned version will be saved to your wardrobe.";
+ }catch(err){
+  console.error(err);
+  el("cleanPhotoStatus").textContent="Could not clean this image: "+err.message;
+ }finally{
+  btn.disabled=false;btn.textContent="✨ Clean with AI";
+ }
+}
+
 async function saveClothing(){
  const name=el("clothingName").value.trim();const category_id=el("clothingCategory").value;
  if(!name||!category_id)return alert("Enter a name and choose a category.");
  let photo_url=null;
- const file=el("clothingPhoto").files?.[0];
+ const file=cleanedClothingFile||selectedClothingFile||el("clothingPhoto").files?.[0];
  if(file){
-  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const ext=(file.name.split(".").pop()||"png").toLowerCase().replace(/[^a-z0-9]/g,"");
   const path=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
   const upload=await supabaseClient.storage.from("wardrobe-photos").upload(path,file,{upsert:false});
   if(upload.error)return alert("Photo upload failed: "+upload.error.message);
@@ -459,8 +752,10 @@ async function saveClothing(){
   r=await supabaseClient.from("clothing_items").update(payload).eq("id",editingClothingId);
  }else{payload.photo_url=photo_url;r=await supabaseClient.from("clothing_items").insert(payload)}
  if(r.error)return alert(r.error.message);
+ selectedClothingFile=null;cleanedClothingFile=null;
  closeModal("clothingModal");await loadAllData();renderCategories();renderClothingForCategory();
 }
+
 async function deleteClothing(id){
  if(!confirm("Delete this clothing item?"))return;
  const r=await supabaseClient.from("clothing_items").delete().eq("id",id);
@@ -494,6 +789,136 @@ function renderLooks(){
   const items=clothingItems.filter(i=>ids.includes(i.id));
   return `<div class="look-card"><div style="padding:15px"><strong>${escapeHtml(l.name)}</strong><div class="muted" style="margin-top:5px">${items.length} pieces</div><div class="look-items" style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:12px">${items.map(i=>i.displayPhoto?`<img src="${safeAttributeUrl(i.displayPhoto)}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px">`:`<div style="aspect-ratio:1;background:#eee;border-radius:9px;display:flex;align-items:center;justify-content:center">👕</div>`).join("")}</div></div></div>`
  }).join("");
+}
+
+
+async function loadUserProfile(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient.from("profiles").select("*").eq("user_id",currentUser.id).maybeSingle();
+ if(error){console.warn("Could not load profile:",error.message);userProfile=null;return}
+ userProfile=data||null;
+}
+
+function toggleProfileMenu(event){
+ event?.stopPropagation();
+ el("profileMenu").classList.toggle("hidden");
+}
+document.addEventListener("click",e=>{
+ const menu=el("profileMenu");
+ if(menu&&!menu.classList.contains("hidden")&&!e.target.closest(".profile-menu-wrap"))menu.classList.add("hidden");
+});
+
+function renderProfileAvatar(){
+ const wrap=el("profileAvatarWrap");
+ if(!wrap)return;
+ if(userProfile?.displayPhoto){
+  wrap.innerHTML=`<img class="profile-avatar" src="${safeAttributeUrl(userProfile.displayPhoto)}" alt="Profile photo">`;
+ }else{
+  wrap.innerHTML='<div class="avatar-fallback">👤</div>';
+ }
+}
+
+async function createProfileSignedUrl(){
+ if(!userProfile?.photo_url){renderTopAvatar();return}
+ const {data,error}=await supabaseClient.storage.from("profile-photos").createSignedUrl(userProfile.photo_url,3600);
+ if(!error&&data)userProfile.displayPhoto=data.signedUrl;
+ renderTopAvatar();
+}
+function renderTopAvatar(){
+ const slot=el("topAvatarSlot");if(!slot)return;
+ slot.innerHTML=userProfile?.displayPhoto?`<img class="top-avatar" src="${safeAttributeUrl(userProfile.displayPhoto)}" alt="">`:"👤";
+}
+
+async function openProfileModal(){
+ el("profileMenu").classList.add("hidden");
+ await loadUserProfile();
+ await createProfileSignedUrl();
+ el("profileName").value=userProfile?.display_name||"";
+ el("profileGender").value=userProfile?.gender||"";
+ el("profileBirthday").value=userProfile?.birthday||"";
+ el("profileCountryMain").value=userProfile?.country||"Australia";
+ el("profilePhoto").value="";
+ renderProfileAvatar();
+ el("profileModal").classList.remove("hidden");
+}
+
+function previewProfilePhoto(e){
+ const file=e.target.files?.[0];if(!file)return;
+ const url=URL.createObjectURL(file);
+ el("profileAvatarWrap").innerHTML=`<img class="profile-avatar" src="${url}" alt="Profile preview">`;
+}
+
+async function saveProfile(){
+ if(!currentUser)return;
+ let photo_url=userProfile?.photo_url||null;
+ const file=el("profilePhoto").files?.[0];
+ if(file){
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+  const upload=await supabaseClient.storage.from("profile-photos").upload(path,file,{upsert:false});
+  if(upload.error)return alert("Profile photo upload failed: "+upload.error.message);
+  photo_url=path;
+ }
+ const payload={
+  user_id:currentUser.id,
+  display_name:el("profileName").value.trim(),
+  gender:el("profileGender").value,
+  birthday:el("profileBirthday").value||null,
+  country:el("profileCountryMain").value,
+  photo_url
+ };
+ const {error}=await supabaseClient.from("profiles").upsert(payload,{onConflict:"user_id"});
+ if(error)return alert(error.message);
+ await loadUserProfile();await createProfileSignedUrl();syncShoppingProfileFromUserProfile();
+ closeModal("profileModal");
+ alert("Profile saved.");
+}
+
+async function openFitModal(){
+ el("profileMenu").classList.add("hidden");
+ await loadUserProfile();
+ el("fitHeight").value=userProfile?.height_cm??"";
+ el("fitChest").value=userProfile?.chest_cm??"";
+ el("fitWaist").value=userProfile?.waist_cm??"";
+ el("fitHips").value=userProfile?.hips_cm??"";
+ el("fitInseam").value=userProfile?.inseam_cm??"";
+ el("fitShoe").value=userProfile?.shoe_size||"";
+ el("fitTop").value=userProfile?.top_size||"";
+ el("fitBottom").value=userProfile?.bottom_size||"";
+ el("fitPreference").value=userProfile?.preferred_fit||"";
+ el("fitModal").classList.remove("hidden");
+}
+
+async function saveFit(){
+ if(!currentUser)return;
+ const num=v=>v===""?null:Number(v);
+ const payload={
+  user_id:currentUser.id,
+  height_cm:num(el("fitHeight").value),
+  chest_cm:num(el("fitChest").value),
+  waist_cm:num(el("fitWaist").value),
+  hips_cm:num(el("fitHips").value),
+  inseam_cm:num(el("fitInseam").value),
+  shoe_size:el("fitShoe").value.trim(),
+  top_size:el("fitTop").value.trim(),
+  bottom_size:el("fitBottom").value.trim(),
+  preferred_fit:el("fitPreference").value
+ };
+ const {error}=await supabaseClient.from("profiles").upsert(payload,{onConflict:"user_id"});
+ if(error)return alert(error.message);
+ await loadUserProfile();syncShoppingProfileFromUserProfile();
+ closeModal("fitModal");
+ alert("My Fit saved.");
+}
+
+function syncShoppingProfileFromUserProfile(){
+ if(!userProfile)return;
+ if(el("profileCountry"))el("profileCountry").value=userProfile.country||el("profileCountry").value||"Australia";
+ if(el("profileSize")&&!el("profileSize").value)el("profileSize").value=userProfile.top_size||userProfile.bottom_size||"";
+ if(el("profileFit")&&!el("profileFit").value)el("profileFit").value=userProfile.preferred_fit||"";
+ if(el("profileHeight")&&!el("profileHeight").value&&userProfile.height_cm!=null)el("profileHeight").value=userProfile.height_cm+" cm";
+ if(el("profileChest")&&!el("profileChest").value&&userProfile.chest_cm!=null)el("profileChest").value=userProfile.chest_cm+" cm";
+ if(el("profileWaist")&&!el("profileWaist").value&&userProfile.waist_cm!=null)el("profileWaist").value=userProfile.waist_cm+" cm";
 }
 
 function profileStorageKey(){return currentUser?"mywardrobe_profile_"+currentUser.id:""}
@@ -560,6 +985,21 @@ async function callStyleAI(){
   occasion:selectedOccasion,
   stylePreference:el("stylePreference").value,
   budget:el("shopBudget").value.trim(),
+  profile:{
+   name:userProfile?.display_name||"",
+   gender:userProfile?.gender||"",
+   birthday:userProfile?.birthday||"",
+   country:userProfile?.country||el("profileCountry").value,
+   heightCm:userProfile?.height_cm??null,
+   chestCm:userProfile?.chest_cm??null,
+   waistCm:userProfile?.waist_cm??null,
+   hipsCm:userProfile?.hips_cm??null,
+   inseamCm:userProfile?.inseam_cm??null,
+   shoeSize:userProfile?.shoe_size||"",
+   topSize:userProfile?.top_size||"",
+   bottomSize:userProfile?.bottom_size||"",
+   preferredFit:userProfile?.preferred_fit||""
+  },
   wardrobe:getWardrobeForAI()
  };
 
