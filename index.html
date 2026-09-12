@@ -1,1497 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  >
-
-  <meta name="theme-color" content="#111111">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="My Wardrobe">
-
-  <title>My Wardrobe</title>
-
-  <link rel="manifest" href="./manifest.json">
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      background: #f6f6f6;
-      color: #111;
-    }
-
-    button,
-    input,
-    select,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* AUTH */
-
-    #authScreen {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      background: linear-gradient(135deg, #111, #333);
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 420px;
-      background: white;
-      border-radius: 24px;
-      padding: 32px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.25);
-    }
-
-    .logo {
-      text-align: center;
-      font-size: 32px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #777;
-      margin-bottom: 28px;
-    }
-
-    .auth-card input {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      outline: none;
-    }
-
-    .auth-card input:focus {
-      border-color: #111;
-    }
-
-    .primary-btn {
-      width: 100%;
-      background: #111;
-      color: white;
-      border: 0;
-      padding: 14px;
-      border-radius: 12px;
-      font-weight: 700;
-    }
-
-    .secondary-btn {
-      background: #eee;
-      color: #111;
-      border: 0;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-
-    .link-btn {
-      background: none;
-      border: 0;
-      color: #111;
-      text-decoration: underline;
-      margin-top: 15px;
-      width: 100%;
-    }
-
-    /* APP */
-
-    #appScreen {
-      min-height: 100vh;
-      padding-bottom: 85px;
-    }
-
-    .topbar {
-      background: white;
-      padding:
-        calc(14px + env(safe-area-inset-top))
-        18px
-        14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #eee;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-
-    .topbar-title {
-      font-size: 21px;
-      font-weight: 800;
-    }
-
-    .logout-btn {
-      border: 0;
-      background: #f1f1f1;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 13px;
-    }
-
-    .page {
-      padding: 18px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    .welcome {
-      margin-bottom: 20px;
-    }
-
-    .welcome h1 {
-      margin: 0 0 5px;
-      font-size: 28px;
-    }
-
-    .welcome p {
-      margin: 0;
-      color: #777;
-    }
-
-    /* CARDS */
-
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.05);
-    }
-
-    .card h2,
-    .card h3 {
-      margin-top: 0;
-    }
-
-    .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    /* CATEGORY GRID */
-
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    @media(min-width: 600px) {
-      .category-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .category-card {
-      border: 0;
-      background: #f2f2f2;
-      border-radius: 18px;
-      padding: 20px 10px;
-      text-align: center;
-      transition: .2s;
-    }
-
-    .category-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .category-icon {
-      font-size: 32px;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .category-name {
-      font-weight: 700;
-    }
-
-    /* CLOTHING */
-
-    .clothing-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-    }
-
-    @media(min-width: 650px) {
-      .clothing-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .clothing-card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,.07);
-    }
-
-    .clothing-photo {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      background: #eee;
-    }
-
-    .clothing-info {
-      padding: 10px;
-    }
-
-    .clothing-info strong {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .clothing-info small {
-      color: #777;
-      display: block;
-    }
-
-    .item-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .small-btn {
-      flex: 1;
-      border: 0;
-      background: #eee;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
-
-    /* SEARCH */
-
-    .search-box {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-
-    /* LOOKS */
-
-    .look-card {
-      background: white;
-      border-radius: 18px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-
-    .look-items {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .look-items img {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    /* SHOP */
-
-    .shop-hero {
-      background: linear-gradient(135deg, #111, #444);
-      color: white;
-      border-radius: 22px;
-      padding: 24px;
-      margin-bottom: 18px;
-    }
-
-    .shop-hero h1 {
-      margin: 0 0 8px;
-      font-size: 27px;
-    }
-
-    .shop-hero p {
-      margin: 0;
-      color: #ddd;
-      line-height: 1.5;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    @media(min-width: 650px) {
-      .form-grid.two {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .form-grid.three {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    .field label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .field input,
-    .field select,
-    .field textarea {
-      width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 11px;
-      padding: 12px;
-      background: white;
-      outline: none;
-    }
-
-    .field textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus {
-      border-color: #111;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      border: 1px solid #ddd;
-      background: white;
-      padding: 9px 13px;
-      border-radius: 999px;
-      font-size: 13px;
-    }
-
-    .chip.active {
-      background: #111;
-      color: white;
-      border-color: #111;
-    }
-
-    /* STORES */
-
-    .store-list {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .store-option {
-      border: 1px solid #ddd;
-      border-radius: 14px;
-      padding: 13px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-    }
-
-    .store-option.selected {
-      border-color: #111;
-      background: #f5f5f5;
-    }
-
-    .store-option input {
-      width: 20px;
-      height: 20px;
-    }
-
-    .store-name {
-      font-weight: 700;
-    }
-
-    .store-country {
-      color: #777;
-      font-size: 12px;
-    }
-
-    .store-actions {
-      margin-left: auto;
-    }
-
-    /* RESULTS */
-
-    .result-card {
-      border: 1px solid #e5e5e5;
-      border-radius: 16px;
-      padding: 15px;
-      margin-bottom: 12px;
-      background: white;
-    }
-
-    .result-card h3 {
-      margin: 0 0 5px;
-    }
-
-    .result-card p {
-      color: #666;
-      margin: 5px 0;
-      line-height: 1.4;
-    }
-
-    .result-btn {
-      display: inline-block;
-      margin-top: 10px;
-      background: #111;
-      color: white;
-      padding: 10px 14px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .result-image {
-      width: 100%;
-      max-height: 240px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #f4f4f4;
-      margin-bottom: 10px;
-    }
-
-    /* MODALS */
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.55);
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      z-index: 100;
-    }
-
-    .modal-content {
-      background: white;
-      width: 100%;
-      max-width: 600px;
-      border-radius: 22px 22px 0 0;
-      padding: 22px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    @media(min-width: 650px) {
-      .modal {
-        align-items: center;
-      }
-
-      .modal-content {
-        border-radius: 22px;
-      }
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-    }
-
-    .close-btn {
-      border: 0;
-      background: #eee;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-    }
-
-    /* BOTTOM NAV */
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid #ddd;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      padding:
-        8px
-        8px
-        calc(8px + env(safe-area-inset-bottom));
-      z-index: 50;
-    }
-
-    .nav-btn {
-      border: 0;
-      background: none;
-      padding: 8px 5px;
-      color: #777;
-      font-size: 12px;
-    }
-
-    .nav-btn span {
-      display: block;
-      font-size: 22px;
-      margin-bottom: 3px;
-    }
-
-    .nav-btn.active {
-      color: #111;
-      font-weight: 800;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 35px 15px;
-      color: #777;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 25px;
-      color: #777;
-    }
-
-    .danger-btn {
-      background: #fee;
-      color: #b00020;
-      border: 0;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-weight: 700;
-    }
-
-    .notice {
-      background: #f5f5f5;
-      border-radius: 12px;
-      padding: 12px;
-      color: #666;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .success-box {
-      background: #eef8ee;
-      border-radius: 12px;
-      padding: 12px;
-      color: #286528;
-      font-size: 13px;
-      margin-bottom: 12px;
-    }
-
-    .custom-store-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    @media(min-width: 600px) {
-      .custom-store-row {
-        grid-template-columns: 1fr 1fr auto;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-<!-- AUTH SCREEN -->
-
-<div id="authScreen">
-
-  <div class="auth-card">
-
-    <div class="logo">My Wardrobe</div>
-    <div class="subtitle">Your wardrobe. Your style. Your shopping assistant.</div>
-
-    <div id="loginForm">
-
-      <input
-        id="loginEmail"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-      >
-
-      <input
-        id="loginPassword"
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
-      >
-
-      <button class="primary-btn" onclick="login()">
-        Login
-      </button>
-
-      <button class="link-btn" onclick="showSignup()">
-        Create an account
-      </button>
-
-    </div>
-
-    <div id="signupForm" class="hidden">
-
-      <input
-        id="signupEmail"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-      >
-
-      <input
-        id="signupPassword"
-        type="password"
-        placeholder="Password"
-        autocomplete="new-password"
-      >
-
-      <button class="primary-btn" onclick="signup()">
-        Create Account
-      </button>
-
-      <button class="link-btn" onclick="showLogin()">
-        Already have an account? Login
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- APP -->
-
-<div id="appScreen" class="hidden">
-
-  <header class="topbar">
-
-    <div class="topbar-title">
-      My Wardrobe
-    </div>
-
-    <button class="logout-btn" onclick="logout()">
-      Logout
-    </button>
-
-  </header>
-
-
-  <!-- HOME -->
-
-  <main id="homePage" class="page">
-
-    <div class="welcome">
-
-      <h1>My Wardrobe</h1>
-
-      <p>
-        Organise your clothes and build your perfect outfits.
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="section-title">
-
-        <h2>My Categories</h2>
-
-        <button class="secondary-btn" onclick="openCategoryModal()">
-          + Add
-        </button>
-
-      </div>
-
-      <div id="categoryGrid" class="category-grid">
-
-        <div class="loading">
-          Loading...
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="section-title">
-
-        <h2>Quick Actions</h2>
-
-      </div>
-
-      <div class="form-grid two">
-
-        <button
-          class="secondary-btn"
-          onclick="openClothingModal()"
-        >
-          👕 Add Clothing
-        </button>
-
-        <button
-          class="secondary-btn"
-          onclick="showPage('search')"
-        >
-          🔎 Search Wardrobe
-        </button>
-
-      </div>
-
-    </div>
-
-  </main>
-
-
-  <!-- CATEGORY PAGE -->
-
-  <main id="categoryPage" class="page hidden">
-
-    <div class="section-title">
-
-      <button class="secondary-btn" onclick="goHome()">
-        ← Back
-      </button>
-
-      <button class="secondary-btn" onclick="openClothingModal()">
-        + Add
-      </button>
-
-    </div>
-
-    <div class="card">
-
-      <div class="section-title">
-
-        <h2 id="categoryPageTitle">
-          Category
-        </h2>
-
-        <button
-          class="danger-btn"
-          onclick="confirmDeleteCategory()"
-        >
-          Delete
-        </button>
-
-      </div>
-
-      <div id="clothingGrid" class="clothing-grid"></div>
-
-    </div>
-
-  </main>
-
-
-  <!-- SEARCH PAGE -->
-
-  <main id="searchPage" class="page hidden">
-
-    <div class="card">
-
-      <h2>Search My Wardrobe</h2>
-
-      <input
-        id="searchInput"
-        class="search-box"
-        type="search"
-        placeholder="Search clothing, brand, colour..."
-        oninput="performSearch()"
-      >
-
-      <div id="searchResults"></div>
-
-    </div>
-
-  </main>
-
-
-  <!-- LOOKS PAGE -->
-
-  <main id="looksPage" class="page hidden">
-
-    <div class="card">
-
-      <div class="section-title">
-
-        <h2>Saved Looks</h2>
-
-        <button
-          class="primary-btn"
-          style="width:auto"
-          onclick="openSaveLookModal()"
-        >
-          + Create Look
-        </button>
-
-      </div>
-
-      <div id="looksContainer"></div>
-
-    </div>
-
-  </main>
-
-
-  <!-- SHOP PAGE -->
-
-  <main id="shopPage" class="page hidden">
-
-    <div class="shop-hero">
-
-      <h1>✨ Shop for Me</h1>
-
-      <p>
-        Tell My Wardrobe what you're looking for.
-        I'll consider your existing wardrobe, your preferences,
-        budget and the stores you choose.
-      </p>
-
-    </div>
-
-
-    <!-- SHOPPING PROFILE -->
-
-    <div class="card">
-
-      <div class="section-title">
-
-        <h2>My Shopping Profile</h2>
-
-      </div>
-
-      <div class="form-grid two">
-
-        <div class="field">
-
-          <label>Country</label>
-
-          <select id="profileCountry" onchange="updateStoreList()">
-
-            <option value="Australia">
-              Australia
-            </option>
-
-            <option value="Sri Lanka">
-              Sri Lanka
-            </option>
-
-            <option value="United Kingdom">
-              United Kingdom
-            </option>
-
-            <option value="United States">
-              United States
-            </option>
-
-            <option value="Canada">
-              Canada
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>Typical Clothing Size</label>
-
-          <input
-            id="profileSize"
-            placeholder="e.g. M, L, 32"
-          >
-
-        </div>
-
-
-        <div class="field">
-
-          <label>Preferred Fit</label>
-
-          <select id="profileFit">
-
-            <option value="">
-              No preference
-            </option>
-
-            <option value="slim">
-              Slim
-            </option>
-
-            <option value="regular">
-              Regular
-            </option>
-
-            <option value="relaxed">
-              Relaxed
-            </option>
-
-            <option value="oversized">
-              Oversized
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>Typical Budget</label>
-
-          <input
-            id="profileBudget"
-            type="number"
-            placeholder="e.g. 150"
-          >
-
-        </div>
-
-      </div>
-
-
-      <div style="height:12px"></div>
-
-
-      <div class="form-grid three">
-
-        <div class="field">
-
-          <label>Height (cm)</label>
-
-          <input
-            id="profileHeight"
-            type="number"
-            placeholder="Optional"
-          >
-
-        </div>
-
-        <div class="field">
-
-          <label>Chest (cm)</label>
-
-          <input
-            id="profileChest"
-            type="number"
-            placeholder="Optional"
-          >
-
-        </div>
-
-        <div class="field">
-
-          <label>Waist (cm)</label>
-
-          <input
-            id="profileWaist"
-            type="number"
-            placeholder="Optional"
-          >
-
-        </div>
-
-      </div>
-
-
-      <div style="height:14px"></div>
-
-
-      <button
-        class="primary-btn"
-        onclick="saveShoppingProfile()"
-      >
-        Save Shopping Profile
-      </button>
-
-    </div>
-
-
-    <!-- STORE SELECTION -->
-
-    <div class="card">
-
-      <div class="section-title">
-
-        <h2>Choose My Stores</h2>
-
-      </div>
-
-      <div class="notice">
-
-        Select only the stores you want My Wardrobe to use.
-        The app will not ask for or store your retailer passwords.
-
-      </div>
-
-      <div style="height:14px"></div>
-
-      <div id="storeList" class="store-list"></div>
-
-
-      <div style="height:15px"></div>
-
-      <h3>Add My Own Store</h3>
-
-      <div class="custom-store-row">
-
-        <input
-          id="customStoreName"
-          class="search-box"
-          style="margin:0"
-          placeholder="Store name"
-        >
-
-        <input
-          id="customStoreUrl"
-          class="search-box"
-          style="margin:0"
-          placeholder="https://example.com"
-        >
-
-        <button
-          class="secondary-btn"
-          onclick="addCustomStore()"
-        >
-          Add Store
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <!-- SHOP REQUEST -->
-
-    <div class="card">
-
-      <h2>What are you looking for?</h2>
-
-      <div class="field">
-
-        <label>Your request</label>
-
-        <textarea
-          id="shopRequest"
-          placeholder="Example: I need an outfit for a wedding. I want something elegant but not too formal. I already have black dress shoes and a navy blazer."
-        ></textarea>
-
-      </div>
-
-
-      <div style="height:15px"></div>
-
-      <label style="font-size:13px;font-weight:700">
-        Occasion
-      </label>
-
-      <div style="height:8px"></div>
-
-      <div class="chips">
-
-        <button class="chip" onclick="selectOccasion(this,'Wedding')">
-          💍 Wedding
-        </button>
-
-        <button class="chip" onclick="selectOccasion(this,'Date')">
-          ❤️ Date
-        </button>
-
-        <button class="chip" onclick="selectOccasion(this,'Work')">
-          💼 Work
-        </button>
-
-        <button class="chip" onclick="selectOccasion(this,'Casual')">
-          👕 Casual
-        </button>
-
-        <button class="chip" onclick="selectOccasion(this,'Party')">
-          🎉 Party
-        </button>
-
-        <button class="chip" onclick="selectOccasion(this,'Vacation')">
-          ✈️ Vacation
-        </button>
-
-      </div>
-
-
-      <div style="height:15px"></div>
-
-
-      <div class="field">
-
-        <label>Maximum Budget</label>
-
-        <input
-          id="shopBudget"
-          type="number"
-          placeholder="e.g. 200"
-        >
-
-      </div>
-
-
-      <div style="height:15px"></div>
-
-
-      <button
-        class="primary-btn"
-        onclick="findShoppingOptions()"
-      >
-        ✨ Find My Best Options
-      </button>
-
-    </div>
-
-
-    <!-- RESULTS -->
-
-    <div class="card">
-
-      <div class="section-title">
-
-        <h2>Shopping Results</h2>
-
-      </div>
-
-      <div id="shoppingResults">
-
-        <div class="empty-state">
-
-          Tell me what you're looking for and I'll find the best
-          options from your selected stores.
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </main>
-
-
-  <!-- BOTTOM NAV -->
-
-  <nav class="bottom-nav">
-
-    <button
-      id="navHome"
-      class="nav-btn active"
-      onclick="showPage('home')"
-    >
-      <span>🏠</span>
-      Home
-    </button>
-
-    <button
-      id="navLooks"
-      class="nav-btn"
-      onclick="showPage('looks')"
-    >
-      <span>✨</span>
-      Looks
-    </button>
-
-    <button
-      id="navShop"
-      class="nav-btn"
-      onclick="showPage('shop')"
-    >
-      <span>🛍️</span>
-      Shop
-    </button>
-
-  </nav>
-
-</div>
-
-
-<!-- CATEGORY MODAL -->
-
-<div id="categoryModal" class="modal hidden">
-
-  <div class="modal-content">
-
-    <div class="modal-header">
-
-      <h2 id="categoryModalTitle">
-        Add Category
-      </h2>
-
-      <button
-        class="close-btn"
-        onclick="closeModal('categoryModal')"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <div class="field">
-
-      <label>Category Name</label>
-
-      <input
-        id="categoryName"
-        placeholder="e.g. Shirts"
-      >
-
-    </div>
-
-
-    <div style="height:12px"></div>
-
-
-    <div class="field">
-
-      <label>Icon</label>
-
-      <input
-        id="categoryIcon"
-        placeholder="👕"
-        value="👕"
-      >
-
-    </div>
-
-
-    <div style="height:15px"></div>
-
-
-    <button
-      class="primary-btn"
-      onclick="saveCategory()"
-    >
-      Save Category
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- CLOTHING MODAL -->
-
-<div id="clothingModal" class="modal hidden">
-
-  <div class="modal-content">
-
-    <div class="modal-header">
-
-      <h2 id="clothingModalTitle">
-        Add Clothing
-      </h2>
-
-      <button
-        class="close-btn"
-        onclick="closeModal('clothingModal')"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <div class="field">
-
-      <label>Category</label>
-
-      <select id="clothingCategory"></select>
-
-    </div>
-
-
-    <div style="height:12px"></div>
-
-
-    <div class="field">
-
-      <label>Name</label>
-
-      <input
-        id="clothingName"
-        placeholder="e.g. Navy Polo Shirt"
-      >
-
-    </div>
-
-
-    <div style="height:12px"></div>
-
-
-    <div class="field">
-
-      <label>Colour</label>
-
-      <input
-        id="clothingColor"
-        placeholder="e.g. Navy"
-      >
-
-    </div>
-
-
-    <div style="height:12px"></div>
-
-
-    <div class="field">
-
-      <label>Brand</label>
-
-      <input
-        id="clothingBrand"
-        placeholder="e.g. Tommy Hilfiger"
-      >
-
-    </div>
-
-
-    <div style="height:12px"></div>
-
-
-    <div class="field">
-
-      <label>Photo</label>
-
-      <input
-        id="clothingPhoto"
-        type="file"
-        accept="image/*"
-        onchange="previewPhoto()"
-      >
-
-    </div>
-
-
-    <div id="photoPreviewContainer" class="hidden">
-      <img
-        id="photoPreview"
-        style="width:100%;max-height:250px;object-fit:contain;border-radius:12px;margin-top:10px"
-        alt="Preview"
-      >
-    </div>
-
-
-    <div style="height:15px"></div>
-
-
-    <button
-      id="saveClothingButton"
-      class="primary-btn"
-      onclick="saveClothing()"
-    >
-      Save Clothing
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- SAVE LOOK MODAL -->
-
-<div id="saveLookModal" class="modal hidden">
-
-  <div class="modal-content">
-
-    <div class="modal-header">
-
-      <h2>Save Look</h2>
-
-      <button
-        class="close-btn"
-        onclick="closeModal('saveLookModal')"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <div class="field">
-
-      <label>Look Name</label>
-
-      <input
-        id="lookName"
-        placeholder="e.g. Wedding Outfit"
-      >
-
-    </div>
-
-
-    <div style="height:15px"></div>
-
-
-    <button
-      class="primary-btn"
-      onclick="createSavedLook()"
-    >
-      Create Look
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- SUPABASE -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
 <script>
 
   /* =========================================================
@@ -1512,16 +18,15 @@
 
 
   /*
-    OPTIONAL:
-
-    If you later build a secure backend/edge function
-    that connects to approved retailer feeds or AI APIs,
-    put that endpoint here.
-
-    DO NOT put OpenAI or other secret API keys in this
-    frontend file.
+    OPTIONAL LIVE SHOPPING BACKEND
 
     Leave blank for now.
+
+    Later, if you connect a secure backend/edge function,
+    this can return exact live products, prices and
+    product links.
+
+    NEVER put private AI API keys in this frontend.
   */
 
   const SHOP_API_URL = "";
@@ -1845,40 +350,58 @@
   async function signup() {
 
     const email =
-      document.getElementById("signupEmail").value.trim();
+      document
+        .getElementById("signupEmail")
+        .value
+        .trim();
 
     const password =
-      document.getElementById("signupPassword").value;
+      document
+        .getElementById("signupPassword")
+        .value;
+
 
     if (!email || !password) {
 
-      alert("Please enter your email and password.");
+      alert(
+        "Please enter your email and password."
+      );
 
       return;
     }
+
 
     if (password.length < 6) {
 
-      alert("Password must be at least 6 characters.");
+      alert(
+        "Password must be at least 6 characters."
+      );
 
       return;
     }
 
+
     try {
 
-      const { data, error } =
+      const {
+        data,
+        error
+      } =
         await supabaseClient.auth.signUp({
           email,
           password
         });
 
+
       if (error) {
         throw error;
       }
 
+
       if (data.session) {
 
-        currentUser = data.user;
+        currentUser =
+          data.user;
 
         await startApp();
 
@@ -1897,7 +420,8 @@
       console.error(error);
 
       alert(
-        error.message || "Unable to create account."
+        error.message ||
+        "Unable to create account."
       );
 
     }
@@ -1908,41 +432,50 @@
   async function login() {
 
     const email =
-      document.getElementById("loginEmail").value.trim();
+      document
+        .getElementById("loginEmail")
+        .value
+        .trim();
 
     const password =
-      document.getElementById("loginPassword").value;
+      document
+        .getElementById("loginPassword")
+        .value;
+
 
     if (!email || !password) {
 
-      alert("Please enter your email and password.");
+      alert(
+        "Please enter your email and password."
+      );
 
       return;
     }
 
+
     try {
 
-      const { error } =
-        await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
+      const {
+        error
+      } =
+        await supabaseClient.auth
+          .signInWithPassword({
+            email,
+            password
+          });
+
 
       if (error) {
         throw error;
       }
-
-      /*
-        Do NOT call startApp() here.
-        The auth state listener below handles it.
-      */
 
     } catch (error) {
 
       console.error(error);
 
       alert(
-        error.message || "Login failed."
+        error.message ||
+        "Login failed."
       );
 
     }
@@ -1962,14 +495,17 @@
 
     }
 
+
     currentUser = null;
 
     appStarted = false;
     appStarting = false;
 
+
     document
       .getElementById("appScreen")
       .classList.add("hidden");
+
 
     document
       .getElementById("authScreen")
@@ -1988,11 +524,14 @@
       return;
     }
 
+
     if (!currentUser) {
       return;
     }
 
+
     appStarting = true;
+
 
     try {
 
@@ -2000,9 +539,11 @@
         .getElementById("authScreen")
         .classList.add("hidden");
 
+
       document
         .getElementById("appScreen")
         .classList.remove("hidden");
+
 
       await loadAllData();
 
@@ -2037,65 +578,86 @@
       return;
     }
 
+
     const [
       categoryResult,
       clothingResult,
       lookResult,
       lookItemsResult
-    ] = await Promise.all([
+    ] =
+      await Promise.all([
 
-      supabaseClient
-        .from("categories")
-        .select("*")
-        .order("created_at", {
-          ascending: true
-        }),
+        supabaseClient
+          .from("categories")
+          .select("*")
+          .order(
+            "created_at",
+            {
+              ascending: true
+            }
+          ),
 
-      supabaseClient
-        .from("clothing_items")
-        .select("*")
-        .order("created_at", {
-          ascending: true
-        }),
+        supabaseClient
+          .from("clothing_items")
+          .select("*")
+          .order(
+            "created_at",
+            {
+              ascending: true
+            }
+          ),
 
-      supabaseClient
-        .from("saved_looks")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        }),
+        supabaseClient
+          .from("saved_looks")
+          .select("*")
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          ),
 
-      supabaseClient
-        .from("look_items")
-        .select("*")
+        supabaseClient
+          .from("look_items")
+          .select("*")
 
-    ]);
+      ]);
 
 
     if (categoryResult.error) {
       throw categoryResult.error;
     }
 
+
     if (clothingResult.error) {
       throw clothingResult.error;
     }
 
+
     if (lookResult.error) {
       throw lookResult.error;
     }
+
 
     if (lookItemsResult.error) {
       throw lookItemsResult.error;
     }
 
 
-    categories = categoryResult.data || [];
+    categories =
+      categoryResult.data || [];
 
-    clothingItems = clothingResult.data || [];
 
-    savedLooks = lookResult.data || [];
+    clothingItems =
+      clothingResult.data || [];
 
-    lookItems = lookItemsResult.data || [];
+
+    savedLooks =
+      lookResult.data || [];
+
+
+    lookItems =
+      lookItemsResult.data || [];
 
 
     await createSignedPhotoUrls();
@@ -2113,9 +675,13 @@
         continue;
       }
 
+
       try {
 
-        const { data, error } =
+        const {
+          data,
+          error
+        } =
           await supabaseClient
             .storage
             .from("wardrobe-photos")
@@ -2123,6 +689,7 @@
               item.photo_url,
               3600
             );
+
 
         if (!error && data) {
 
@@ -2151,42 +718,38 @@
 
   function hideAllPages() {
 
-    document
-      .getElementById("homePage")
-      .classList.add("hidden");
+    [
+      "homePage",
+      "categoryPage",
+      "searchPage",
+      "looksPage",
+      "shopPage"
+    ]
+      .forEach(id => {
 
-    document
-      .getElementById("categoryPage")
-      .classList.add("hidden");
+        document
+          .getElementById(id)
+          .classList.add("hidden");
 
-    document
-      .getElementById("searchPage")
-      .classList.add("hidden");
-
-    document
-      .getElementById("looksPage")
-      .classList.add("hidden");
-
-    document
-      .getElementById("shopPage")
-      .classList.add("hidden");
+      });
 
   }
 
 
   function clearNavActive() {
 
-    document
-      .getElementById("navHome")
-      .classList.remove("active");
+    [
+      "navHome",
+      "navLooks",
+      "navShop"
+    ]
+      .forEach(id => {
 
-    document
-      .getElementById("navLooks")
-      .classList.remove("active");
+        document
+          .getElementById(id)
+          .classList.remove("active");
 
-    document
-      .getElementById("navShop")
-      .classList.remove("active");
+      });
 
   }
 
@@ -2204,6 +767,7 @@
         .getElementById("homePage")
         .classList.remove("hidden");
 
+
       document
         .getElementById("navHome")
         .classList.add("active");
@@ -2217,9 +781,11 @@
         .getElementById("looksPage")
         .classList.remove("hidden");
 
+
       document
         .getElementById("navLooks")
         .classList.add("active");
+
 
       renderLooks();
 
@@ -2232,9 +798,11 @@
         .getElementById("shopPage")
         .classList.remove("hidden");
 
+
       document
         .getElementById("navShop")
         .classList.add("active");
+
 
       loadShoppingProfile();
 
@@ -2249,9 +817,14 @@
         .getElementById("searchPage")
         .classList.remove("hidden");
 
-      document
-        .getElementById("searchInput")
-        .focus();
+
+      setTimeout(() => {
+
+        document
+          .getElementById("searchInput")
+          .focus();
+
+      }, 100);
 
     }
 
@@ -2274,7 +847,10 @@
   function renderCategories() {
 
     const grid =
-      document.getElementById("categoryGrid");
+      document.getElementById(
+        "categoryGrid"
+      );
+
 
     if (!categories.length) {
 
@@ -2289,48 +865,60 @@
     }
 
 
-    grid.innerHTML = categories
-      .map(category => {
+    grid.innerHTML =
+      categories
+        .map(category => {
 
-        const count =
-          clothingItems.filter(
-            item =>
-              item.category_id === category.id
-          ).length;
+          const count =
+            clothingItems.filter(
+              item =>
+                item.category_id ===
+                category.id
+            ).length;
 
-        return `
 
-          <button
-            class="category-card"
-            onclick="openCategory('${category.id}')"
-          >
+          return `
 
-            <span class="category-icon">
-              ${escapeHtml(category.icon || "👕")}
-            </span>
+            <button
+              class="category-card"
+              onclick="openCategory('${escapeJs(category.id)}')"
+            >
 
-            <span class="category-name">
-              ${escapeHtml(category.name)}
-            </span>
+              <span class="category-icon">
+                ${escapeHtml(
+                  category.icon ||
+                  "👕"
+                )}
+              </span>
 
-            <small>
-              ${count} item${count === 1 ? "" : "s"}
-            </small>
+              <span class="category-name">
+                ${escapeHtml(
+                  category.name
+                )}
+              </span>
 
-          </button>
+              <small>
+                ${count}
+                item${count === 1 ? "" : "s"}
+              </small>
 
-        `;
+            </button>
 
-      })
-      .join("");
+          `;
+
+        })
+        .join("");
 
   }
 
 
-  function openCategoryModal(categoryId = null) {
+  function openCategoryModal(
+    categoryId = null
+  ) {
 
     editingCategoryId =
       categoryId;
+
 
     document
       .getElementById("categoryModal")
@@ -2342,42 +930,62 @@
       const category =
         categories.find(
           item =>
-            item.id === categoryId
+            item.id ===
+            categoryId
         );
+
 
       if (!category) {
         return;
       }
 
+
       document
-        .getElementById("categoryModalTitle")
+        .getElementById(
+          "categoryModalTitle"
+        )
         .textContent =
         "Edit Category";
 
+
       document
-        .getElementById("categoryName")
+        .getElementById(
+          "categoryName"
+        )
         .value =
         category.name || "";
 
+
       document
-        .getElementById("categoryIcon")
+        .getElementById(
+          "categoryIcon"
+        )
         .value =
         category.icon || "👕";
 
     } else {
 
       document
-        .getElementById("categoryModalTitle")
+        .getElementById(
+          "categoryModalTitle"
+        )
         .textContent =
         "Add Category";
 
-      document
-        .getElementById("categoryName")
-        .value = "";
 
       document
-        .getElementById("categoryIcon")
-        .value = "👕";
+        .getElementById(
+          "categoryName"
+        )
+        .value = "";
+
+
+      document
+        .getElementById(
+          "categoryIcon"
+        )
+        .value =
+        "👕";
 
     }
 
@@ -2388,20 +996,28 @@
 
     const name =
       document
-        .getElementById("categoryName")
+        .getElementById(
+          "categoryName"
+        )
         .value
         .trim();
 
+
     const icon =
       document
-        .getElementById("categoryIcon")
+        .getElementById(
+          "categoryIcon"
+        )
         .value
-        .trim() || "👕";
+        .trim() ||
+      "👕";
 
 
     if (!name) {
 
-      alert("Please enter a category name.");
+      alert(
+        "Please enter a category name."
+      );
 
       return;
     }
@@ -2421,9 +1037,14 @@
               name,
               icon
             })
-            .eq("id", editingCategoryId);
+            .eq(
+              "id",
+              editingCategoryId
+            );
 
-        error = result.error;
+
+        error =
+          result.error;
 
       } else {
 
@@ -2431,12 +1052,16 @@
           await supabaseClient
             .from("categories")
             .insert({
-              user_id: currentUser.id,
+              user_id:
+                currentUser.id,
+
               name,
               icon
             });
 
-        error = result.error;
+
+        error =
+          result.error;
 
       }
 
@@ -2446,9 +1071,13 @@
       }
 
 
-      closeModal("categoryModal");
+      closeModal(
+        "categoryModal"
+      );
+
 
       await loadAllData();
+
 
       if (currentCategoryId) {
 
@@ -2481,7 +1110,8 @@
     const category =
       categories.find(
         item =>
-          item.id === categoryId
+          item.id ===
+          categoryId
       );
 
 
@@ -2491,7 +1121,9 @@
 
 
     document
-      .getElementById("categoryPageTitle")
+      .getElementById(
+        "categoryPageTitle"
+      )
       .textContent =
       category.name;
 
@@ -2502,8 +1134,12 @@
 
 
     document
-      .getElementById("categoryPage")
-      .classList.remove("hidden");
+      .getElementById(
+        "categoryPage"
+      )
+      .classList.remove(
+        "hidden"
+      );
 
 
     renderClothingForCategory();
@@ -2514,7 +1150,9 @@
   function renderClothingForCategory() {
 
     const grid =
-      document.getElementById("clothingGrid");
+      document.getElementById(
+        "clothingGrid"
+      );
 
 
     const items =
@@ -2538,7 +1176,9 @@
 
 
     grid.innerHTML =
-      items.map(renderClothingCard).join("");
+      items
+        .map(renderClothingCard)
+        .join("");
 
   }
 
@@ -2558,10 +1198,13 @@
           image
           ?
           `<img
-             class="clothing-photo"
-             src="${safeAttributeUrl(image)}"
-             alt="${escapeHtml(item.name || "Clothing")}"
-           >`
+            class="clothing-photo"
+            src="${safeAttributeUrl(image)}"
+            alt="${escapeHtml(
+              item.name ||
+              "Clothing"
+            )}"
+          >`
           :
           `<div class="clothing-photo"></div>`
         }
@@ -2569,14 +1212,19 @@
         <div class="clothing-info">
 
           <strong>
-            ${escapeHtml(item.name || "Unnamed")}
+            ${escapeHtml(
+              item.name ||
+              "Unnamed"
+            )}
           </strong>
 
           ${
             item.color
             ?
             `<small>
-              ${escapeHtml(item.color)}
+              ${escapeHtml(
+                item.color
+              )}
             </small>`
             :
             ""
@@ -2586,7 +1234,9 @@
             item.brand
             ?
             `<small>
-              ${escapeHtml(item.brand)}
+              ${escapeHtml(
+                item.brand
+              )}
             </small>`
             :
             ""
@@ -2596,14 +1246,14 @@
 
             <button
               class="small-btn"
-              onclick="openClothingModal('${item.id}')"
+              onclick="openClothingModal('${escapeJs(item.id)}')"
             >
               Edit
             </button>
 
             <button
               class="small-btn"
-              onclick="deleteClothing('${item.id}')"
+              onclick="deleteClothing('${escapeJs(item.id)}')"
             >
               Delete
             </button>
@@ -2629,7 +1279,8 @@
     const category =
       categories.find(
         item =>
-          item.id === currentCategoryId
+          item.id ===
+          currentCategoryId
       );
 
 
@@ -2666,40 +1317,38 @@
         );
 
 
-      /*
-        Delete storage photos first.
-      */
-
       const paths =
         items
-          .map(item => item.photo_url)
+          .map(
+            item =>
+              item.photo_url
+          )
           .filter(Boolean);
 
 
       if (paths.length) {
 
         const {
-          error: storageError
+          error:
+            storageError
         } =
           await supabaseClient
             .storage
             .from("wardrobe-photos")
             .remove(paths);
 
+
         if (storageError) {
+
           console.warn(
             "Some photos could not be deleted:",
             storageError
           );
+
         }
 
       }
 
-
-      /*
-        Explicitly delete clothing rows.
-        This avoids relying on database cascade rules.
-      */
 
       if (items.length) {
 
@@ -2713,6 +1362,7 @@
               "category_id",
               currentCategoryId
             );
+
 
         if (error) {
           throw error;
@@ -2739,6 +1389,7 @@
 
 
       currentCategoryId = null;
+
 
       await loadAllData();
 
@@ -2774,8 +1425,14 @@
       categories
         .map(category => `
 
-          <option value="${category.id}">
-            ${escapeHtml(category.name)}
+          <option
+            value="${escapeHtml(
+              category.id
+            )}"
+          >
+            ${escapeHtml(
+              category.name
+            )}
           </option>
 
         `)
@@ -2784,7 +1441,9 @@
   }
 
 
-  function openClothingModal(clothingId = null) {
+  function openClothingModal(
+    clothingId = null
+  ) {
 
     editingClothingId =
       clothingId;
@@ -2794,20 +1453,27 @@
 
 
     document
-      .getElementById("clothingModal")
-      .classList.remove("hidden");
-
-
-    const preview =
-      document.getElementById(
-        "photoPreviewContainer"
+      .getElementById(
+        "clothingModal"
+      )
+      .classList.remove(
+        "hidden"
       );
-
-    preview.classList.add("hidden");
 
 
     document
-      .getElementById("clothingPhoto")
+      .getElementById(
+        "photoPreviewContainer"
+      )
+      .classList.add(
+        "hidden"
+      );
+
+
+    document
+      .getElementById(
+        "clothingPhoto"
+      )
       .value = "";
 
 
@@ -2816,7 +1482,8 @@
       const item =
         clothingItems.find(
           x =>
-            x.id === clothingId
+            x.id ===
+            clothingId
         );
 
 
@@ -2826,39 +1493,50 @@
 
 
       document
-        .getElementById("clothingModalTitle")
+        .getElementById(
+          "clothingModalTitle"
+        )
         .textContent =
         "Edit Clothing";
 
 
       document
-        .getElementById("clothingCategory")
+        .getElementById(
+          "clothingCategory"
+        )
         .value =
         item.category_id;
 
 
       document
-        .getElementById("clothingName")
+        .getElementById(
+          "clothingName"
+        )
         .value =
         item.name || "";
 
 
       document
-        .getElementById("clothingColor")
+        .getElementById(
+          "clothingColor"
+        )
         .value =
         item.color || "";
 
 
       document
-        .getElementById("clothingBrand")
+        .getElementById(
+          "clothingBrand"
+        )
         .value =
         item.brand || "";
-
 
     } else {
 
       document
-        .getElementById("clothingModalTitle")
+        .getElementById(
+          "clothingModalTitle"
+        )
         .textContent =
         "Add Clothing";
 
@@ -2866,7 +1544,9 @@
       if (currentCategoryId) {
 
         document
-          .getElementById("clothingCategory")
+          .getElementById(
+            "clothingCategory"
+          )
           .value =
           currentCategoryId;
 
@@ -2874,15 +1554,23 @@
 
 
       document
-        .getElementById("clothingName")
+        .getElementById(
+          "clothingName"
+        )
         .value = "";
 
-      document
-        .getElementById("clothingColor")
-        .value = "";
 
       document
-        .getElementById("clothingBrand")
+        .getElementById(
+          "clothingColor"
+        )
+        .value = "";
+
+
+      document
+        .getElementById(
+          "clothingBrand"
+        )
         .value = "";
 
     }
@@ -2896,6 +1584,7 @@
       document.getElementById(
         "clothingPhoto"
       );
+
 
     const file =
       input.files[0];
@@ -2911,15 +1600,20 @@
 
 
     document
-      .getElementById("photoPreview")
-      .src = url;
+      .getElementById(
+        "photoPreview"
+      )
+      .src =
+      url;
 
 
     document
       .getElementById(
         "photoPreviewContainer"
       )
-      .classList.remove("hidden");
+      .classList.remove(
+        "hidden"
+      );
 
   }
 
@@ -2934,10 +1628,12 @@
 
     button.disabled = true;
 
-    button.textContent = "Saving...";
+    button.textContent =
+      "Saving...";
 
 
-    let uploadedPath = null;
+    let uploadedPath =
+      null;
 
 
     try {
@@ -3008,11 +1704,6 @@
       let photoUrl = null;
 
 
-      /*
-        If editing and no new photo is selected,
-        keep the existing photo.
-      */
-
       if (editingClothingId) {
 
         const existing =
@@ -3021,6 +1712,7 @@
               item.id ===
               editingClothingId
           );
+
 
         photoUrl =
           existing
@@ -3045,7 +1737,8 @@
 
 
         const {
-          error: uploadError
+          error:
+            uploadError
         } =
           await supabaseClient
             .storage
@@ -3079,18 +1772,26 @@
           await supabaseClient
             .from("clothing_items")
             .update({
-              category_id: categoryId,
+              category_id:
+                categoryId,
+
               name,
+
               color,
+
               brand,
-              photo_url: photoUrl
+
+              photo_url:
+                photoUrl
             })
             .eq(
               "id",
               editingClothingId
             );
 
-        error = result.error;
+
+        error =
+          result.error;
 
       } else {
 
@@ -3098,15 +1799,25 @@
           await supabaseClient
             .from("clothing_items")
             .insert({
-              user_id: currentUser.id,
-              category_id: categoryId,
+              user_id:
+                currentUser.id,
+
+              category_id:
+                categoryId,
+
               name,
+
               color,
+
               brand,
-              photo_url: photoUrl
+
+              photo_url:
+                photoUrl
             });
 
-        error = result.error;
+
+        error =
+          result.error;
 
       }
 
@@ -3116,7 +1827,10 @@
       }
 
 
-      closeModal("clothingModal");
+      closeModal(
+        "clothingModal"
+      );
+
 
       await loadAllData();
 
@@ -3127,16 +1841,10 @@
 
       }
 
-
     } catch (error) {
 
       console.error(error);
 
-
-      /*
-        If database save failed after upload,
-        remove the uploaded photo.
-      */
 
       if (uploadedPath) {
 
@@ -3145,7 +1853,9 @@
           await supabaseClient
             .storage
             .from("wardrobe-photos")
-            .remove([uploadedPath]);
+            .remove([
+              uploadedPath
+            ]);
 
         } catch (cleanupError) {
 
@@ -3193,11 +1903,15 @@
 
       const item =
         clothingItems.find(
-          x => x.id === id
+          x =>
+            x.id === id
         );
 
 
-      if (item && item.photo_url) {
+      if (
+        item &&
+        item.photo_url
+      ) {
 
         await supabaseClient
           .storage
@@ -3215,7 +1929,10 @@
         await supabaseClient
           .from("clothing_items")
           .delete()
-          .eq("id", id);
+          .eq(
+            "id",
+            id
+          );
 
 
       if (error) {
@@ -3231,7 +1948,6 @@
         renderClothingForCategory();
 
       }
-
 
     } catch (error) {
 
@@ -3255,7 +1971,9 @@
 
     const query =
       document
-        .getElementById("searchInput")
+        .getElementById(
+          "searchInput"
+        )
         .value
         .trim()
         .toLowerCase();
@@ -3280,23 +1998,27 @@
 
 
     const matches =
-      clothingItems.filter(item => {
+      clothingItems.filter(
+        item => {
 
-        const text = [
+          const text = [
 
-          item.name,
-          item.color,
-          item.brand
+            item.name,
+            item.color,
+            item.brand
 
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
 
 
-        return text.includes(query);
+          return text.includes(
+            query
+          );
 
-      });
+        }
+      );
 
 
     if (!matches.length) {
@@ -3315,9 +2037,13 @@
 
       <div class="clothing-grid">
 
-        ${matches
-          .map(renderClothingCard)
-          .join("")}
+        ${
+          matches
+            .map(
+              renderClothingCard
+            )
+            .join("")
+        }
 
       </div>
 
@@ -3334,14 +2060,18 @@
 
     const name =
       document
-        .getElementById("lookName")
+        .getElementById(
+          "lookName"
+        )
         .value
         .trim();
 
 
     if (!name) {
 
-      alert("Please enter a look name.");
+      alert(
+        "Please enter a look name."
+      );
 
       return;
     }
@@ -3360,25 +2090,28 @@
     try {
 
       const categoriesAvailable =
-        [...new Set(
-          clothingItems.map(
-            item =>
-              item.category_id
+        [
+          ...new Set(
+            clothingItems.map(
+              item =>
+                item.category_id
+            )
           )
-        )];
+        ];
 
-
-      /*
-        Choose up to three different categories.
-      */
 
       categoriesAvailable.sort(
-        () => Math.random() - 0.5
+        () =>
+          Math.random() -
+          0.5
       );
 
 
       const selectedCategoryIds =
-        categoriesAvailable.slice(0, 3);
+        categoriesAvailable.slice(
+          0,
+          3
+        );
 
 
       let selectedItems = [];
@@ -3406,7 +2139,9 @@
               ];
 
 
-            selectedItems.push(item);
+            selectedItems.push(
+              item
+            );
 
           }
 
@@ -3414,25 +2149,26 @@
       );
 
 
-      /*
-        If fewer than 3 items were selected,
-        fill from remaining wardrobe items.
-      */
-
-      if (selectedItems.length < 3) {
+      if (
+        selectedItems.length <
+        3
+      ) {
 
         const remaining =
           clothingItems.filter(
             item =>
               !selectedItems.some(
                 selected =>
-                  selected.id === item.id
+                  selected.id ===
+                  item.id
               )
           );
 
 
         remaining.sort(
-          () => Math.random() - 0.5
+          () =>
+            Math.random() -
+            0.5
         );
 
 
@@ -3440,7 +2176,8 @@
           selectedItems.concat(
             remaining.slice(
               0,
-              3 - selectedItems.length
+              3 -
+              selectedItems.length
             )
           );
 
@@ -3454,7 +2191,9 @@
         await supabaseClient
           .from("saved_looks")
           .insert({
-            user_id: currentUser.id,
+            user_id:
+              currentUser.id,
+
             name
           })
           .select()
@@ -3471,8 +2210,11 @@
         const rows =
           selectedItems.map(
             item => ({
-              look_id: look.id,
-              clothing_item_id: item.id
+              look_id:
+                look.id,
+
+              clothing_item_id:
+                item.id
             })
           );
 
@@ -3492,12 +2234,14 @@
       }
 
 
-      closeModal("saveLookModal");
+      closeModal(
+        "saveLookModal"
+      );
+
 
       await loadAllData();
 
       showPage("looks");
-
 
     } catch (error) {
 
@@ -3516,13 +2260,19 @@
   function openSaveLookModal() {
 
     document
-      .getElementById("lookName")
+      .getElementById(
+        "lookName"
+      )
       .value = "";
 
 
     document
-      .getElementById("saveLookModal")
-      .classList.remove("hidden");
+      .getElementById(
+        "saveLookModal"
+      )
+      .classList.remove(
+        "hidden"
+      );
 
   }
 
@@ -3547,15 +2297,11 @@
     }
 
 
-    /*
-      Only use look items belonging to the
-      currently loaded user's saved looks.
-    */
-
     const validLookIds =
       new Set(
         savedLooks.map(
-          look => look.id
+          look =>
+            look.id
         )
       );
 
@@ -3586,7 +2332,8 @@
                 id =>
                   clothingItems.find(
                     item =>
-                      item.id === id
+                      item.id ===
+                      id
                   )
               )
               .filter(Boolean);
@@ -3597,7 +2344,9 @@
             <div class="look-card">
 
               <h3>
-                ${escapeHtml(look.name)}
+                ${escapeHtml(
+                  look.name
+                )}
               </h3>
 
               <div class="look-items">
@@ -3606,25 +2355,32 @@
                   items.length
                   ?
                   items
-                    .map(item => `
+                    .map(
+                      item => `
 
-                      ${
-                        item.signed_photo_url
-                        ?
-                        `<img
-                          src="${safeAttributeUrl(item.signed_photo_url)}"
-                          alt="${escapeHtml(item.name || "Clothing")}"
-                        >`
-                        :
-                        `<div
-                          style="
-                            background:#eee;
-                            border-radius:10px;
-                          "
-                        ></div>`
-                      }
+                        ${
+                          item.signed_photo_url
+                          ?
+                          `<img
+                            src="${safeAttributeUrl(
+                              item.signed_photo_url
+                            )}"
+                            alt="${escapeHtml(
+                              item.name ||
+                              "Clothing"
+                            )}"
+                          >`
+                          :
+                          `<div
+                            style="
+                              background:#eee;
+                              border-radius:10px;
+                            "
+                          ></div>`
+                        }
 
-                    `)
+                      `
+                    )
                     .join("")
                   :
                   `<div class="empty-state">
@@ -3687,46 +2443,66 @@
 
 
       document
-        .getElementById("profileCountry")
+        .getElementById(
+          "profileCountry"
+        )
         .value =
         profile.country ||
         "Australia";
 
 
       document
-        .getElementById("profileSize")
+        .getElementById(
+          "profileSize"
+        )
         .value =
-        profile.size || "";
+        profile.size ||
+        "";
 
 
       document
-        .getElementById("profileFit")
+        .getElementById(
+          "profileFit"
+        )
         .value =
-        profile.fit || "";
+        profile.fit ||
+        "";
 
 
       document
-        .getElementById("profileBudget")
+        .getElementById(
+          "profileBudget"
+        )
         .value =
-        profile.budget || "";
+        profile.budget ||
+        "";
 
 
       document
-        .getElementById("profileHeight")
+        .getElementById(
+          "profileHeight"
+        )
         .value =
-        profile.height || "";
+        profile.height ||
+        "";
 
 
       document
-        .getElementById("profileChest")
+        .getElementById(
+          "profileChest"
+        )
         .value =
-        profile.chest || "";
+        profile.chest ||
+        "";
 
 
       document
-        .getElementById("profileWaist")
+        .getElementById(
+          "profileWaist"
+        )
         .value =
-        profile.waist || "";
+        profile.waist ||
+        "";
 
 
       if (profile.occasion) {
@@ -3735,7 +2511,6 @@
           profile.occasion;
 
       }
-
 
     } catch (error) {
 
@@ -3818,7 +2593,9 @@
 
       localStorage.setItem(
         profileStorageKey(),
-        JSON.stringify(profile)
+        JSON.stringify(
+          profile
+        )
       );
 
 
@@ -3866,7 +2643,9 @@
       }
 
 
-      return JSON.parse(saved);
+      return JSON.parse(
+        saved
+      );
 
     } catch (error) {
 
@@ -3907,7 +2686,9 @@
   }
 
 
-  function saveSelectedStoreIds(ids) {
+  function saveSelectedStoreIds(
+    ids
+  ) {
 
     try {
 
@@ -3946,11 +2727,15 @@
     }
 
 
-    const stores =
-      [
-        ...(STORE_CATALOG[country] || []),
-        ...getCustomStores()
-      ];
+    const stores = [
+
+      ...(STORE_CATALOG[
+        country
+      ] || []),
+
+      ...getCustomStores()
+
+    ];
 
 
     const selected =
@@ -3976,14 +2761,18 @@
         .map(store => {
 
           const checked =
-            selected.has(store.id);
+            selected.has(
+              store.id
+            );
 
 
           return `
 
             <label
               class="store-option ${
-                checked ? "selected" : ""
+                checked
+                  ? "selected"
+                  : ""
               }"
             >
 
@@ -3991,12 +2780,14 @@
                 type="checkbox"
                 ${
                   checked
-                  ? "checked"
-                  : ""
+                    ? "checked"
+                    : ""
                 }
                 onchange="
                   toggleStore(
-                    '${escapeJs(store.id)}',
+                    '${escapeJs(
+                      store.id
+                    )}',
                     this.checked
                   )
                 "
@@ -4005,11 +2796,15 @@
               <div>
 
                 <div class="store-name">
-                  ${escapeHtml(store.name)}
+                  ${escapeHtml(
+                    store.name
+                  )}
                 </div>
 
                 <div class="store-country">
-                  ${escapeHtml(store.country)}
+                  ${escapeHtml(
+                    store.country
+                  )}
                 </div>
 
               </div>
@@ -4035,9 +2830,15 @@
 
     if (checked) {
 
-      if (!ids.includes(storeId)) {
+      if (
+        !ids.includes(
+          storeId
+        )
+      ) {
 
-        ids.push(storeId);
+        ids.push(
+          storeId
+        );
 
       }
 
@@ -4046,13 +2847,17 @@
       ids =
         ids.filter(
           id =>
-            id !== storeId
+            id !==
+            storeId
         );
 
     }
 
 
-    saveSelectedStoreIds(ids);
+    saveSelectedStoreIds(
+      ids
+    );
+
 
     updateStoreList();
 
@@ -4124,9 +2929,11 @@
           )
           .value,
 
-      url: safe,
+      url:
+        safe,
 
-      custom: true
+      custom:
+        true
 
     });
 
@@ -4135,7 +2942,9 @@
 
       localStorage.setItem(
         storesStorageKey(),
-        JSON.stringify(customStores)
+        JSON.stringify(
+          customStores
+        )
       );
 
 
@@ -4143,9 +2952,14 @@
         getSelectedStoreIds();
 
 
-      selected.push(id);
+      selected.push(
+        id
+      );
 
-      saveSelectedStoreIds(selected);
+
+      saveSelectedStoreIds(
+        selected
+      );
 
 
       document
@@ -4163,7 +2977,6 @@
 
 
       updateStoreList();
-
 
     } catch (error) {
 
@@ -4189,8 +3002,13 @@
 
 
     return [
-      ...(STORE_CATALOG[country] || []),
+
+      ...(STORE_CATALOG[
+        country
+      ] || []),
+
       ...getCustomStores()
+
     ];
 
   }
@@ -4207,14 +3025,16 @@
     return getAllStores()
       .filter(
         store =>
-          ids.has(store.id)
+          ids.has(
+            store.id
+          )
       );
 
   }
 
 
   /* =========================================================
-     SHOPPING AI / REQUEST
+     OCCASION
   ========================================================= */
 
   function selectOccasion(
@@ -4223,7 +3043,9 @@
   ) {
 
     document
-      .querySelectorAll(".chip")
+      .querySelectorAll(
+        ".chip"
+      )
       .forEach(
         chip =>
           chip.classList.remove(
@@ -4232,13 +3054,20 @@
       );
 
 
-    button.classList.add("active");
+    button.classList.add(
+      "active"
+    );
+
 
     selectedOccasion =
       occasion;
 
   }
 
+
+  /* =========================================================
+     SHOPPING REQUEST
+  ========================================================= */
 
   async function findShoppingOptions() {
 
@@ -4274,10 +3103,10 @@
     }
 
 
-    if (!request) {
+    if (!request && !selectedOccasion) {
 
       alert(
-        "Tell me what you are looking for first."
+        "Tell me what you are looking for or select an occasion first."
       );
 
       return;
@@ -4291,9 +3120,18 @@
 
 
     results.innerHTML = `
+
       <div class="loading">
-        ✨ Analysing your wardrobe and shopping preferences...
+
+        ✨ Analysing your wardrobe...
+
+        <br><br>
+
+        Checking your preferences,
+        occasion, budget and selected stores...
+
       </div>
+
     `;
 
 
@@ -4302,13 +3140,10 @@
 
 
     /*
-      IMPORTANT:
+      LIVE BACKEND
 
-      If a secure backend is connected,
-      send the complete shopping request to it.
-
-      The backend can then use approved retailer feeds/APIs
-      and an AI model to return exact product URLs.
+      If you eventually connect a secure backend,
+      it can return exact products.
     */
 
     if (SHOP_API_URL) {
@@ -4319,52 +3154,58 @@
           await fetch(
             SHOP_API_URL,
             {
-              method: "POST",
+
+              method:
+                "POST",
 
               headers: {
                 "Content-Type":
                   "application/json"
               },
 
-              body: JSON.stringify({
+              body:
+                JSON.stringify({
 
-                user: {
-                  id: currentUser.id
-                },
+                  user: {
+                    id:
+                      currentUser.id
+                  },
 
-                request,
+                  request,
 
-                occasion:
-                  selectedOccasion,
+                  occasion:
+                    selectedOccasion,
 
-                budget,
+                  budget,
 
-                profile,
+                  profile,
 
-                selectedStores,
+                  selectedStores,
 
-                wardrobe:
-                  clothingItems.map(
-                    item => ({
-                      name:
-                        item.name,
+                  wardrobe:
+                    clothingItems.map(
+                      item => ({
 
-                      brand:
-                        item.brand,
+                        name:
+                          item.name,
 
-                      color:
-                        item.color,
+                        brand:
+                          item.brand,
 
-                      category:
-                        categories.find(
-                          category =>
-                            category.id ===
-                            item.category_id
-                        )?.name || ""
-                    })
-                  )
+                        color:
+                          item.color,
 
-              })
+                        category:
+                          categories.find(
+                            category =>
+                              category.id ===
+                              item.category_id
+                          )?.name || ""
+
+                      })
+                    )
+
+                })
 
             }
           );
@@ -4390,7 +3231,6 @@
 
         return;
 
-
       } catch (error) {
 
         console.error(
@@ -4398,37 +3238,30 @@
           error
         );
 
-
-        results.innerHTML = `
-          <div class="notice">
-            The live shopping service could not be reached.
-            Showing official store options instead.
-          </div>
-        `;
-
       }
 
     }
 
 
     /*
-      FRONTEND FALLBACK
+      CURRENT NO-BACKEND MODE
 
-      This version does NOT pretend to have live product data.
-
-      It gives the user official retailer websites
-      based only on the stores they selected.
+      We create intelligent official-site searches.
     */
 
     await new Promise(
       resolve =>
-        setTimeout(resolve, 600)
+        setTimeout(
+          resolve,
+          700
+        )
     );
 
 
-    renderStoreSearchResults(
+    renderOfficialStoreRecommendations(
       selectedStores,
       request,
+      selectedOccasion,
       budget,
       profile
     );
@@ -4452,7 +3285,9 @@
 
 
       return saved
-        ? JSON.parse(saved)
+        ? JSON.parse(
+            saved
+          )
         : {};
 
     } catch (error) {
@@ -4464,9 +3299,14 @@
   }
 
 
-  function renderStoreSearchResults(
+  /* =========================================================
+     SMART SHOPPING RESULTS
+  ========================================================= */
+
+  function renderOfficialStoreRecommendations(
     stores,
     request,
+    occasion,
     budget,
     profile
   ) {
@@ -4477,13 +3317,20 @@
       );
 
 
-    /*
-      Basic wardrobe analysis.
-    */
-
-    const wardrobeSummary =
+    const wardrobeAnalysis =
       analyseWardrobeForShopping(
-        request
+        request,
+        occasion
+      );
+
+
+    const shoppingPlan =
+      buildShoppingPlan(
+        request,
+        occasion,
+        budget,
+        profile,
+        wardrobeAnalysis
       );
 
 
@@ -4494,14 +3341,27 @@
 
       <div class="success-box">
 
-        ✓ I considered your current wardrobe
-        and your selected stores.
+        <strong>
+          ✨ Your personalised shopping plan
+        </strong>
 
-        ${
-          wardrobeSummary
-          ? `<br><br>${escapeHtml(wardrobeSummary)}`
-          : ""
-        }
+        <br><br>
+
+        ${escapeHtml(
+          shoppingPlan
+        )}
+
+        <br><br>
+
+        <strong>
+          👔 Your existing wardrobe
+        </strong>
+
+        <br>
+
+        ${escapeHtml(
+          wardrobeAnalysis.summary
+        )}
 
       </div>
 
@@ -4512,79 +3372,151 @@
 
       <div class="notice">
 
-        <strong>Important:</strong>
-        Exact live products require an approved retailer
-        API, affiliate product feed, or another authorised
-        product-data source.
+        <strong>
+          How this works:
+        </strong>
 
-        For now, these buttons take you directly to the
-        official retailer websites you selected.
+        <br><br>
+
+        I created a targeted search for each
+        store you selected.
+
+        The search is restricted to that
+        retailer's official website.
+
+        <br><br>
+
+        This version does not pretend to know
+        live prices or stock when the retailer
+        does not provide that information.
+
+        Always confirm the final price,
+        availability and size on the retailer's
+        official website.
 
       </div>
+
+      <div style="height:15px"></div>
 
     `;
 
 
-    html += `<div style="height:12px"></div>`;
+    stores.forEach(
+      store => {
+
+        const searchData =
+          buildSmartStoreSearch(
+            store,
+            request,
+            occasion,
+            budget,
+            profile,
+            wardrobeAnalysis
+          );
 
 
-    stores.forEach(store => {
-
-      const searchText =
-        buildShoppingSearchText(
-          request,
-          selectedOccasion,
-          profile
-        );
+        const searchUrl =
+          buildOfficialSearchUrl(
+            store,
+            searchData.query
+          );
 
 
-      const url =
-        buildOfficialStoreUrl(
-          store,
-          searchText
-        );
+        const storeHome =
+          safeUrl(
+            store.url
+          );
 
 
-      html += `
+        html += `
 
-        <div class="result-card">
+          <div class="result-card">
 
-          <h3>
-            ${escapeHtml(store.name)}
-          </h3>
+            <h3>
+              🛍️ ${escapeHtml(
+                store.name
+              )}
+            </h3>
 
-          <p>
-            Recommended search:
-            <strong>
-              ${escapeHtml(searchText)}
-            </strong>
-          </p>
+            <p>
+              <strong>
+                What to look for:
+              </strong>
+            </p>
 
-          ${
-            budget
-            ?
-            `<p>
-              Budget:
-              ${escapeHtml(budget)}
-            </p>`
-            :
-            ""
-          }
+            <p>
+              ${escapeHtml(
+                searchData.description
+              )}
+            </p>
 
-          <a
-            class="result-btn"
-            href="${safeAttributeUrl(url)}"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Open ${escapeHtml(store.name)}
-          </a>
+            <p>
+              <strong>
+                Search:
+              </strong>
+              ${escapeHtml(
+                searchData.query
+              )}
+            </p>
 
-        </div>
+            ${
+              budget
+              ?
+              `
+                <p>
+                  💰 Maximum budget:
+                  ${escapeHtml(
+                    budget
+                  )}
+                </p>
+              `
+              :
+              ""
+            }
 
-      `;
+            <a
+              class="result-btn"
+              href="${safeAttributeUrl(
+                searchUrl
+              )}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🔎 Search ${escapeHtml(
+                store.name
+              )}
+            </a>
 
-    });
+            ${
+              storeHome
+              ?
+              `
+                <a
+                  class="result-btn"
+                  style="
+                    background:#eee;
+                    color:#111;
+                    margin-left:6px;
+                  "
+                  href="${safeAttributeUrl(
+                    storeHome
+                  )}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Official Website
+                </a>
+              `
+              :
+              ""
+            }
+
+          </div>
+
+        `;
+
+      }
+    );
 
 
     results.innerHTML =
@@ -4593,127 +3525,805 @@
   }
 
 
+  /* =========================================================
+     WARDROBE ANALYSIS
+  ========================================================= */
+
   function analyseWardrobeForShopping(
-    request
+    request,
+    occasion
   ) {
 
-    const text =
-      request.toLowerCase();
+    const combinedText =
+      `${request || ""} ${
+        occasion || ""
+      }`
+        .toLowerCase();
 
 
-    const names =
-      clothingItems
-        .map(
-          item =>
-            item.name
-        )
-        .filter(Boolean);
+    if (!clothingItems.length) {
 
+      return {
 
-    if (!names.length) {
+        summary:
+          "Your wardrobe is currently empty, so the shopping search will focus on building a complete outfit.",
 
-      return "Your wardrobe is currently empty, so I cannot use existing pieces in the recommendation.";
+        ownedItems: [],
+
+        ownedCategories: [],
+
+        ownedColours: [],
+
+        relevantItems: []
+
+      };
 
     }
 
 
-    const relevant =
-      names.filter(
-        name =>
-          text.includes(
-            name.toLowerCase()
-          )
+    const ownedItems =
+      clothingItems.map(
+        item => {
+
+          const category =
+            categories.find(
+              cat =>
+                cat.id ===
+                item.category_id
+            );
+
+
+          return {
+
+            id:
+              item.id,
+
+            name:
+              item.name ||
+              "",
+
+            brand:
+              item.brand ||
+              "",
+
+            color:
+              item.color ||
+              "",
+
+            category:
+              category
+                ? category.name
+                : ""
+
+          };
+
+        }
       );
 
 
-    if (relevant.length) {
-
-      return `You already have: ${relevant.join(", ")}.`;
-
-    }
-
-
-    const colours =
-      clothingItems
-        .map(
-          item =>
-            item.color
+    const ownedCategories =
+      [
+        ...new Set(
+          ownedItems
+            .map(
+              item =>
+                item.category
+            )
+            .filter(Boolean)
         )
-        .filter(Boolean);
+      ];
 
 
-    if (colours.length) {
+    const ownedColours =
+      [
+        ...new Set(
+          ownedItems
+            .map(
+              item =>
+                item.color
+            )
+            .filter(Boolean)
+        )
+      ];
 
-      return `Your wardrobe currently contains colours such as ${[...new Set(colours)].slice(0, 4).join(", ")}.`;
+
+    const relevantItems =
+      ownedItems.filter(
+        item => {
+
+          const itemText =
+            [
+              item.name,
+              item.brand,
+              item.color,
+              item.category
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+
+
+          const keywords =
+            getShoppingKeywords(
+              combinedText
+            );
+
+
+          return keywords.some(
+            keyword =>
+              itemText.includes(
+                keyword
+              )
+          );
+
+        }
+      );
+
+
+    let summary = "";
+
+
+    if (relevantItems.length) {
+
+      summary =
+        `Potentially useful items you already own: ${
+          relevantItems
+            .slice(0, 8)
+            .map(
+              item =>
+                item.name
+            )
+            .join(", ")
+        }.`;
+
+    } else {
+
+      summary =
+        `You already have ${
+          clothingItems.length
+        } clothing item${
+          clothingItems.length === 1
+            ? ""
+            : "s"
+        } in your wardrobe. The search will focus on pieces that can work with your existing wardrobe.`;
 
     }
 
 
-    return "I checked your existing wardrobe so new items can be considered alongside what you already own.";
+    return {
+
+      summary,
+
+      ownedItems,
+
+      ownedCategories,
+
+      ownedColours,
+
+      relevantItems
+
+    };
 
   }
 
 
-  function buildShoppingSearchText(
-    request,
-    occasion,
-    profile
+  /* =========================================================
+     SHOPPING KEYWORDS
+  ========================================================= */
+
+  function getShoppingKeywords(
+    text
   ) {
 
-    let search =
-      request;
+    const allKeywords = [
+
+      "shirt",
+      "tshirt",
+      "t-shirt",
+      "polo",
+      "blazer",
+      "jacket",
+      "suit",
+      "trouser",
+      "trousers",
+      "pants",
+      "jeans",
+      "shorts",
+      "dress",
+      "skirt",
+      "top",
+      "jumper",
+      "sweater",
+      "hoodie",
+      "coat",
+      "vest",
+      "shoes",
+      "shoe",
+      "sneakers",
+      "sneaker",
+      "boots",
+      "boot",
+      "loafer",
+      "tie",
+      "belt",
+      "bag",
+      "watch"
+
+    ];
 
 
-    if (occasion) {
+    return allKeywords.filter(
+      keyword =>
+        text.includes(
+          keyword
+        )
+    );
 
-      search +=
-        ` ${occasion} outfit`;
+  }
 
-    }
+
+  /* =========================================================
+     SHOPPING PLAN
+  ========================================================= */
+
+  function buildShoppingPlan(
+    request,
+    occasion,
+    budget,
+    profile,
+    wardrobeAnalysis
+  ) {
+
+    const occasionText =
+      occasion ||
+      "your occasion";
+
+
+    let plan =
+      `For ${occasionText}, I'll look for pieces that match your request`;
 
 
     if (profile.fit) {
 
-      search +=
-        ` ${profile.fit} fit`;
+      plan +=
+        `, ${profile.fit} fit`;
 
     }
 
 
     if (profile.size) {
 
-      search +=
+      plan +=
+        `, around size ${profile.size}`;
+
+    }
+
+
+    if (budget) {
+
+      plan +=
+        ` and stay around your $${budget} maximum`;
+
+    }
+
+
+    plan += ".";
+
+
+    if (
+      wardrobeAnalysis
+        .relevantItems
+        .length
+    ) {
+
+      plan +=
+        " I'll prioritise items that complement pieces you already own.";
+
+    } else {
+
+      plan +=
+        " I'll try to build a practical outfit around the request rather than assuming you need to replace your whole wardrobe.";
+
+    }
+
+
+    return plan;
+
+  }
+
+
+  /* =========================================================
+     SMART STORE SEARCH
+  ========================================================= */
+
+  function buildSmartStoreSearch(
+    store,
+    request,
+    occasion,
+    budget,
+    profile,
+    wardrobeAnalysis
+  ) {
+
+    const country =
+      profile.country ||
+      "";
+
+
+    const lowerRequest =
+      (
+        request || ""
+      )
+        .toLowerCase();
+
+
+    const lowerOccasion =
+      (
+        occasion || ""
+      )
+        .toLowerCase();
+
+
+    let items = [];
+
+
+    /*
+      Occasion-based item suggestions.
+    */
+
+    if (
+      lowerOccasion.includes(
+        "wedding"
+      )
+    ) {
+
+      items = [
+        "wedding",
+        "formal",
+        "elegant",
+        "dress shirt",
+        "blazer",
+        "trousers"
+      ];
+
+    } else if (
+      lowerOccasion.includes(
+        "date"
+      )
+    ) {
+
+      items = [
+        "date night",
+        "smart casual",
+        "shirt",
+        "trousers",
+        "smart shoes"
+      ];
+
+    } else if (
+      lowerOccasion.includes(
+        "work"
+      )
+    ) {
+
+      items = [
+        "workwear",
+        "business casual",
+        "shirt",
+        "trousers",
+        "blazer"
+      ];
+
+    } else if (
+      lowerOccasion.includes(
+        "party"
+      )
+    ) {
+
+      items = [
+        "party",
+        "smart casual",
+        "shirt",
+        "trousers"
+      ];
+
+    } else if (
+      lowerOccasion.includes(
+        "vacation"
+      )
+    ) {
+
+      items = [
+        "vacation",
+        "resort",
+        "casual",
+        "shirt",
+        "shorts"
+      ];
+
+    } else {
+
+      items = [
+        "clothing",
+        "outfit"
+      ];
+
+    }
+
+
+    /*
+      Add useful words from user's request.
+    */
+
+    const requestKeywords =
+      getShoppingKeywords(
+        lowerRequest
+      );
+
+
+    requestKeywords
+      .slice(0, 4)
+      .forEach(
+        keyword => {
+
+          if (
+            !items.includes(
+              keyword
+            )
+          ) {
+
+            items.push(
+              keyword
+            );
+
+          }
+
+        }
+      );
+
+
+    /*
+      If wardrobe already contains
+      certain pieces, search for complementary
+      pieces rather than duplicates.
+    */
+
+    const ownedCategories =
+      wardrobeAnalysis
+        .ownedCategories
+        .map(
+          category =>
+            category.toLowerCase()
+        );
+
+
+    if (
+      ownedCategories.some(
+        category =>
+          category.includes(
+            "trouser"
+          ) ||
+          category.includes(
+            "pants"
+          )
+      )
+    ) {
+
+      items.push(
+        "shirt",
+        "blazer"
+      );
+
+    }
+
+
+    if (
+      ownedCategories.some(
+        category =>
+          category.includes(
+            "shirt"
+          )
+      )
+    ) {
+
+      items.push(
+        "trousers",
+        "blazer"
+      );
+
+    }
+
+
+    if (
+      ownedCategories.some(
+        category =>
+          category.includes(
+            "shoe"
+          )
+      )
+    ) {
+
+      items.push(
+        "shirt",
+        "trousers",
+        "blazer"
+      );
+
+    }
+
+
+    /*
+      Remove duplicates.
+    */
+
+    items =
+      [
+        ...new Set(
+          items
+        )
+      ];
+
+
+    /*
+      Limit query length.
+    */
+
+    items =
+      items.slice(
+        0,
+        10
+      );
+
+
+    let query =
+      items.join(" ");
+
+
+    /*
+      Add fit.
+    */
+
+    if (profile.fit) {
+
+      query +=
+        ` ${profile.fit} fit`;
+
+    }
+
+
+    /*
+      Add size.
+    */
+
+    if (profile.size) {
+
+      query +=
         ` size ${profile.size}`;
 
     }
 
 
-    return search
-      .replace(/\s+/g, " ")
-      .trim();
+    /*
+      Add country when useful.
+    */
+
+    if (country) {
+
+      query +=
+        ` ${country}`;
+
+    }
+
+
+    /*
+      Do not put the budget directly into
+      every search because retailer search
+      engines may interpret it poorly.
+
+      We display the budget separately.
+    */
+
+
+    const description =
+      createStoreSearchDescription(
+        occasion,
+        request,
+        profile,
+        budget,
+        wardrobeAnalysis
+      );
+
+
+    return {
+
+      query:
+        query
+          .replace(
+            /\s+/g,
+            " "
+          )
+          .trim(),
+
+      description
+
+    };
 
   }
 
 
-  function buildOfficialStoreUrl(
+  function createStoreSearchDescription(
+    occasion,
+    request,
+    profile,
+    budget,
+    wardrobeAnalysis
+  ) {
+
+    let description = "";
+
+
+    if (occasion) {
+
+      description +=
+        `${occasion} outfit`;
+
+    } else {
+
+      description +=
+        "Outfit matching your request";
+
+    }
+
+
+    if (request) {
+
+      description +=
+        ` — ${request}`;
+
+    }
+
+
+    if (
+      profile.fit ||
+      profile.size
+    ) {
+
+      description +=
+        ". ";
+
+
+      if (profile.fit) {
+
+        description +=
+          `${profile.fit} fit`;
+
+      }
+
+
+      if (
+        profile.fit &&
+        profile.size
+      ) {
+
+        description +=
+          ", ";
+
+      }
+
+
+      if (profile.size) {
+
+        description +=
+          `size ${profile.size}`;
+
+      }
+
+    }
+
+
+    if (budget) {
+
+      description +=
+        `. Maximum budget $${budget}`;
+
+    }
+
+
+    if (
+      wardrobeAnalysis
+        .relevantItems
+        .length
+    ) {
+
+      description +=
+        `. Search prioritises pieces that can complement your existing ${wardrobeAnalysis.relevantItems.slice(0, 3).map(item => item.name).join(", ")}.`;
+
+    }
+
+
+    return description;
+
+  }
+
+
+  /* =========================================================
+     OFFICIAL STORE SEARCH URL
+  ========================================================= */
+
+  function buildOfficialSearchUrl(
     store,
     searchText
   ) {
 
+    const domain =
+      getStoreDomain(
+        store.url
+      );
+
+
+    if (!domain) {
+
+      return safeUrl(
+        store.url
+      ) || "#";
+
+    }
+
+
     /*
-      We deliberately do not invent product URLs.
+      Search Google but restrict results
+      to the official retailer domain.
 
-      If a store has a known official search endpoint,
-      it can be added here later.
+      Example:
 
-      Otherwise the official homepage is used.
+      site:countryroad.com.au
+      wedding blazer shirt trousers
     */
 
-    return safeUrl(store.url)
-      || "#";
+    const googleQuery =
+      `site:${domain} ${searchText}`;
+
+
+    return (
+      "https://www.google.com/search?q=" +
+      encodeURIComponent(
+        googleQuery
+      )
+    );
 
   }
 
+
+  function getStoreDomain(
+    storeUrl
+  ) {
+
+    try {
+
+      const url =
+        new URL(
+          storeUrl
+        );
+
+
+      return url.hostname
+        .replace(
+          /^www\./,
+          ""
+        );
+
+    } catch (error) {
+
+      return "";
+
+    }
+
+  }
+
+
+  /* =========================================================
+     LIVE SHOPPING RESULTS
+  ========================================================= */
 
   function renderLiveShoppingResults(
     data
@@ -4727,18 +4337,24 @@
 
     const products =
       Array.isArray(data)
-      ? data
-      : Array.isArray(data.products)
-        ? data.products
-        : [];
+        ? data
+        : Array.isArray(
+            data.products
+          )
+          ? data.products
+          : [];
 
 
     if (!products.length) {
 
       results.innerHTML = `
+
         <div class="empty-state">
+
           No live products were returned.
+
         </div>
+
       `;
 
       return;
@@ -4747,95 +4363,107 @@
 
     results.innerHTML =
       products
-        .map(product => {
+        .map(
+          product => {
 
-          const productUrl =
-            safeUrl(
-              product.productUrl ||
-              product.url
-            );
-
-
-          return `
-
-            <div class="result-card">
-
-              ${
-                product.image
-                ?
-                `<img
-                  class="result-image"
-                  src="${safeAttributeUrl(product.image)}"
-                  alt="${escapeHtml(product.name || "Product")}"
-                >`
-                :
-                ""
-              }
+            const productUrl =
+              safeUrl(
+                product.productUrl ||
+                product.url
+              );
 
 
-              <h3>
-                ${escapeHtml(
-                  product.name ||
-                  "Product"
-                )}
-              </h3>
+            return `
 
+              <div class="result-card">
 
-              ${
-                product.store
-                ?
-                `<p>
-                  Store:
-                  ${escapeHtml(product.store)}
-                </p>`
-                :
-                ""
-              }
+                ${
+                  product.image
+                  ?
+                  `<img
+                    class="result-image"
+                    src="${safeAttributeUrl(
+                      product.image
+                    )}"
+                    alt="${escapeHtml(
+                      product.name ||
+                      "Product"
+                    )}"
+                  >`
+                  :
+                  ""
+                }
 
+                <h3>
+                  ${escapeHtml(
+                    product.name ||
+                    "Product"
+                  )}
+                </h3>
 
-              ${
-                product.price
-                ?
-                `<p>
-                  Price:
-                  ${escapeHtml(String(product.price))}
-                </p>`
-                :
-                ""
-              }
+                ${
+                  product.store
+                  ?
+                  `<p>
+                    Store:
+                    ${escapeHtml(
+                      product.store
+                    )}
+                  </p>`
+                  :
+                  ""
+                }
 
+                ${
+                  product.price
+                  ?
+                  `<p>
+                    Price:
+                    ${escapeHtml(
+                      String(
+                        product.price
+                      )
+                    )}
+                  </p>`
+                  :
+                  ""
+                }
 
-              ${
-                product.reason
-                ?
-                `<p>
-                  ${escapeHtml(product.reason)}
-                </p>`
-                :
-                ""
-              }
+                ${
+                  product.reason
+                  ?
+                  `<p>
+                    ${escapeHtml(
+                      product.reason
+                    )}
+                  </p>`
+                  :
+                  ""
+                }
 
+                ${
+                  productUrl
+                  ?
+                  `<a
+                    class="result-btn"
+                    href="${safeAttributeUrl(
+                      productUrl
+                    )}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Exact Product
+                  </a>`
+                  :
+                  ""
+                }
 
-              ${
-                productUrl
-                ?
-                `<a
-                  class="result-btn"
-                  href="${safeAttributeUrl(productUrl)}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View Exact Product
-                </a>`
-                :
-                ""
-              }
+              </div>
 
-            </div>
+            `;
 
-          `;
-
-        })
+          }
+        )
         .join("");
 
   }
@@ -4849,42 +4477,53 @@
 
     document
       .getElementById(id)
-      .classList.add("hidden");
+      .classList.add(
+        "hidden"
+      );
 
   }
 
 
   document
-    .querySelectorAll(".modal")
-    .forEach(modal => {
+    .querySelectorAll(
+      ".modal"
+    )
+    .forEach(
+      modal => {
 
-      modal.addEventListener(
-        "click",
-        event => {
+        modal.addEventListener(
+          "click",
+          event => {
 
-          if (
-            event.target === modal
-          ) {
+            if (
+              event.target ===
+              modal
+            ) {
 
-            modal.classList.add(
-              "hidden"
-            );
+              modal.classList.add(
+                "hidden"
+              );
+
+            }
 
           }
+        );
 
-        }
-      );
-
-    });
+      }
+    );
 
 
   /* =========================================================
      SECURITY / HELPERS
   ========================================================= */
 
-  function escapeHtml(value) {
+  function escapeHtml(
+    value
+  ) {
 
-    return String(value ?? "")
+    return String(
+      value ?? ""
+    )
       .replace(
         /&/g,
         "&amp;"
@@ -4909,9 +4548,13 @@
   }
 
 
-  function escapeJs(value) {
+  function escapeJs(
+    value
+  ) {
 
-    return String(value ?? "")
+    return String(
+      value ?? ""
+    )
       .replace(
         /\\/g,
         "\\\\"
@@ -4932,7 +4575,9 @@
   }
 
 
-  function safeUrl(value) {
+  function safeUrl(
+    value
+  ) {
 
     try {
 
@@ -4965,14 +4610,20 @@
   }
 
 
-  function safeAttributeUrl(value) {
+  function safeAttributeUrl(
+    value
+  ) {
 
     const url =
-      safeUrl(value);
+      safeUrl(
+        value
+      );
 
 
     return url
-      ? escapeHtml(url)
+      ? escapeHtml(
+          url
+        )
       : "#";
 
   }
@@ -4982,52 +4633,64 @@
      AUTH STATE
   ========================================================= */
 
-  supabaseClient.auth.onAuthStateChange(
-    async (event, session) => {
+  supabaseClient.auth
+    .onAuthStateChange(
+      async (
+        event,
+        session
+      ) => {
 
-      console.log(
-        "Auth event:",
-        event
-      );
-
-
-      if (session?.user) {
-
-        currentUser =
-          session.user;
+        console.log(
+          "Auth event:",
+          event
+        );
 
 
-        /*
-          Avoid duplicate startApp calls.
-        */
+        if (session?.user) {
 
-        if (!appStarted) {
+          currentUser =
+            session.user;
 
-          await startApp();
+
+          if (!appStarted) {
+
+            await startApp();
+
+          }
+
+        } else {
+
+          currentUser =
+            null;
+
+          appStarted =
+            false;
+
+          appStarting =
+            false;
+
+
+          document
+            .getElementById(
+              "appScreen"
+            )
+            .classList.add(
+              "hidden"
+            );
+
+
+          document
+            .getElementById(
+              "authScreen"
+            )
+            .classList.remove(
+              "hidden"
+            );
 
         }
 
-      } else {
-
-        currentUser = null;
-
-        appStarted = false;
-        appStarting = false;
-
-
-        document
-          .getElementById("appScreen")
-          .classList.add("hidden");
-
-
-        document
-          .getElementById("authScreen")
-          .classList.remove("hidden");
-
       }
-
-    }
-  );
+    );
 
 
   /* =========================================================
@@ -5042,7 +4705,9 @@
         data,
         error
       } =
-        await supabaseClient.auth.getSession();
+        await supabaseClient
+          .auth
+          .getSession();
 
 
       if (error) {
@@ -5050,22 +4715,34 @@
       }
 
 
-      if (data.session?.user) {
+      if (
+        data.session?.user
+      ) {
 
         currentUser =
           data.session.user;
+
 
         await startApp();
 
       } else {
 
         document
-          .getElementById("authScreen")
-          .classList.remove("hidden");
+          .getElementById(
+            "authScreen"
+          )
+          .classList.remove(
+            "hidden"
+          );
+
 
         document
-          .getElementById("appScreen")
-          .classList.add("hidden");
+          .getElementById(
+            "appScreen"
+          )
+          .classList.add(
+            "hidden"
+          );
 
       }
 
@@ -5078,12 +4755,21 @@
 
 
       document
-        .getElementById("authScreen")
-        .classList.remove("hidden");
+        .getElementById(
+          "authScreen"
+        )
+        .classList.remove(
+          "hidden"
+        );
+
 
       document
-        .getElementById("appScreen")
-        .classList.add("hidden");
+        .getElementById(
+          "appScreen"
+        )
+        .classList.add(
+          "hidden"
+        );
 
     }
 
@@ -5095,7 +4781,8 @@
   ========================================================= */
 
   if (
-    "serviceWorker" in navigator
+    "serviceWorker" in
+    navigator
   ) {
 
     window.addEventListener(
@@ -5140,6 +4827,3 @@
   checkSession();
 
 </script>
-
-</body>
-</html>
