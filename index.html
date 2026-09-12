@@ -1,4829 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="My Wardrobe">
+<title>My Wardrobe</title>
+
+<style>
+*{box-sizing:border-box}
+:root{--bg:#f5f5f7;--card:#fff;--text:#171717;--muted:#777;--line:#e7e7e7;--dark:#111;--soft:#f0f0f2;--danger:#c62828}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{width:min(430px,100%);background:#fff;border-radius:28px;padding:30px;box-shadow:0 12px 40px #00000012}
+.logo{font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.tagline{color:var(--muted);margin-bottom:24px}
+.tabs{display:flex;background:var(--soft);border-radius:14px;padding:4px;margin-bottom:20px}
+.tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:10px}
+.tabs button.active{background:#fff;font-weight:700;box-shadow:0 2px 8px #00000010}
+.field{margin:12px 0}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:#fff;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#111}
+.primary{width:100%;border:0;background:var(--dark);color:#fff;padding:14px;border-radius:14px;font-weight:700}
+.secondary{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:12px}
+.danger{color:var(--danger)}
+.message{margin-top:12px;font-size:14px}
+.app{min-height:100vh;padding-bottom:85px}
+.topbar{position:sticky;top:0;z-index:10;background:#ffffffed;backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+.topbar-title{font-size:21px;font-weight:800}
+.container{width:min(1050px,100%);margin:auto;padding:20px 16px}
+.hero{background:#111;color:#fff;border-radius:25px;padding:24px;margin-bottom:22px}
+.hero h1{margin:0 0 6px;font-size:28px}
+.hero p{margin:0;color:#ccc}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 12px}
+.section-head h2{font-size:19px;margin:0}
+.category-grid,.clothing-grid,.looks-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.category-card,.clothing-card,.look-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.category-card{padding:18px;min-height:120px;display:flex;flex-direction:column;justify-content:space-between}
+.category-icon{font-size:35px}
+.category-name{font-weight:800}
+.clothing-photo{width:100%;aspect-ratio:1/1;object-fit:cover;background:#eee}
+.clothing-info{padding:12px}
+.clothing-info strong{display:block}
+.muted{color:var(--muted);font-size:13px}
+.item-actions{display:flex;gap:7px;margin-top:10px}
+.small-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;font-size:12px}
+.searchbox{display:flex;gap:8px;margin-bottom:15px}
+.searchbox input{flex:1;border:1px solid var(--line);border-radius:13px;padding:13px}
+.empty-state{background:#fff;border:1px dashed #ccc;border-radius:18px;padding:25px;text-align:center;color:var(--muted)}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#fffffff5;backdrop-filter:blur(16px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-bottom))}
+.nav-btn{border:0;background:transparent;padding:8px 4px;color:#777;font-size:11px}
+.nav-btn span{display:block;font-size:21px;margin-bottom:2px}
+.nav-btn.active{color:#111;font-weight:800}
+.modal{position:fixed;inset:0;background:#0008;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.modal-box{background:#fff;width:min(560px,100%);max-height:92vh;overflow:auto;border-radius:25px 25px 0 0;padding:22px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.modal-head h2{margin:0}
+.close{border:0;background:var(--soft);border-radius:50%;width:36px;height:36px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px}
+.chip.active{background:#111;color:#fff;border-color:#111}
+.store-option{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;margin:7px 0}
+.store-option.selected{border-color:#111;background:#f7f7f7}
+.result-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin:10px 0}
+.result-card h3{margin:0 0 6px}
+.result-btn{display:inline-block;text-decoration:none;background:#111;color:#fff;padding:9px 12px;border-radius:10px;margin-top:9px;font-size:13px}
+.notice{background:#f7f7f7;border-radius:14px;padding:12px;color:#555;font-size:13px;margin:12px 0}
+.success-box{background:#edf8ee;color:#226b2a;padding:12px;border-radius:13px;margin:10px 0}
+.photo-preview{width:120px;height:120px;object-fit:cover;border-radius:15px;margin-top:8px}
+@media(min-width:700px){
+ .category-grid{grid-template-columns:repeat(4,1fr)}
+ .clothing-grid{grid-template-columns:repeat(4,1fr)}
+ .looks-grid{grid-template-columns:repeat(3,1fr)}
+ .modal{align-items:center;padding:20px}
+ .modal-box{border-radius:25px}
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div id="authScreen" class="auth">
+  <div class="auth-box">
+    <div class="logo">My Wardrobe</div>
+    <div class="tagline">Your clothes. Your outfits. Your style.</div>
+    <div class="tabs">
+      <button id="loginTab" class="active" onclick="showLogin()">Log in</button>
+      <button id="signupTab" onclick="showSignup()">Sign up</button>
+    </div>
+
+    <form id="loginForm" onsubmit="login(event)">
+      <div class="field"><label>Email</label><input id="loginEmail" type="email" required></div>
+      <div class="field"><label>Password</label><input id="loginPassword" type="password" required></div>
+      <button class="primary">Log in</button>
+    </form>
+
+    <form id="signupForm" class="hidden" onsubmit="signup(event)">
+      <div class="field"><label>Email</label><input id="signupEmail" type="email" required></div>
+      <div class="field"><label>Password</label><input id="signupPassword" type="password" minlength="6" required></div>
+      <button class="primary">Create account</button>
+    </form>
+    <div id="authMessage" class="message"></div>
+  </div>
+</div>
+
+<div id="appScreen" class="app hidden">
+  <header class="topbar">
+    <div class="topbar-title">My Wardrobe</div>
+    <button class="secondary" onclick="logout()">Log out</button>
+  </header>
+
+  <main class="container">
+    <section id="homePage">
+      <div class="hero">
+        <h1 id="welcomeText">My Wardrobe</h1>
+        <p>Organise your clothes and build your next outfit.</p>
+      </div>
+      <div class="section-head">
+        <h2>My categories</h2>
+        <button class="secondary" onclick="openCategoryModal()">+ Category</button>
+      </div>
+      <div id="categoryGrid" class="category-grid"></div>
+    </section>
+
+    <section id="categoryPage" class="hidden">
+      <div class="section-head">
+        <div>
+          <button class="secondary" onclick="goHome()">← Back</button>
+          <h2 id="categoryPageTitle" style="margin-top:12px"></h2>
+        </div>
+        <div>
+          <button class="secondary" onclick="openCategoryModal(editingCategoryId)">Edit</button>
+          <button class="secondary danger" onclick="confirmDeleteCategory()">Delete</button>
+        </div>
+      </div>
+      <div class="section-head">
+        <h2>Clothes</h2>
+        <button class="secondary" onclick="openClothingModal()">+ Add clothing</button>
+      </div>
+      <div id="clothingGrid" class="clothing-grid"></div>
+    </section>
+
+    <section id="searchPage" class="hidden">
+      <div class="section-head"><h2>Search wardrobe</h2></div>
+      <div class="searchbox">
+        <input id="searchInput" placeholder="Search clothes, brands, colours..." oninput="performSearch()">
+      </div>
+      <div id="searchResults" class="clothing-grid"></div>
+    </section>
+
+    <section id="looksPage" class="hidden">
+      <div class="section-head">
+        <h2>Saved looks</h2>
+        <button class="secondary" onclick="openSaveLookModal()">+ Save look</button>
+      </div>
+      <div id="looksContainer" class="looks-grid"></div>
+    </section>
+
+    <section id="shopPage" class="hidden">
+      <div class="hero">
+        <h1>Style shopping</h1>
+        <p>Tell me what you need and I’ll create official-store searches based on your wardrobe.</p>
+      </div>
+
+      <div class="section-head"><h2>Your shopping profile</h2></div>
+      <div class="field"><label>Country</label><select id="profileCountry">
+        <option value="Australia">Australia</option><option value="Sri Lanka">Sri Lanka</option>
+        <option value="UK">United Kingdom</option><option value="US">United States</option><option value="Canada">Canada</option>
+      </select></div>
+      <div class="field"><label>Usual size</label><input id="profileSize" placeholder="e.g. M / 32 / 10"></div>
+      <div class="field"><label>Fit</label><select id="profileFit"><option value="">Any</option><option>Slim</option><option>Regular</option><option>Relaxed</option><option>Oversized</option></select></div>
+      <div class="field"><label>Height (optional)</label><input id="profileHeight" placeholder="e.g. 175 cm"></div>
+      <div class="field"><label>Chest (optional)</label><input id="profileChest" placeholder="e.g. 96 cm"></div>
+      <div class="field"><label>Waist (optional)</label><input id="profileWaist" placeholder="e.g. 82 cm"></div>
+      <button class="secondary" onclick="saveShoppingProfile()">Save profile</button>
+
+      <div class="section-head"><h2>Occasion</h2></div>
+      <div id="occasionChips" class="chips">
+        <button class="chip" onclick="selectOccasion('Casual',this)">Casual</button>
+        <button class="chip" onclick="selectOccasion('University',this)">University</button>
+        <button class="chip" onclick="selectOccasion('Work',this)">Work</button>
+        <button class="chip" onclick="selectOccasion('Date',this)">Date</button>
+        <button class="chip" onclick="selectOccasion('Party',this)">Party</button>
+        <button class="chip" onclick="selectOccasion('Formal',this)">Formal</button>
+        <button class="chip" onclick="selectOccasion('Wedding',this)">Wedding</button>
+        <button class="chip" onclick="selectOccasion('Travel',this)">Travel</button>
+      </div>
+
+      <div class="section-head"><h2>What do you need?</h2></div>
+      <div class="field"><label>Item or style</label><input id="shopRequest" placeholder="e.g. black shirt, white sneakers, smart trousers"></div>
+      <div class="field"><label>Budget</label><input id="shopBudget" placeholder="e.g. $100"></div>
+
+      <div class="section-head"><h2>Stores</h2></div>
+      <div id="storeList"></div>
+      <div style="display:flex;gap:8px">
+        <input id="customStoreName" placeholder="Store name" style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px">
+        <input id="customStoreUrl" placeholder="https://..." style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px">
+        <button class="secondary" onclick="addCustomStore()">Add</button>
+      </div>
+
+      <div style="margin-top:18px"><button class="primary" onclick="findShoppingOptions()">Find shopping options</button></div>
+      <div id="shoppingResults"></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button id="navHome" class="nav-btn active" onclick="showPage('home')"><span>🏠</span>Home</button>
+    <button id="navSearch" class="nav-btn" onclick="showPage('search')"><span>🔎</span>Search</button>
+    <button id="navLooks" class="nav-btn" onclick="showPage('looks')"><span>❤️</span>Looks</button>
+    <button id="navShop" class="nav-btn" onclick="showPage('shop')"><span>🛍️</span>Shop</button>
+  </nav>
+</div>
+
+<div id="categoryModal" class="modal hidden">
+ <div class="modal-box">
+  <div class="modal-head"><h2 id="categoryModalTitle">Add category</h2><button class="close" onclick="closeModal('categoryModal')">×</button></div>
+  <div class="field"><label>Category name</label><input id="categoryName" placeholder="e.g. Shirts"></div>
+  <div class="field"><label>Icon</label><input id="categoryIcon" placeholder="👕"></div>
+  <button class="primary" onclick="saveCategory()">Save category</button>
+ </div>
+</div>
+
+<div id="clothingModal" class="modal hidden">
+ <div class="modal-box">
+  <div class="modal-head"><h2 id="clothingModalTitle">Add clothing</h2><button class="close" onclick="closeModal('clothingModal')">×</button></div>
+  <div class="field"><label>Category</label><select id="clothingCategory"></select></div>
+  <div class="field"><label>Name</label><input id="clothingName" placeholder="e.g. Black Oxford Shirt"></div>
+  <div class="field"><label>Colour</label><input id="clothingColor" placeholder="e.g. Black"></div>
+  <div class="field"><label>Brand</label><input id="clothingBrand" placeholder="e.g. Uniqlo"></div>
+  <div class="field"><label>Photo</label><input id="clothingPhoto" type="file" accept="image/*" onchange="previewPhoto(event)"><img id="photoPreview" class="photo-preview hidden"></div>
+  <button class="primary" id="saveClothingButton" onclick="saveClothing()">Save clothing</button>
+ </div>
+</div>
+
+<div id="saveLookModal" class="modal hidden">
+ <div class="modal-box">
+  <div class="modal-head"><h2>Save a look</h2><button class="close" onclick="closeModal('saveLookModal')">×</button></div>
+  <div class="field"><label>Look name</label><input id="lookName" placeholder="e.g. Date night"></div>
+  <div class="notice">Your current wardrobe will be used to create a simple saved look. You can save several looks and keep them for later.</div>
+  <button class="primary" onclick="createSavedLook()">Save look</button>
+ </div>
+</div>
+
 <script>
-
-  /* =========================================================
-     SUPABASE
-  ========================================================= */
-
-  const SUPABASE_URL =
-    "https://umtppiaeralgiqvefnbh.supabase.co";
-
-  const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_hgrE28tw0hGmNP929kPgYw_h5aPs0ey";
-
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-
-  /*
-    OPTIONAL LIVE SHOPPING BACKEND
-
-    Leave blank for now.
-
-    Later, if you connect a secure backend/edge function,
-    this can return exact live products, prices and
-    product links.
-
-    NEVER put private AI API keys in this frontend.
-  */
-
-  const SHOP_API_URL = "";
-
-
-  /* =========================================================
-     STATE
-  ========================================================= */
-
-  let currentUser = null;
-
-  let categories = [];
-  let clothingItems = [];
-  let savedLooks = [];
-  let lookItems = [];
-
-  let currentCategoryId = null;
-  let editingCategoryId = null;
-  let editingClothingId = null;
-
-  let selectedOccasion = "";
-
-  let appStarted = false;
-  let appStarting = false;
-
-
-  /* =========================================================
-     STORE DATABASE
-  ========================================================= */
-
-  const STORE_CATALOG = {
-
-    "Australia": [
-
-      {
-        id: "myer",
-        name: "Myer",
-        country: "Australia",
-        url: "https://www.myer.com.au"
-      },
-
-      {
-        id: "david-jones",
-        name: "David Jones",
-        country: "Australia",
-        url: "https://www.davidjones.com"
-      },
-
-      {
-        id: "hm-australia",
-        name: "H&M",
-        country: "Australia",
-        url: "https://www2.hm.com/en_au/index.html"
-      },
-
-      {
-        id: "zara-australia",
-        name: "Zara",
-        country: "Australia",
-        url: "https://www.zara.com/au"
-      },
-
-      {
-        id: "uniqlo-australia",
-        name: "Uniqlo",
-        country: "Australia",
-        url: "https://www.uniqlo.com/au"
-      },
-
-      {
-        id: "cotton-on",
-        name: "Cotton On",
-        country: "Australia",
-        url: "https://cottonon.com/AU"
-      },
-
-      {
-        id: "country-road",
-        name: "Country Road",
-        country: "Australia",
-        url: "https://www.countryroad.com.au"
-      },
-
-      {
-        id: "tommy-hilfiger-australia",
-        name: "Tommy Hilfiger",
-        country: "Australia",
-        url: "https://au.tommy.com"
-      },
-
-      {
-        id: "calvin-klein-australia",
-        name: "Calvin Klein",
-        country: "Australia",
-        url: "https://www.calvinklein.com.au"
-      }
-
-    ],
-
-
-    "Sri Lanka": [
-
-      {
-        id: "odel",
-        name: "Odel",
-        country: "Sri Lanka",
-        url: "https://odel.lk"
-      },
-
-      {
-        id: "cool-planet",
-        name: "Cool Planet",
-        country: "Sri Lanka",
-        url: "https://coolplanet.lk"
-      },
-
-      {
-        id: "nolimit",
-        name: "NOLIMIT",
-        country: "Sri Lanka",
-        url: "https://www.nolimit.lk"
-      },
-
-      {
-        id: "house-of-fashion",
-        name: "House of Fashion",
-        country: "Sri Lanka",
-        url: "https://houseoffashion.lk"
-      },
-
-      {
-        id: "kelly-felder",
-        name: "Kelly Felder",
-        country: "Sri Lanka",
-        url: "https://kellyfelder.com"
-      }
-
-    ],
-
-
-    "United Kingdom": [
-
-      {
-        id: "asos-uk",
-        name: "ASOS",
-        country: "United Kingdom",
-        url: "https://www.asos.com"
-      },
-
-      {
-        id: "marks-spencer",
-        name: "Marks & Spencer",
-        country: "United Kingdom",
-        url: "https://www.marksandspencer.com"
-      },
-
-      {
-        id: "next-uk",
-        name: "Next",
-        country: "United Kingdom",
-        url: "https://www.next.co.uk"
-      },
-
-      {
-        id: "zara-uk",
-        name: "Zara",
-        country: "United Kingdom",
-        url: "https://www.zara.com/uk"
-      },
-
-      {
-        id: "hm-uk",
-        name: "H&M",
-        country: "United Kingdom",
-        url: "https://www2.hm.com/en_gb/index.html"
-      },
-
-      {
-        id: "uniqlo-uk",
-        name: "Uniqlo",
-        country: "United Kingdom",
-        url: "https://www.uniqlo.com/uk"
-      },
-
-      {
-        id: "tommy-hilfiger-uk",
-        name: "Tommy Hilfiger",
-        country: "United Kingdom",
-        url: "https://uk.tommy.com"
-      }
-
-    ],
-
-
-    "United States": [
-
-      {
-        id: "macys",
-        name: "Macy's",
-        country: "United States",
-        url: "https://www.macys.com"
-      },
-
-      {
-        id: "nordstrom",
-        name: "Nordstrom",
-        country: "United States",
-        url: "https://www.nordstrom.com"
-      },
-
-      {
-        id: "target-us",
-        name: "Target",
-        country: "United States",
-        url: "https://www.target.com"
-      },
-
-      {
-        id: "hm-us",
-        name: "H&M",
-        country: "United States",
-        url: "https://www2.hm.com/en_us/index.html"
-      },
-
-      {
-        id: "zara-us",
-        name: "Zara",
-        country: "United States",
-        url: "https://www.zara.com/us"
-      },
-
-      {
-        id: "uniqlo-us",
-        name: "Uniqlo",
-        country: "United States",
-        url: "https://www.uniqlo.com/us"
-      },
-
-      {
-        id: "tommy-hilfiger-us",
-        name: "Tommy Hilfiger",
-        country: "United States",
-        url: "https://usa.tommy.com"
-      }
-
-    ],
-
-
-    "Canada": [
-
-      {
-        id: "hudsons-bay",
-        name: "Hudson's Bay",
-        country: "Canada",
-        url: "https://www.thebay.com"
-      },
-
-      {
-        id: "simons",
-        name: "Simons",
-        country: "Canada",
-        url: "https://www.simons.ca"
-      },
-
-      {
-        id: "hm-canada",
-        name: "H&M",
-        country: "Canada",
-        url: "https://www2.hm.com/en_ca/index.html"
-      },
-
-      {
-        id: "zara-canada",
-        name: "Zara",
-        country: "Canada",
-        url: "https://www.zara.com/ca"
-      },
-
-      {
-        id: "uniqlo-canada",
-        name: "Uniqlo",
-        country: "Canada",
-        url: "https://www.uniqlo.com/ca"
-      }
-
-    ]
-
-  };
-
-
-  /* =========================================================
-     AUTH
-  ========================================================= */
-
-  function showLogin() {
-
-    document
-      .getElementById("loginForm")
-      .classList.remove("hidden");
-
-    document
-      .getElementById("signupForm")
-      .classList.add("hidden");
-
-  }
-
-
-  function showSignup() {
-
-    document
-      .getElementById("loginForm")
-      .classList.add("hidden");
-
-    document
-      .getElementById("signupForm")
-      .classList.remove("hidden");
-
-  }
-
-
-  async function signup() {
-
-    const email =
-      document
-        .getElementById("signupEmail")
-        .value
-        .trim();
-
-    const password =
-      document
-        .getElementById("signupPassword")
-        .value;
-
-
-    if (!email || !password) {
-
-      alert(
-        "Please enter your email and password."
-      );
-
-      return;
-    }
-
-
-    if (password.length < 6) {
-
-      alert(
-        "Password must be at least 6 characters."
-      );
-
-      return;
-    }
-
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient.auth.signUp({
-          email,
-          password
-        });
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      if (data.session) {
-
-        currentUser =
-          data.user;
-
-        await startApp();
-
-      } else {
-
-        alert(
-          "Account created. Please check your email if email confirmation is enabled, then log in."
-        );
-
-        showLogin();
-
-      }
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        error.message ||
-        "Unable to create account."
-      );
-
-    }
-
-  }
-
-
-  async function login() {
-
-    const email =
-      document
-        .getElementById("loginEmail")
-        .value
-        .trim();
-
-    const password =
-      document
-        .getElementById("loginPassword")
-        .value;
-
-
-    if (!email || !password) {
-
-      alert(
-        "Please enter your email and password."
-      );
-
-      return;
-    }
-
-
-    try {
-
-      const {
-        error
-      } =
-        await supabaseClient.auth
-          .signInWithPassword({
-            email,
-            password
-          });
-
-
-      if (error) {
-        throw error;
-      }
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        error.message ||
-        "Login failed."
-      );
-
-    }
-
-  }
-
-
-  async function logout() {
-
-    try {
-
-      await supabaseClient.auth.signOut();
-
-    } catch (error) {
-
-      console.error(error);
-
-    }
-
-
-    currentUser = null;
-
-    appStarted = false;
-    appStarting = false;
-
-
-    document
-      .getElementById("appScreen")
-      .classList.add("hidden");
-
-
-    document
-      .getElementById("authScreen")
-      .classList.remove("hidden");
-
-  }
-
-
-  /* =========================================================
-     APP START
-  ========================================================= */
-
-  async function startApp() {
-
-    if (appStarted || appStarting) {
-      return;
-    }
-
-
-    if (!currentUser) {
-      return;
-    }
-
-
-    appStarting = true;
-
-
-    try {
-
-      document
-        .getElementById("authScreen")
-        .classList.add("hidden");
-
-
-      document
-        .getElementById("appScreen")
-        .classList.remove("hidden");
-
-
-      await loadAllData();
-
-      loadShoppingProfile();
-
-      updateStoreList();
-
-      showPage("home");
-
-      appStarted = true;
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "There was a problem loading your wardrobe. Please refresh and try again."
-      );
-
-    } finally {
-
-      appStarting = false;
-
-    }
-
-  }
-
-
-  async function loadAllData() {
-
-    if (!currentUser) {
-      return;
-    }
-
-
-    const [
-      categoryResult,
-      clothingResult,
-      lookResult,
-      lookItemsResult
-    ] =
-      await Promise.all([
-
-        supabaseClient
-          .from("categories")
-          .select("*")
-          .order(
-            "created_at",
-            {
-              ascending: true
-            }
-          ),
-
-        supabaseClient
-          .from("clothing_items")
-          .select("*")
-          .order(
-            "created_at",
-            {
-              ascending: true
-            }
-          ),
-
-        supabaseClient
-          .from("saved_looks")
-          .select("*")
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          ),
-
-        supabaseClient
-          .from("look_items")
-          .select("*")
-
-      ]);
-
-
-    if (categoryResult.error) {
-      throw categoryResult.error;
-    }
-
-
-    if (clothingResult.error) {
-      throw clothingResult.error;
-    }
-
-
-    if (lookResult.error) {
-      throw lookResult.error;
-    }
-
-
-    if (lookItemsResult.error) {
-      throw lookItemsResult.error;
-    }
-
-
-    categories =
-      categoryResult.data || [];
-
-
-    clothingItems =
-      clothingResult.data || [];
-
-
-    savedLooks =
-      lookResult.data || [];
-
-
-    lookItems =
-      lookItemsResult.data || [];
-
-
-    await createSignedPhotoUrls();
-
-    renderCategories();
-
-  }
-
-
-  async function createSignedPhotoUrls() {
-
-    for (const item of clothingItems) {
-
-      if (!item.photo_url) {
-        continue;
-      }
-
-
-      try {
-
-        const {
-          data,
-          error
-        } =
-          await supabaseClient
-            .storage
-            .from("wardrobe-photos")
-            .createSignedUrl(
-              item.photo_url,
-              3600
-            );
-
-
-        if (!error && data) {
-
-          item.signed_photo_url =
-            data.signedUrl;
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Photo URL error:",
-          error
-        );
-
-      }
-
-    }
-
-  }
-
-
-  /* =========================================================
-     NAVIGATION
-  ========================================================= */
-
-  function hideAllPages() {
-
-    [
-      "homePage",
-      "categoryPage",
-      "searchPage",
-      "looksPage",
-      "shopPage"
-    ]
-      .forEach(id => {
-
-        document
-          .getElementById(id)
-          .classList.add("hidden");
-
-      });
-
-  }
-
-
-  function clearNavActive() {
-
-    [
-      "navHome",
-      "navLooks",
-      "navShop"
-    ]
-      .forEach(id => {
-
-        document
-          .getElementById(id)
-          .classList.remove("active");
-
-      });
-
-  }
-
-
-  function showPage(page) {
-
-    hideAllPages();
-
-    clearNavActive();
-
-
-    if (page === "home") {
-
-      document
-        .getElementById("homePage")
-        .classList.remove("hidden");
-
-
-      document
-        .getElementById("navHome")
-        .classList.add("active");
-
-    }
-
-
-    if (page === "looks") {
-
-      document
-        .getElementById("looksPage")
-        .classList.remove("hidden");
-
-
-      document
-        .getElementById("navLooks")
-        .classList.add("active");
-
-
-      renderLooks();
-
-    }
-
-
-    if (page === "shop") {
-
-      document
-        .getElementById("shopPage")
-        .classList.remove("hidden");
-
-
-      document
-        .getElementById("navShop")
-        .classList.add("active");
-
-
-      loadShoppingProfile();
-
-      updateStoreList();
-
-    }
-
-
-    if (page === "search") {
-
-      document
-        .getElementById("searchPage")
-        .classList.remove("hidden");
-
-
-      setTimeout(() => {
-
-        document
-          .getElementById("searchInput")
-          .focus();
-
-      }, 100);
-
-    }
-
-  }
-
-
-  function goHome() {
-
-    currentCategoryId = null;
-
-    showPage("home");
-
-  }
-
-
-  /* =========================================================
-     CATEGORIES
-  ========================================================= */
-
-  function renderCategories() {
-
-    const grid =
-      document.getElementById(
-        "categoryGrid"
-      );
-
-
-    if (!categories.length) {
-
-      grid.innerHTML = `
-        <div class="empty-state">
-          No categories yet.<br>
-          Add your first category.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    grid.innerHTML =
-      categories
-        .map(category => {
-
-          const count =
-            clothingItems.filter(
-              item =>
-                item.category_id ===
-                category.id
-            ).length;
-
-
-          return `
-
-            <button
-              class="category-card"
-              onclick="openCategory('${escapeJs(category.id)}')"
-            >
-
-              <span class="category-icon">
-                ${escapeHtml(
-                  category.icon ||
-                  "👕"
-                )}
-              </span>
-
-              <span class="category-name">
-                ${escapeHtml(
-                  category.name
-                )}
-              </span>
-
-              <small>
-                ${count}
-                item${count === 1 ? "" : "s"}
-              </small>
-
-            </button>
-
-          `;
-
-        })
-        .join("");
-
-  }
-
-
-  function openCategoryModal(
-    categoryId = null
-  ) {
-
-    editingCategoryId =
-      categoryId;
-
-
-    document
-      .getElementById("categoryModal")
-      .classList.remove("hidden");
-
-
-    if (categoryId) {
-
-      const category =
-        categories.find(
-          item =>
-            item.id ===
-            categoryId
-        );
-
-
-      if (!category) {
-        return;
-      }
-
-
-      document
-        .getElementById(
-          "categoryModalTitle"
-        )
-        .textContent =
-        "Edit Category";
-
-
-      document
-        .getElementById(
-          "categoryName"
-        )
-        .value =
-        category.name || "";
-
-
-      document
-        .getElementById(
-          "categoryIcon"
-        )
-        .value =
-        category.icon || "👕";
-
-    } else {
-
-      document
-        .getElementById(
-          "categoryModalTitle"
-        )
-        .textContent =
-        "Add Category";
-
-
-      document
-        .getElementById(
-          "categoryName"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "categoryIcon"
-        )
-        .value =
-        "👕";
-
-    }
-
-  }
-
-
-  async function saveCategory() {
-
-    const name =
-      document
-        .getElementById(
-          "categoryName"
-        )
-        .value
-        .trim();
-
-
-    const icon =
-      document
-        .getElementById(
-          "categoryIcon"
-        )
-        .value
-        .trim() ||
-      "👕";
-
-
-    if (!name) {
-
-      alert(
-        "Please enter a category name."
-      );
-
-      return;
-    }
-
-
-    try {
-
-      let error;
-
-
-      if (editingCategoryId) {
-
-        const result =
-          await supabaseClient
-            .from("categories")
-            .update({
-              name,
-              icon
-            })
-            .eq(
-              "id",
-              editingCategoryId
-            );
-
-
-        error =
-          result.error;
-
-      } else {
-
-        const result =
-          await supabaseClient
-            .from("categories")
-            .insert({
-              user_id:
-                currentUser.id,
-
-              name,
-              icon
-            });
-
-
-        error =
-          result.error;
-
-      }
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      closeModal(
-        "categoryModal"
-      );
-
-
-      await loadAllData();
-
-
-      if (currentCategoryId) {
-
-        openCategory(
-          currentCategoryId
-        );
-
-      }
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        error.message ||
-        "Unable to save category."
-      );
-
-    }
-
-  }
-
-
-  function openCategory(categoryId) {
-
-    currentCategoryId =
-      categoryId;
-
-
-    const category =
-      categories.find(
-        item =>
-          item.id ===
-          categoryId
-      );
-
-
-    if (!category) {
-      return;
-    }
-
-
-    document
-      .getElementById(
-        "categoryPageTitle"
-      )
-      .textContent =
-      category.name;
-
-
-    hideAllPages();
-
-    clearNavActive();
-
-
-    document
-      .getElementById(
-        "categoryPage"
-      )
-      .classList.remove(
-        "hidden"
-      );
-
-
-    renderClothingForCategory();
-
-  }
-
-
-  function renderClothingForCategory() {
-
-    const grid =
-      document.getElementById(
-        "clothingGrid"
-      );
-
-
-    const items =
-      clothingItems.filter(
-        item =>
-          item.category_id ===
-          currentCategoryId
-      );
-
-
-    if (!items.length) {
-
-      grid.innerHTML = `
-        <div class="empty-state">
-          No clothing in this category yet.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    grid.innerHTML =
-      items
-        .map(renderClothingCard)
-        .join("");
-
-  }
-
-
-  function renderClothingCard(item) {
-
-    const image =
-      item.signed_photo_url ||
-      "";
-
-
-    return `
-
-      <div class="clothing-card">
-
-        ${
-          image
-          ?
-          `<img
-            class="clothing-photo"
-            src="${safeAttributeUrl(image)}"
-            alt="${escapeHtml(
-              item.name ||
-              "Clothing"
-            )}"
-          >`
-          :
-          `<div class="clothing-photo"></div>`
-        }
-
-        <div class="clothing-info">
-
-          <strong>
-            ${escapeHtml(
-              item.name ||
-              "Unnamed"
-            )}
-          </strong>
-
-          ${
-            item.color
-            ?
-            `<small>
-              ${escapeHtml(
-                item.color
-              )}
-            </small>`
-            :
-            ""
-          }
-
-          ${
-            item.brand
-            ?
-            `<small>
-              ${escapeHtml(
-                item.brand
-              )}
-            </small>`
-            :
-            ""
-          }
-
-          <div class="item-actions">
-
-            <button
-              class="small-btn"
-              onclick="openClothingModal('${escapeJs(item.id)}')"
-            >
-              Edit
-            </button>
-
-            <button
-              class="small-btn"
-              onclick="deleteClothing('${escapeJs(item.id)}')"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  async function confirmDeleteCategory() {
-
-    if (!currentCategoryId) {
-      return;
-    }
-
-
-    const category =
-      categories.find(
-        item =>
-          item.id ===
-          currentCategoryId
-      );
-
-
-    if (!category) {
-      return;
-    }
-
-
-    const confirmed =
-      confirm(
-        `Delete "${category.name}" and all clothing inside it?`
-      );
-
-
-    if (!confirmed) {
-      return;
-    }
-
-
-    await deleteCurrentCategory();
-
-  }
-
-
-  async function deleteCurrentCategory() {
-
-    try {
-
-      const items =
-        clothingItems.filter(
-          item =>
-            item.category_id ===
-            currentCategoryId
-        );
-
-
-      const paths =
-        items
-          .map(
-            item =>
-              item.photo_url
-          )
-          .filter(Boolean);
-
-
-      if (paths.length) {
-
-        const {
-          error:
-            storageError
-        } =
-          await supabaseClient
-            .storage
-            .from("wardrobe-photos")
-            .remove(paths);
-
-
-        if (storageError) {
-
-          console.warn(
-            "Some photos could not be deleted:",
-            storageError
-          );
-
-        }
-
-      }
-
-
-      if (items.length) {
-
-        const {
-          error
-        } =
-          await supabaseClient
-            .from("clothing_items")
-            .delete()
-            .eq(
-              "category_id",
-              currentCategoryId
-            );
-
-
-        if (error) {
-          throw error;
-        }
-
-      }
-
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("categories")
-          .delete()
-          .eq(
-            "id",
-            currentCategoryId
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      currentCategoryId = null;
-
-
-      await loadAllData();
-
-      showPage("home");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        error.message ||
-        "Unable to delete category."
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     CLOTHING
-  ========================================================= */
-
-  function populateCategorySelect() {
-
-    const select =
-      document.getElementById(
-        "clothingCategory"
-      );
-
-
-    select.innerHTML =
-      categories
-        .map(category => `
-
-          <option
-            value="${escapeHtml(
-              category.id
-            )}"
-          >
-            ${escapeHtml(
-              category.name
-            )}
-          </option>
-
-        `)
-        .join("");
-
-  }
-
-
-  function openClothingModal(
-    clothingId = null
-  ) {
-
-    editingClothingId =
-      clothingId;
-
-
-    populateCategorySelect();
-
-
-    document
-      .getElementById(
-        "clothingModal"
-      )
-      .classList.remove(
-        "hidden"
-      );
-
-
-    document
-      .getElementById(
-        "photoPreviewContainer"
-      )
-      .classList.add(
-        "hidden"
-      );
-
-
-    document
-      .getElementById(
-        "clothingPhoto"
-      )
-      .value = "";
-
-
-    if (clothingId) {
-
-      const item =
-        clothingItems.find(
-          x =>
-            x.id ===
-            clothingId
-        );
-
-
-      if (!item) {
-        return;
-      }
-
-
-      document
-        .getElementById(
-          "clothingModalTitle"
-        )
-        .textContent =
-        "Edit Clothing";
-
-
-      document
-        .getElementById(
-          "clothingCategory"
-        )
-        .value =
-        item.category_id;
-
-
-      document
-        .getElementById(
-          "clothingName"
-        )
-        .value =
-        item.name || "";
-
-
-      document
-        .getElementById(
-          "clothingColor"
-        )
-        .value =
-        item.color || "";
-
-
-      document
-        .getElementById(
-          "clothingBrand"
-        )
-        .value =
-        item.brand || "";
-
-    } else {
-
-      document
-        .getElementById(
-          "clothingModalTitle"
-        )
-        .textContent =
-        "Add Clothing";
-
-
-      if (currentCategoryId) {
-
-        document
-          .getElementById(
-            "clothingCategory"
-          )
-          .value =
-          currentCategoryId;
-
-      }
-
-
-      document
-        .getElementById(
-          "clothingName"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clothingColor"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "clothingBrand"
-        )
-        .value = "";
-
-    }
-
-  }
-
-
-  function previewPhoto() {
-
-    const input =
-      document.getElementById(
-        "clothingPhoto"
-      );
-
-
-    const file =
-      input.files[0];
-
-
-    if (!file) {
-      return;
-    }
-
-
-    const url =
-      URL.createObjectURL(file);
-
-
-    document
-      .getElementById(
-        "photoPreview"
-      )
-      .src =
-      url;
-
-
-    document
-      .getElementById(
-        "photoPreviewContainer"
-      )
-      .classList.remove(
-        "hidden"
-      );
-
-  }
-
-
-  async function saveClothing() {
-
-    const button =
-      document.getElementById(
-        "saveClothingButton"
-      );
-
-
-    button.disabled = true;
-
-    button.textContent =
-      "Saving...";
-
-
-    let uploadedPath =
-      null;
-
-
-    try {
-
-      const categoryId =
-        document
-          .getElementById(
-            "clothingCategory"
-          )
-          .value;
-
-
-      const name =
-        document
-          .getElementById(
-            "clothingName"
-          )
-          .value
-          .trim();
-
-
-      const color =
-        document
-          .getElementById(
-            "clothingColor"
-          )
-          .value
-          .trim();
-
-
-      const brand =
-        document
-          .getElementById(
-            "clothingBrand"
-          )
-          .value
-          .trim();
-
-
-      if (!categoryId) {
-
-        throw new Error(
-          "Please select a category."
-        );
-
-      }
-
-
-      if (!name) {
-
-        throw new Error(
-          "Please enter a clothing name."
-        );
-
-      }
-
-
-      const photoInput =
-        document.getElementById(
-          "clothingPhoto"
-        );
-
-
-      const file =
-        photoInput.files[0];
-
-
-      let photoUrl = null;
-
-
-      if (editingClothingId) {
-
-        const existing =
-          clothingItems.find(
-            item =>
-              item.id ===
-              editingClothingId
-          );
-
-
-        photoUrl =
-          existing
-            ? existing.photo_url
-            : null;
-
-      }
-
-
-      if (file) {
-
-        const safeName =
-          file.name
-            .replace(
-              /[^a-zA-Z0-9._-]/g,
-              "_"
-            );
-
-
-        uploadedPath =
-          `${currentUser.id}/${crypto.randomUUID()}-${safeName}`;
-
-
-        const {
-          error:
-            uploadError
-        } =
-          await supabaseClient
-            .storage
-            .from("wardrobe-photos")
-            .upload(
-              uploadedPath,
-              file,
-              {
-                upsert: false
-              }
-            );
-
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-
-        photoUrl =
-          uploadedPath;
-
-      }
-
-
-      let error;
-
-
-      if (editingClothingId) {
-
-        const result =
-          await supabaseClient
-            .from("clothing_items")
-            .update({
-              category_id:
-                categoryId,
-
-              name,
-
-              color,
-
-              brand,
-
-              photo_url:
-                photoUrl
-            })
-            .eq(
-              "id",
-              editingClothingId
-            );
-
-
-        error =
-          result.error;
-
-      } else {
-
-        const result =
-          await supabaseClient
-            .from("clothing_items")
-            .insert({
-              user_id:
-                currentUser.id,
-
-              category_id:
-                categoryId,
-
-              name,
-
-              color,
-
-              brand,
-
-              photo_url:
-                photoUrl
-            });
-
-
-        error =
-          result.error;
-
-      }
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      closeModal(
-        "clothingModal"
-      );
-
-
-      await loadAllData();
-
-
-      if (currentCategoryId) {
-
-        renderClothingForCategory();
-
-      }
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      if (uploadedPath) {
-
-        try {
-
-          await supabaseClient
-            .storage
-            .from("wardrobe-photos")
-            .remove([
-              uploadedPath
-            ]);
-
-        } catch (cleanupError) {
-
-          console.error(
-            "Photo cleanup failed:",
-            cleanupError
-          );
-
-        }
-
-      }
-
-
-      alert(
-        error.message ||
-        "Unable to save clothing."
-      );
-
-    } finally {
-
-      button.disabled = false;
-
-      button.textContent =
-        "Save Clothing";
-
-    }
-
-  }
-
-
-  async function deleteClothing(id) {
-
-    const confirmed =
-      confirm(
-        "Delete this clothing item?"
-      );
-
-
-    if (!confirmed) {
-      return;
-    }
-
-
-    try {
-
-      const item =
-        clothingItems.find(
-          x =>
-            x.id === id
-        );
-
-
-      if (
-        item &&
-        item.photo_url
-      ) {
-
-        await supabaseClient
-          .storage
-          .from("wardrobe-photos")
-          .remove([
-            item.photo_url
-          ]);
-
-      }
-
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("clothing_items")
-          .delete()
-          .eq(
-            "id",
-            id
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      await loadAllData();
-
-
-      if (currentCategoryId) {
-
-        renderClothingForCategory();
-
-      }
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        error.message ||
-        "Unable to delete clothing."
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     SEARCH
-  ========================================================= */
-
-  function performSearch() {
-
-    const query =
-      document
-        .getElementById(
-          "searchInput"
-        )
-        .value
-        .trim()
-        .toLowerCase();
-
-
-    const results =
-      document.getElementById(
-        "searchResults"
-      );
-
-
-    if (!query) {
-
-      results.innerHTML = `
-        <div class="empty-state">
-          Start typing to search your wardrobe.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    const matches =
-      clothingItems.filter(
-        item => {
-
-          const text = [
-
-            item.name,
-            item.color,
-            item.brand
-
-          ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase();
-
-
-          return text.includes(
-            query
-          );
-
-        }
-      );
-
-
-    if (!matches.length) {
-
-      results.innerHTML = `
-        <div class="empty-state">
-          No clothing found.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    results.innerHTML = `
-
-      <div class="clothing-grid">
-
-        ${
-          matches
-            .map(
-              renderClothingCard
-            )
-            .join("")
-        }
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     SAVED LOOKS
-  ========================================================= */
-
-  async function createSavedLook() {
-
-    const name =
-      document
-        .getElementById(
-          "lookName"
-        )
-        .value
-        .trim();
-
-
-    if (!name) {
-
-      alert(
-        "Please enter a look name."
-      );
-
-      return;
-    }
-
-
-    if (!clothingItems.length) {
-
-      alert(
-        "Add some clothing before creating a look."
-      );
-
-      return;
-    }
-
-
-    try {
-
-      const categoriesAvailable =
-        [
-          ...new Set(
-            clothingItems.map(
-              item =>
-                item.category_id
-            )
-          )
-        ];
-
-
-      categoriesAvailable.sort(
-        () =>
-          Math.random() -
-          0.5
-      );
-
-
-      const selectedCategoryIds =
-        categoriesAvailable.slice(
-          0,
-          3
-        );
-
-
-      let selectedItems = [];
-
-
-      selectedCategoryIds.forEach(
-        categoryId => {
-
-          const available =
-            clothingItems.filter(
-              item =>
-                item.category_id ===
-                categoryId
-            );
-
-
-          if (available.length) {
-
-            const item =
-              available[
-                Math.floor(
-                  Math.random() *
-                  available.length
-                )
-              ];
-
-
-            selectedItems.push(
-              item
-            );
-
-          }
-
-        }
-      );
-
-
-      if (
-        selectedItems.length <
-        3
-      ) {
-
-        const remaining =
-          clothingItems.filter(
-            item =>
-              !selectedItems.some(
-                selected =>
-                  selected.id ===
-                  item.id
-              )
-          );
-
-
-        remaining.sort(
-          () =>
-            Math.random() -
-            0.5
-        );
-
-
-        selectedItems =
-          selectedItems.concat(
-            remaining.slice(
-              0,
-              3 -
-              selectedItems.length
-            )
-          );
-
-      }
-
-
-      const {
-        data: look,
-        error: lookError
-      } =
-        await supabaseClient
-          .from("saved_looks")
-          .insert({
-            user_id:
-              currentUser.id,
-
-            name
-          })
-          .select()
-          .single();
-
-
-      if (lookError) {
-        throw lookError;
-      }
-
-
-      if (selectedItems.length) {
-
-        const rows =
-          selectedItems.map(
-            item => ({
-              look_id:
-                look.id,
-
-              clothing_item_id:
-                item.id
-            })
-          );
-
-
-        const {
-          error
-        } =
-          await supabaseClient
-            .from("look_items")
-            .insert(rows);
-
-
-        if (error) {
-          throw error;
-        }
-
-      }
-
-
-      closeModal(
-        "saveLookModal"
-      );
-
-
-      await loadAllData();
-
-      showPage("looks");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        error.message ||
-        "Unable to create look."
-      );
-
-    }
-
-  }
-
-
-  function openSaveLookModal() {
-
-    document
-      .getElementById(
-        "lookName"
-      )
-      .value = "";
-
-
-    document
-      .getElementById(
-        "saveLookModal"
-      )
-      .classList.remove(
-        "hidden"
-      );
-
-  }
-
-
-  async function renderLooks() {
-
-    const container =
-      document.getElementById(
-        "looksContainer"
-      );
-
-
-    if (!savedLooks.length) {
-
-      container.innerHTML = `
-        <div class="empty-state">
-          No saved looks yet.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    const validLookIds =
-      new Set(
-        savedLooks.map(
-          look =>
-            look.id
-        )
-      );
-
-
-    container.innerHTML =
-      savedLooks
-        .map(look => {
-
-          const ids =
-            lookItems
-              .filter(
-                li =>
-                  validLookIds.has(
-                    li.look_id
-                  ) &&
-                  li.look_id ===
-                  look.id
-              )
-              .map(
-                li =>
-                  li.clothing_item_id
-              );
-
-
-          const items =
-            ids
-              .map(
-                id =>
-                  clothingItems.find(
-                    item =>
-                      item.id ===
-                      id
-                  )
-              )
-              .filter(Boolean);
-
-
-          return `
-
-            <div class="look-card">
-
-              <h3>
-                ${escapeHtml(
-                  look.name
-                )}
-              </h3>
-
-              <div class="look-items">
-
-                ${
-                  items.length
-                  ?
-                  items
-                    .map(
-                      item => `
-
-                        ${
-                          item.signed_photo_url
-                          ?
-                          `<img
-                            src="${safeAttributeUrl(
-                              item.signed_photo_url
-                            )}"
-                            alt="${escapeHtml(
-                              item.name ||
-                              "Clothing"
-                            )}"
-                          >`
-                          :
-                          `<div
-                            style="
-                              background:#eee;
-                              border-radius:10px;
-                            "
-                          ></div>`
-                        }
-
-                      `
-                    )
-                    .join("")
-                  :
-                  `<div class="empty-state">
-                    No items
-                  </div>`
-                }
-
-              </div>
-
-            </div>
-
-          `;
-
-        })
-        .join("");
-
-  }
-
-
-  /* =========================================================
-     SHOPPING PROFILE
-  ========================================================= */
-
-  function profileStorageKey() {
-
-    return `mw_profile_${currentUser.id}`;
-
-  }
-
-
-  function storesStorageKey() {
-
-    return `mw_stores_${currentUser.id}`;
-
-  }
-
-
-  function loadShoppingProfile() {
-
-    if (!currentUser) {
-      return;
-    }
-
-
-    try {
-
-      const saved =
-        localStorage.getItem(
-          profileStorageKey()
-        );
-
-
-      if (!saved) {
-        return;
-      }
-
-
-      const profile =
-        JSON.parse(saved);
-
-
-      document
-        .getElementById(
-          "profileCountry"
-        )
-        .value =
-        profile.country ||
-        "Australia";
-
-
-      document
-        .getElementById(
-          "profileSize"
-        )
-        .value =
-        profile.size ||
-        "";
-
-
-      document
-        .getElementById(
-          "profileFit"
-        )
-        .value =
-        profile.fit ||
-        "";
-
-
-      document
-        .getElementById(
-          "profileBudget"
-        )
-        .value =
-        profile.budget ||
-        "";
-
-
-      document
-        .getElementById(
-          "profileHeight"
-        )
-        .value =
-        profile.height ||
-        "";
-
-
-      document
-        .getElementById(
-          "profileChest"
-        )
-        .value =
-        profile.chest ||
-        "";
-
-
-      document
-        .getElementById(
-          "profileWaist"
-        )
-        .value =
-        profile.waist ||
-        "";
-
-
-      if (profile.occasion) {
-
-        selectedOccasion =
-          profile.occasion;
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Profile loading error:",
-        error
-      );
-
-    }
-
-  }
-
-
-  function saveShoppingProfile() {
-
-    if (!currentUser) {
-      return;
-    }
-
-
-    const profile = {
-
-      country:
-        document
-          .getElementById(
-            "profileCountry"
-          )
-          .value,
-
-      size:
-        document
-          .getElementById(
-            "profileSize"
-          )
-          .value
-          .trim(),
-
-      fit:
-        document
-          .getElementById(
-            "profileFit"
-          )
-          .value,
-
-      budget:
-        document
-          .getElementById(
-            "profileBudget"
-          )
-          .value,
-
-      height:
-        document
-          .getElementById(
-            "profileHeight"
-          )
-          .value,
-
-      chest:
-        document
-          .getElementById(
-            "profileChest"
-          )
-          .value,
-
-      waist:
-        document
-          .getElementById(
-            "profileWaist"
-          )
-          .value,
-
-      occasion:
-        selectedOccasion
-
-    };
-
-
-    try {
-
-      localStorage.setItem(
-        profileStorageKey(),
-        JSON.stringify(
-          profile
-        )
-      );
-
-
-      alert(
-        "Shopping profile saved."
-      );
-
-
-      updateStoreList();
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "Unable to save shopping profile."
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     STORES
-  ========================================================= */
-
-  function getCustomStores() {
-
-    if (!currentUser) {
-      return [];
-    }
-
-
-    try {
-
-      const saved =
-        localStorage.getItem(
-          storesStorageKey()
-        );
-
-
-      if (!saved) {
-        return [];
-      }
-
-
-      return JSON.parse(
-        saved
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      return [];
-
-    }
-
-  }
-
-
-  function getSelectedStoreIds() {
-
-    if (!currentUser) {
-      return [];
-    }
-
-
-    try {
-
-      const saved =
-        localStorage.getItem(
-          `${storesStorageKey()}_selected`
-        );
-
-
-      return saved
-        ? JSON.parse(saved)
-        : [];
-
-    } catch (error) {
-
-      return [];
-
-    }
-
-  }
-
-
-  function saveSelectedStoreIds(
-    ids
-  ) {
-
-    try {
-
-      localStorage.setItem(
-        `${storesStorageKey()}_selected`,
-        JSON.stringify(ids)
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-    }
-
-  }
-
-
-  function updateStoreList() {
-
-    const country =
-      document
-        .getElementById(
-          "profileCountry"
-        )
-        .value;
-
-
-    const container =
-      document.getElementById(
-        "storeList"
-      );
-
-
-    if (!container) {
-      return;
-    }
-
-
-    const stores = [
-
-      ...(STORE_CATALOG[
-        country
-      ] || []),
-
-      ...getCustomStores()
-
-    ];
-
-
-    const selected =
-      new Set(
-        getSelectedStoreIds()
-      );
-
-
-    if (!stores.length) {
-
-      container.innerHTML = `
-        <div class="empty-state">
-          No stores available for this country yet.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    container.innerHTML =
-      stores
-        .map(store => {
-
-          const checked =
-            selected.has(
-              store.id
-            );
-
-
-          return `
-
-            <label
-              class="store-option ${
-                checked
-                  ? "selected"
-                  : ""
-              }"
-            >
-
-              <input
-                type="checkbox"
-                ${
-                  checked
-                    ? "checked"
-                    : ""
-                }
-                onchange="
-                  toggleStore(
-                    '${escapeJs(
-                      store.id
-                    )}',
-                    this.checked
-                  )
-                "
-              >
-
-              <div>
-
-                <div class="store-name">
-                  ${escapeHtml(
-                    store.name
-                  )}
-                </div>
-
-                <div class="store-country">
-                  ${escapeHtml(
-                    store.country
-                  )}
-                </div>
-
-              </div>
-
-            </label>
-
-          `;
-
-        })
-        .join("");
-
-  }
-
-
-  function toggleStore(
-    storeId,
-    checked
-  ) {
-
-    let ids =
-      getSelectedStoreIds();
-
-
-    if (checked) {
-
-      if (
-        !ids.includes(
-          storeId
-        )
-      ) {
-
-        ids.push(
-          storeId
-        );
-
-      }
-
-    } else {
-
-      ids =
-        ids.filter(
-          id =>
-            id !==
-            storeId
-        );
-
-    }
-
-
-    saveSelectedStoreIds(
-      ids
-    );
-
-
-    updateStoreList();
-
-  }
-
-
-  function addCustomStore() {
-
-    const name =
-      document
-        .getElementById(
-          "customStoreName"
-        )
-        .value
-        .trim();
-
-
-    const url =
-      document
-        .getElementById(
-          "customStoreUrl"
-        )
-        .value
-        .trim();
-
-
-    if (!name || !url) {
-
-      alert(
-        "Enter both the store name and official website."
-      );
-
-      return;
-    }
-
-
-    const safe =
-      safeUrl(url);
-
-
-    if (!safe) {
-
-      alert(
-        "Please enter a valid HTTPS website address."
-      );
-
-      return;
-    }
-
-
-    const customStores =
-      getCustomStores();
-
-
-    const id =
-      `custom-${Date.now()}`;
-
-
-    customStores.push({
-
-      id,
-
-      name,
-
-      country:
-        document
-          .getElementById(
-            "profileCountry"
-          )
-          .value,
-
-      url:
-        safe,
-
-      custom:
-        true
-
-    });
-
-
-    try {
-
-      localStorage.setItem(
-        storesStorageKey(),
-        JSON.stringify(
-          customStores
-        )
-      );
-
-
-      const selected =
-        getSelectedStoreIds();
-
-
-      selected.push(
-        id
-      );
-
-
-      saveSelectedStoreIds(
-        selected
-      );
-
-
-      document
-        .getElementById(
-          "customStoreName"
-        )
-        .value = "";
-
-
-      document
-        .getElementById(
-          "customStoreUrl"
-        )
-        .value = "";
-
-
-      updateStoreList();
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "Unable to add store."
-      );
-
-    }
-
-  }
-
-
-  function getAllStores() {
-
-    const country =
-      document
-        .getElementById(
-          "profileCountry"
-        )
-        .value;
-
-
-    return [
-
-      ...(STORE_CATALOG[
-        country
-      ] || []),
-
-      ...getCustomStores()
-
-    ];
-
-  }
-
-
-  function getSelectedStores() {
-
-    const ids =
-      new Set(
-        getSelectedStoreIds()
-      );
-
-
-    return getAllStores()
-      .filter(
-        store =>
-          ids.has(
-            store.id
-          )
-      );
-
-  }
-
-
-  /* =========================================================
-     OCCASION
-  ========================================================= */
-
-  function selectOccasion(
-    button,
-    occasion
-  ) {
-
-    document
-      .querySelectorAll(
-        ".chip"
-      )
-      .forEach(
-        chip =>
-          chip.classList.remove(
-            "active"
-          )
-      );
-
-
-    button.classList.add(
-      "active"
-    );
-
-
-    selectedOccasion =
-      occasion;
-
-  }
-
-
-  /* =========================================================
-     SHOPPING REQUEST
-  ========================================================= */
-
-  async function findShoppingOptions() {
-
-    const request =
-      document
-        .getElementById(
-          "shopRequest"
-        )
-        .value
-        .trim();
-
-
-    const budget =
-      document
-        .getElementById(
-          "shopBudget"
-        )
-        .value
-        .trim();
-
-
-    const selectedStores =
-      getSelectedStores();
-
-
-    if (!selectedStores.length) {
-
-      alert(
-        "Please select at least one store."
-      );
-
-      return;
-    }
-
-
-    if (!request && !selectedOccasion) {
-
-      alert(
-        "Tell me what you are looking for or select an occasion first."
-      );
-
-      return;
-    }
-
-
-    const results =
-      document.getElementById(
-        "shoppingResults"
-      );
-
-
-    results.innerHTML = `
-
-      <div class="loading">
-
-        ✨ Analysing your wardrobe...
-
-        <br><br>
-
-        Checking your preferences,
-        occasion, budget and selected stores...
-
-      </div>
-
-    `;
-
-
-    const profile =
-      getShoppingProfile();
-
-
-    /*
-      LIVE BACKEND
-
-      If you eventually connect a secure backend,
-      it can return exact products.
-    */
-
-    if (SHOP_API_URL) {
-
-      try {
-
-        const response =
-          await fetch(
-            SHOP_API_URL,
-            {
-
-              method:
-                "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify({
-
-                  user: {
-                    id:
-                      currentUser.id
-                  },
-
-                  request,
-
-                  occasion:
-                    selectedOccasion,
-
-                  budget,
-
-                  profile,
-
-                  selectedStores,
-
-                  wardrobe:
-                    clothingItems.map(
-                      item => ({
-
-                        name:
-                          item.name,
-
-                        brand:
-                          item.brand,
-
-                        color:
-                          item.color,
-
-                        category:
-                          categories.find(
-                            category =>
-                              category.id ===
-                              item.category_id
-                          )?.name || ""
-
-                      })
-                    )
-
-                })
-
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Shopping service returned an error."
-          );
-
-        }
-
-
-        const data =
-          await response.json();
-
-
-        renderLiveShoppingResults(
-          data
-        );
-
-
-        return;
-
-      } catch (error) {
-
-        console.error(
-          "Shopping API error:",
-          error
-        );
-
-      }
-
-    }
-
-
-    /*
-      CURRENT NO-BACKEND MODE
-
-      We create intelligent official-site searches.
-    */
-
-    await new Promise(
-      resolve =>
-        setTimeout(
-          resolve,
-          700
-        )
-    );
-
-
-    renderOfficialStoreRecommendations(
-      selectedStores,
-      request,
-      selectedOccasion,
-      budget,
-      profile
-    );
-
-  }
-
-
-  function getShoppingProfile() {
-
-    if (!currentUser) {
-      return {};
-    }
-
-
-    try {
-
-      const saved =
-        localStorage.getItem(
-          profileStorageKey()
-        );
-
-
-      return saved
-        ? JSON.parse(
-            saved
-          )
-        : {};
-
-    } catch (error) {
-
-      return {};
-
-    }
-
-  }
-
-
-  /* =========================================================
-     SMART SHOPPING RESULTS
-  ========================================================= */
-
-  function renderOfficialStoreRecommendations(
-    stores,
-    request,
-    occasion,
-    budget,
-    profile
-  ) {
-
-    const results =
-      document.getElementById(
-        "shoppingResults"
-      );
-
-
-    const wardrobeAnalysis =
-      analyseWardrobeForShopping(
-        request,
-        occasion
-      );
-
-
-    const shoppingPlan =
-      buildShoppingPlan(
-        request,
-        occasion,
-        budget,
-        profile,
-        wardrobeAnalysis
-      );
-
-
-    let html = "";
-
-
-    html += `
-
-      <div class="success-box">
-
-        <strong>
-          ✨ Your personalised shopping plan
-        </strong>
-
-        <br><br>
-
-        ${escapeHtml(
-          shoppingPlan
-        )}
-
-        <br><br>
-
-        <strong>
-          👔 Your existing wardrobe
-        </strong>
-
-        <br>
-
-        ${escapeHtml(
-          wardrobeAnalysis.summary
-        )}
-
-      </div>
-
-    `;
-
-
-    html += `
-
-      <div class="notice">
-
-        <strong>
-          How this works:
-        </strong>
-
-        <br><br>
-
-        I created a targeted search for each
-        store you selected.
-
-        The search is restricted to that
-        retailer's official website.
-
-        <br><br>
-
-        This version does not pretend to know
-        live prices or stock when the retailer
-        does not provide that information.
-
-        Always confirm the final price,
-        availability and size on the retailer's
-        official website.
-
-      </div>
-
-      <div style="height:15px"></div>
-
-    `;
-
-
-    stores.forEach(
-      store => {
-
-        const searchData =
-          buildSmartStoreSearch(
-            store,
-            request,
-            occasion,
-            budget,
-            profile,
-            wardrobeAnalysis
-          );
-
-
-        const searchUrl =
-          buildOfficialSearchUrl(
-            store,
-            searchData.query
-          );
-
-
-        const storeHome =
-          safeUrl(
-            store.url
-          );
-
-
-        html += `
-
-          <div class="result-card">
-
-            <h3>
-              🛍️ ${escapeHtml(
-                store.name
-              )}
-            </h3>
-
-            <p>
-              <strong>
-                What to look for:
-              </strong>
-            </p>
-
-            <p>
-              ${escapeHtml(
-                searchData.description
-              )}
-            </p>
-
-            <p>
-              <strong>
-                Search:
-              </strong>
-              ${escapeHtml(
-                searchData.query
-              )}
-            </p>
-
-            ${
-              budget
-              ?
-              `
-                <p>
-                  💰 Maximum budget:
-                  ${escapeHtml(
-                    budget
-                  )}
-                </p>
-              `
-              :
-              ""
-            }
-
-            <a
-              class="result-btn"
-              href="${safeAttributeUrl(
-                searchUrl
-              )}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              🔎 Search ${escapeHtml(
-                store.name
-              )}
-            </a>
-
-            ${
-              storeHome
-              ?
-              `
-                <a
-                  class="result-btn"
-                  style="
-                    background:#eee;
-                    color:#111;
-                    margin-left:6px;
-                  "
-                  href="${safeAttributeUrl(
-                    storeHome
-                  )}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Official Website
-                </a>
-              `
-              :
-              ""
-            }
-
-          </div>
-
-        `;
-
-      }
-    );
-
-
-    results.innerHTML =
-      html;
-
-  }
-
-
-  /* =========================================================
-     WARDROBE ANALYSIS
-  ========================================================= */
-
-  function analyseWardrobeForShopping(
-    request,
-    occasion
-  ) {
-
-    const combinedText =
-      `${request || ""} ${
-        occasion || ""
-      }`
-        .toLowerCase();
-
-
-    if (!clothingItems.length) {
-
-      return {
-
-        summary:
-          "Your wardrobe is currently empty, so the shopping search will focus on building a complete outfit.",
-
-        ownedItems: [],
-
-        ownedCategories: [],
-
-        ownedColours: [],
-
-        relevantItems: []
-
-      };
-
-    }
-
-
-    const ownedItems =
-      clothingItems.map(
-        item => {
-
-          const category =
-            categories.find(
-              cat =>
-                cat.id ===
-                item.category_id
-            );
-
-
-          return {
-
-            id:
-              item.id,
-
-            name:
-              item.name ||
-              "",
-
-            brand:
-              item.brand ||
-              "",
-
-            color:
-              item.color ||
-              "",
-
-            category:
-              category
-                ? category.name
-                : ""
-
-          };
-
-        }
-      );
-
-
-    const ownedCategories =
-      [
-        ...new Set(
-          ownedItems
-            .map(
-              item =>
-                item.category
-            )
-            .filter(Boolean)
-        )
-      ];
-
-
-    const ownedColours =
-      [
-        ...new Set(
-          ownedItems
-            .map(
-              item =>
-                item.color
-            )
-            .filter(Boolean)
-        )
-      ];
-
-
-    const relevantItems =
-      ownedItems.filter(
-        item => {
-
-          const itemText =
-            [
-              item.name,
-              item.brand,
-              item.color,
-              item.category
-            ]
-              .filter(Boolean)
-              .join(" ")
-              .toLowerCase();
-
-
-          const keywords =
-            getShoppingKeywords(
-              combinedText
-            );
-
-
-          return keywords.some(
-            keyword =>
-              itemText.includes(
-                keyword
-              )
-          );
-
-        }
-      );
-
-
-    let summary = "";
-
-
-    if (relevantItems.length) {
-
-      summary =
-        `Potentially useful items you already own: ${
-          relevantItems
-            .slice(0, 8)
-            .map(
-              item =>
-                item.name
-            )
-            .join(", ")
-        }.`;
-
-    } else {
-
-      summary =
-        `You already have ${
-          clothingItems.length
-        } clothing item${
-          clothingItems.length === 1
-            ? ""
-            : "s"
-        } in your wardrobe. The search will focus on pieces that can work with your existing wardrobe.`;
-
-    }
-
-
-    return {
-
-      summary,
-
-      ownedItems,
-
-      ownedCategories,
-
-      ownedColours,
-
-      relevantItems
-
-    };
-
-  }
-
-
-  /* =========================================================
-     SHOPPING KEYWORDS
-  ========================================================= */
-
-  function getShoppingKeywords(
-    text
-  ) {
-
-    const allKeywords = [
-
-      "shirt",
-      "tshirt",
-      "t-shirt",
-      "polo",
-      "blazer",
-      "jacket",
-      "suit",
-      "trouser",
-      "trousers",
-      "pants",
-      "jeans",
-      "shorts",
-      "dress",
-      "skirt",
-      "top",
-      "jumper",
-      "sweater",
-      "hoodie",
-      "coat",
-      "vest",
-      "shoes",
-      "shoe",
-      "sneakers",
-      "sneaker",
-      "boots",
-      "boot",
-      "loafer",
-      "tie",
-      "belt",
-      "bag",
-      "watch"
-
-    ];
-
-
-    return allKeywords.filter(
-      keyword =>
-        text.includes(
-          keyword
-        )
-    );
-
-  }
-
-
-  /* =========================================================
-     SHOPPING PLAN
-  ========================================================= */
-
-  function buildShoppingPlan(
-    request,
-    occasion,
-    budget,
-    profile,
-    wardrobeAnalysis
-  ) {
-
-    const occasionText =
-      occasion ||
-      "your occasion";
-
-
-    let plan =
-      `For ${occasionText}, I'll look for pieces that match your request`;
-
-
-    if (profile.fit) {
-
-      plan +=
-        `, ${profile.fit} fit`;
-
-    }
-
-
-    if (profile.size) {
-
-      plan +=
-        `, around size ${profile.size}`;
-
-    }
-
-
-    if (budget) {
-
-      plan +=
-        ` and stay around your $${budget} maximum`;
-
-    }
-
-
-    plan += ".";
-
-
-    if (
-      wardrobeAnalysis
-        .relevantItems
-        .length
-    ) {
-
-      plan +=
-        " I'll prioritise items that complement pieces you already own.";
-
-    } else {
-
-      plan +=
-        " I'll try to build a practical outfit around the request rather than assuming you need to replace your whole wardrobe.";
-
-    }
-
-
-    return plan;
-
-  }
-
-
-  /* =========================================================
-     SMART STORE SEARCH
-  ========================================================= */
-
-  function buildSmartStoreSearch(
-    store,
-    request,
-    occasion,
-    budget,
-    profile,
-    wardrobeAnalysis
-  ) {
-
-    const country =
-      profile.country ||
-      "";
-
-
-    const lowerRequest =
-      (
-        request || ""
-      )
-        .toLowerCase();
-
-
-    const lowerOccasion =
-      (
-        occasion || ""
-      )
-        .toLowerCase();
-
-
-    let items = [];
-
-
-    /*
-      Occasion-based item suggestions.
-    */
-
-    if (
-      lowerOccasion.includes(
-        "wedding"
-      )
-    ) {
-
-      items = [
-        "wedding",
-        "formal",
-        "elegant",
-        "dress shirt",
-        "blazer",
-        "trousers"
-      ];
-
-    } else if (
-      lowerOccasion.includes(
-        "date"
-      )
-    ) {
-
-      items = [
-        "date night",
-        "smart casual",
-        "shirt",
-        "trousers",
-        "smart shoes"
-      ];
-
-    } else if (
-      lowerOccasion.includes(
-        "work"
-      )
-    ) {
-
-      items = [
-        "workwear",
-        "business casual",
-        "shirt",
-        "trousers",
-        "blazer"
-      ];
-
-    } else if (
-      lowerOccasion.includes(
-        "party"
-      )
-    ) {
-
-      items = [
-        "party",
-        "smart casual",
-        "shirt",
-        "trousers"
-      ];
-
-    } else if (
-      lowerOccasion.includes(
-        "vacation"
-      )
-    ) {
-
-      items = [
-        "vacation",
-        "resort",
-        "casual",
-        "shirt",
-        "shorts"
-      ];
-
-    } else {
-
-      items = [
-        "clothing",
-        "outfit"
-      ];
-
-    }
-
-
-    /*
-      Add useful words from user's request.
-    */
-
-    const requestKeywords =
-      getShoppingKeywords(
-        lowerRequest
-      );
-
-
-    requestKeywords
-      .slice(0, 4)
-      .forEach(
-        keyword => {
-
-          if (
-            !items.includes(
-              keyword
-            )
-          ) {
-
-            items.push(
-              keyword
-            );
-
-          }
-
-        }
-      );
-
-
-    /*
-      If wardrobe already contains
-      certain pieces, search for complementary
-      pieces rather than duplicates.
-    */
-
-    const ownedCategories =
-      wardrobeAnalysis
-        .ownedCategories
-        .map(
-          category =>
-            category.toLowerCase()
-        );
-
-
-    if (
-      ownedCategories.some(
-        category =>
-          category.includes(
-            "trouser"
-          ) ||
-          category.includes(
-            "pants"
-          )
-      )
-    ) {
-
-      items.push(
-        "shirt",
-        "blazer"
-      );
-
-    }
-
-
-    if (
-      ownedCategories.some(
-        category =>
-          category.includes(
-            "shirt"
-          )
-      )
-    ) {
-
-      items.push(
-        "trousers",
-        "blazer"
-      );
-
-    }
-
-
-    if (
-      ownedCategories.some(
-        category =>
-          category.includes(
-            "shoe"
-          )
-      )
-    ) {
-
-      items.push(
-        "shirt",
-        "trousers",
-        "blazer"
-      );
-
-    }
-
-
-    /*
-      Remove duplicates.
-    */
-
-    items =
-      [
-        ...new Set(
-          items
-        )
-      ];
-
-
-    /*
-      Limit query length.
-    */
-
-    items =
-      items.slice(
-        0,
-        10
-      );
-
-
-    let query =
-      items.join(" ");
-
-
-    /*
-      Add fit.
-    */
-
-    if (profile.fit) {
-
-      query +=
-        ` ${profile.fit} fit`;
-
-    }
-
-
-    /*
-      Add size.
-    */
-
-    if (profile.size) {
-
-      query +=
-        ` size ${profile.size}`;
-
-    }
-
-
-    /*
-      Add country when useful.
-    */
-
-    if (country) {
-
-      query +=
-        ` ${country}`;
-
-    }
-
-
-    /*
-      Do not put the budget directly into
-      every search because retailer search
-      engines may interpret it poorly.
-
-      We display the budget separately.
-    */
-
-
-    const description =
-      createStoreSearchDescription(
-        occasion,
-        request,
-        profile,
-        budget,
-        wardrobeAnalysis
-      );
-
-
-    return {
-
-      query:
-        query
-          .replace(
-            /\s+/g,
-            " "
-          )
-          .trim(),
-
-      description
-
-    };
-
-  }
-
-
-  function createStoreSearchDescription(
-    occasion,
-    request,
-    profile,
-    budget,
-    wardrobeAnalysis
-  ) {
-
-    let description = "";
-
-
-    if (occasion) {
-
-      description +=
-        `${occasion} outfit`;
-
-    } else {
-
-      description +=
-        "Outfit matching your request";
-
-    }
-
-
-    if (request) {
-
-      description +=
-        ` — ${request}`;
-
-    }
-
-
-    if (
-      profile.fit ||
-      profile.size
-    ) {
-
-      description +=
-        ". ";
-
-
-      if (profile.fit) {
-
-        description +=
-          `${profile.fit} fit`;
-
-      }
-
-
-      if (
-        profile.fit &&
-        profile.size
-      ) {
-
-        description +=
-          ", ";
-
-      }
-
-
-      if (profile.size) {
-
-        description +=
-          `size ${profile.size}`;
-
-      }
-
-    }
-
-
-    if (budget) {
-
-      description +=
-        `. Maximum budget $${budget}`;
-
-    }
-
-
-    if (
-      wardrobeAnalysis
-        .relevantItems
-        .length
-    ) {
-
-      description +=
-        `. Search prioritises pieces that can complement your existing ${wardrobeAnalysis.relevantItems.slice(0, 3).map(item => item.name).join(", ")}.`;
-
-    }
-
-
-    return description;
-
-  }
-
-
-  /* =========================================================
-     OFFICIAL STORE SEARCH URL
-  ========================================================= */
-
-  function buildOfficialSearchUrl(
-    store,
-    searchText
-  ) {
-
-    const domain =
-      getStoreDomain(
-        store.url
-      );
-
-
-    if (!domain) {
-
-      return safeUrl(
-        store.url
-      ) || "#";
-
-    }
-
-
-    /*
-      Search Google but restrict results
-      to the official retailer domain.
-
-      Example:
-
-      site:countryroad.com.au
-      wedding blazer shirt trousers
-    */
-
-    const googleQuery =
-      `site:${domain} ${searchText}`;
-
-
-    return (
-      "https://www.google.com/search?q=" +
-      encodeURIComponent(
-        googleQuery
-      )
-    );
-
-  }
-
-
-  function getStoreDomain(
-    storeUrl
-  ) {
-
-    try {
-
-      const url =
-        new URL(
-          storeUrl
-        );
-
-
-      return url.hostname
-        .replace(
-          /^www\./,
-          ""
-        );
-
-    } catch (error) {
-
-      return "";
-
-    }
-
-  }
-
-
-  /* =========================================================
-     LIVE SHOPPING RESULTS
-  ========================================================= */
-
-  function renderLiveShoppingResults(
-    data
-  ) {
-
-    const results =
-      document.getElementById(
-        "shoppingResults"
-      );
-
-
-    const products =
-      Array.isArray(data)
-        ? data
-        : Array.isArray(
-            data.products
-          )
-          ? data.products
-          : [];
-
-
-    if (!products.length) {
-
-      results.innerHTML = `
-
-        <div class="empty-state">
-
-          No live products were returned.
-
-        </div>
-
-      `;
-
-      return;
-    }
-
-
-    results.innerHTML =
-      products
-        .map(
-          product => {
-
-            const productUrl =
-              safeUrl(
-                product.productUrl ||
-                product.url
-              );
-
-
-            return `
-
-              <div class="result-card">
-
-                ${
-                  product.image
-                  ?
-                  `<img
-                    class="result-image"
-                    src="${safeAttributeUrl(
-                      product.image
-                    )}"
-                    alt="${escapeHtml(
-                      product.name ||
-                      "Product"
-                    )}"
-                  >`
-                  :
-                  ""
-                }
-
-                <h3>
-                  ${escapeHtml(
-                    product.name ||
-                    "Product"
-                  )}
-                </h3>
-
-                ${
-                  product.store
-                  ?
-                  `<p>
-                    Store:
-                    ${escapeHtml(
-                      product.store
-                    )}
-                  </p>`
-                  :
-                  ""
-                }
-
-                ${
-                  product.price
-                  ?
-                  `<p>
-                    Price:
-                    ${escapeHtml(
-                      String(
-                        product.price
-                      )
-                    )}
-                  </p>`
-                  :
-                  ""
-                }
-
-                ${
-                  product.reason
-                  ?
-                  `<p>
-                    ${escapeHtml(
-                      product.reason
-                    )}
-                  </p>`
-                  :
-                  ""
-                }
-
-                ${
-                  productUrl
-                  ?
-                  `<a
-                    class="result-btn"
-                    href="${safeAttributeUrl(
-                      productUrl
-                    )}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View Exact Product
-                  </a>`
-                  :
-                  ""
-                }
-
-              </div>
-
-            `;
-
-          }
-        )
-        .join("");
-
-  }
-
-
-  /* =========================================================
-     MODALS
-  ========================================================= */
-
-  function closeModal(id) {
-
-    document
-      .getElementById(id)
-      .classList.add(
-        "hidden"
-      );
-
-  }
-
-
-  document
-    .querySelectorAll(
-      ".modal"
-    )
-    .forEach(
-      modal => {
-
-        modal.addEventListener(
-          "click",
-          event => {
-
-            if (
-              event.target ===
-              modal
-            ) {
-
-              modal.classList.add(
-                "hidden"
-              );
-
-            }
-
-          }
-        );
-
-      }
-    );
-
-
-  /* =========================================================
-     SECURITY / HELPERS
-  ========================================================= */
-
-  function escapeHtml(
-    value
-  ) {
-
-    return String(
-      value ?? ""
-    )
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
-      );
-
-  }
-
-
-  function escapeJs(
-    value
-  ) {
-
-    return String(
-      value ?? ""
-    )
-      .replace(
-        /\\/g,
-        "\\\\"
-      )
-      .replace(
-        /'/g,
-        "\\'"
-      )
-      .replace(
-        /\n/g,
-        "\\n"
-      )
-      .replace(
-        /\r/g,
-        "\\r"
-      );
-
-  }
-
-
-  function safeUrl(
-    value
-  ) {
-
-    try {
-
-      const url =
-        new URL(
-          String(value)
-        );
-
-
-      if (
-        url.protocol !==
-          "https:" &&
-        url.protocol !==
-          "http:"
-      ) {
-
-        return null;
-
-      }
-
-
-      return url.href;
-
-    } catch (error) {
-
-      return null;
-
-    }
-
-  }
-
-
-  function safeAttributeUrl(
-    value
-  ) {
-
-    const url =
-      safeUrl(
-        value
-      );
-
-
-    return url
-      ? escapeHtml(
-          url
-        )
-      : "#";
-
-  }
-
-
-  /* =========================================================
-     AUTH STATE
-  ========================================================= */
-
-  supabaseClient.auth
-    .onAuthStateChange(
-      async (
-        event,
-        session
-      ) => {
-
-        console.log(
-          "Auth event:",
-          event
-        );
-
-
-        if (session?.user) {
-
-          currentUser =
-            session.user;
-
-
-          if (!appStarted) {
-
-            await startApp();
-
-          }
-
-        } else {
-
-          currentUser =
-            null;
-
-          appStarted =
-            false;
-
-          appStarting =
-            false;
-
-
-          document
-            .getElementById(
-              "appScreen"
-            )
-            .classList.add(
-              "hidden"
-            );
-
-
-          document
-            .getElementById(
-              "authScreen"
-            )
-            .classList.remove(
-              "hidden"
-            );
-
-        }
-
-      }
-    );
-
-
-  /* =========================================================
-     INITIAL SESSION CHECK
-  ========================================================= */
-
-  async function checkSession() {
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .auth
-          .getSession();
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      if (
-        data.session?.user
-      ) {
-
-        currentUser =
-          data.session.user;
-
-
-        await startApp();
-
-      } else {
-
-        document
-          .getElementById(
-            "authScreen"
-          )
-          .classList.remove(
-            "hidden"
-          );
-
-
-        document
-          .getElementById(
-            "appScreen"
-          )
-          .classList.add(
-            "hidden"
-          );
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Session error:",
-        error
-      );
-
-
-      document
-        .getElementById(
-          "authScreen"
-        )
-        .classList.remove(
-          "hidden"
-        );
-
-
-      document
-        .getElementById(
-          "appScreen"
-        )
-        .classList.add(
-          "hidden"
-        );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     SERVICE WORKER
-  ========================================================= */
-
-  if (
-    "serviceWorker" in
-    navigator
-  ) {
-
-    window.addEventListener(
-      "load",
-      () => {
-
-        navigator.serviceWorker
-          .register(
-            "./service-worker.js"
-          )
-          .then(
-            registration => {
-
-              console.log(
-                "Service worker registered:",
-                registration.scope
-              );
-
-            }
-          )
-          .catch(
-            error => {
-
-              console.warn(
-                "Service worker registration failed:",
-                error
-              );
-
-            }
-          );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     START
-  ========================================================= */
-
-  checkSession();
-
+const SUPABASE_URL="https://umtppiaeralgiqvefnbh.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_hgrE28tw0hGmNP929kPgYw_h5aPs0ey";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[];
+let currentCategoryId=null,editingCategoryId=null,editingClothingId=null,selectedOccasion="";
+let appStarted=false,appStarting=false;
+
+const STORE_CATALOG=[
+ {id:"myer-au",name:"Myer",country:"Australia",url:"https://www.myer.com.au/"},
+ {id:"davidjones-au",name:"David Jones",country:"Australia",url:"https://www.davidjones.com/"},
+ {id:"hm-au",name:"H&M",country:"Australia",url:"https://www2.hm.com/en_au/"},
+ {id:"zara-au",name:"Zara",country:"Australia",url:"https://www.zara.com/au/"},
+ {id:"uniqlo-au",name:"Uniqlo",country:"Australia",url:"https://www.uniqlo.com/au/"},
+ {id:"cottonon-au",name:"Cotton On",country:"Australia",url:"https://cottonon.com/AU/"},
+ {id:"countryroad-au",name:"Country Road",country:"Australia",url:"https://www.countryroad.com.au/"},
+ {id:"tommy-au",name:"Tommy Hilfiger",country:"Australia",url:"https://au.tommy.com/"},
+ {id:"calvin-au",name:"Calvin Klein",country:"Australia",url:"https://au.calvinklein.com/"},
+ {id:"odel-lk",name:"Odel",country:"Sri Lanka",url:"https://odel.lk/"},
+ {id:"coolplanet-lk",name:"Cool Planet",country:"Sri Lanka",url:"https://coolplanet.lk/"},
+ {id:"nolimit-lk",name:"NOLIMIT",country:"Sri Lanka",url:"https://www.nolimit.lk/"},
+ {id:"housefashion-lk",name:"House of Fashion",country:"Sri Lanka",url:"https://houseoffashion.lk/"},
+ {id:"kellyfelder-lk",name:"Kelly Felder",country:"Sri Lanka",url:"https://kellyfelder.com/"},
+ {id:"asos-uk",name:"ASOS",country:"UK",url:"https://www.asos.com/"},
+ {id:"marks-uk",name:"Marks & Spencer",country:"UK",url:"https://www.marksandspencer.com/"},
+ {id:"next-uk",name:"Next",country:"UK",url:"https://www.next.co.uk/"},
+ {id:"macys-us",name:"Macy's",country:"US",url:"https://www.macys.com/"},
+ {id:"nordstrom-us",name:"Nordstrom",country:"US",url:"https://www.nordstrom.com/"},
+ {id:"target-us",name:"Target",country:"US",url:"https://www.target.com/"},
+ {id:"hudsonsbay-ca",name:"Hudson's Bay",country:"Canada",url:"https://www.thebay.com/"},
+ {id:"simons-ca",name:"Simons",country:"Canada",url:"https://www.simons.ca/"}
+];
+
+function el(id){return document.getElementById(id)}
+function showLogin(){
+ el("loginForm").classList.remove("hidden");el("signupForm").classList.add("hidden");
+ el("loginTab").classList.add("active");el("signupTab").classList.remove("active");el("authMessage").textContent="";
+}
+function showSignup(){
+ el("loginForm").classList.add("hidden");el("signupForm").classList.remove("hidden");
+ el("signupTab").classList.add("active");el("loginTab").classList.remove("active");el("authMessage").textContent="";
+}
+async function signup(e){
+ e.preventDefault();el("authMessage").textContent="Creating account...";
+ const {data,error}=await supabaseClient.auth.signUp({email:el("signupEmail").value.trim(),password:el("signupPassword").value});
+ if(error){el("authMessage").textContent=error.message;return}
+ if(data.session){currentUser=data.user;await startApp()}
+ else el("authMessage").textContent="Account created. Check your email if email confirmation is enabled, then log in.";
+}
+async function login(e){
+ e.preventDefault();el("authMessage").textContent="Logging in...";
+ const {data,error}=await supabaseClient.auth.signInWithPassword({email:el("loginEmail").value.trim(),password:el("loginPassword").value});
+ if(error){el("authMessage").textContent=error.message;return}
+ currentUser=data.user;await startApp();
+}
+async function logout(){await supabaseClient.auth.signOut();currentUser=null;appStarted=false;el("appScreen").classList.add("hidden");el("authScreen").classList.remove("hidden");showLogin()}
+
+async function startApp(){
+ if(!currentUser||appStarting)return;
+ if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
+ appStarting=true;
+ el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
+ el("welcomeText").textContent="Welcome to My Wardrobe";
+ try{await loadAllData();loadShoppingProfile();updateStoreList();renderCategories();renderLooks();showPage("home");appStarted=true}
+ catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
+ appStarting=false;
+}
+async function loadAllData(){
+ const results=await Promise.all([
+  supabaseClient.from("categories").select("*").order("created_at",{ascending:true}),
+  supabaseClient.from("clothing_items").select("*").order("created_at",{ascending:false}),
+  supabaseClient.from("saved_looks").select("*").order("created_at",{ascending:false}),
+  supabaseClient.from("look_items").select("*")
+ ]);
+ for(const r of results)if(r.error)throw r.error;
+ categories=results[0].data||[];clothingItems=results[1].data||[];savedLooks=results[2].data||[];lookItems=results[3].data||[];
+ await createSignedPhotoUrls();
+}
+async function createSignedPhotoUrls(){
+ for(const item of clothingItems){
+  item.displayPhoto="";
+  if(!item.photo_url)continue;
+  const {data,error}=await supabaseClient.storage.from("wardrobe-photos").createSignedUrl(item.photo_url,3600);
+  if(!error&&data)item.displayPhoto=data.signedUrl;
+ }
+}
+
+function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","shopPage"].forEach(id=>el(id).classList.add("hidden"))}
+function clearNavActive(){["navHome","navSearch","navLooks","navShop"].forEach(id=>el(id).classList.remove("active"))}
+function showPage(page){
+ hideAllPages();clearNavActive();
+ if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories()}
+ if(page==="search"){el("searchPage").classList.remove("hidden");el("navSearch").classList.add("active");performSearch()}
+ if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
+ if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active")}
+}
+function goHome(){showPage("home")}
+
+function renderCategories(){
+ const grid=el("categoryGrid");
+ if(!categories.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1">No categories yet.<br><br>Tap <b>+ Category</b> to start your wardrobe.</div>';return}
+ grid.innerHTML=categories.map(c=>`<button class="category-card" onclick="openCategory('${escapeJs(c.id)}')" style="text-align:left">
+ <div class="category-icon">${escapeHtml(c.icon||"👕")}</div><div class="category-name">${escapeHtml(c.name)}</div>
+ <div class="muted">${clothingItems.filter(i=>i.category_id===c.id).length} items</div></button>`).join("");
+}
+function openCategoryModal(id=null){
+ editingCategoryId=id;el("categoryModalTitle").textContent=id?"Edit category":"Add category";
+ const c=id?categories.find(x=>x.id===id):null;
+ el("categoryName").value=c?.name||"";el("categoryIcon").value=c?.icon||"👕";el("categoryModal").classList.remove("hidden");
+}
+async function saveCategory(){
+ const name=el("categoryName").value.trim();const icon=el("categoryIcon").value.trim()||"👕";
+ if(!name)return alert("Enter a category name.");
+ let res;
+ if(editingCategoryId)res=await supabaseClient.from("categories").update({name,icon}).eq("id",editingCategoryId);
+ else res=await supabaseClient.from("categories").insert({user_id:currentUser.id,name,icon});
+ if(res.error)return alert(res.error.message);
+ closeModal("categoryModal");await loadAllData();renderCategories();
+ if(editingCategoryId&&currentCategoryId)openCategory(currentCategoryId);
+}
+function openCategory(id){
+ currentCategoryId=id;const c=categories.find(x=>x.id===id);if(!c)return;
+ editingCategoryId=id;el("categoryPageTitle").textContent=c.name;hideAllPages();clearNavActive();el("categoryPage").classList.remove("hidden");renderClothingForCategory();
+}
+function renderClothingForCategory(){
+ const items=clothingItems.filter(i=>i.category_id===currentCategoryId);
+ el("clothingGrid").innerHTML=items.length?items.map(renderClothingCard).join(""):'<div class="empty-state" style="grid-column:1/-1">No clothing here yet.<br><br>Tap <b>+ Add clothing</b>.</div>';
+}
+function renderClothingCard(i){
+ const photo=i.displayPhoto?`<img class="clothing-photo" src="${safeAttributeUrl(i.displayPhoto)}" alt="">`:`<div class="clothing-photo" style="display:flex;align-items:center;justify-content:center;font-size:45px">👕</div>`;
+ return `<div class="clothing-card">${photo}<div class="clothing-info"><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.color||"")} ${i.brand?"• "+escapeHtml(i.brand):""}</div><div class="item-actions"><button class="small-btn" onclick="openClothingModal('${escapeJs(i.id)}')">Edit</button><button class="small-btn danger" onclick="deleteClothing('${escapeJs(i.id)}')">Delete</button></div></div></div>`;
+}
+function confirmDeleteCategory(){if(confirm("Delete this category and its clothing items?"))deleteCurrentCategory()}
+async function deleteCurrentCategory(){
+ if(!currentCategoryId)return;
+ const r=await supabaseClient.from("categories").delete().eq("id",currentCategoryId);
+ if(r.error)return alert(r.error.message);
+ currentCategoryId=null;await loadAllData();goHome();
+}
+
+function populateCategorySelect(){
+ el("clothingCategory").innerHTML=categories.map(c=>`<option value="${escapeJs(c.id)}">${escapeHtml(c.name)}</option>`).join("");
+}
+function openClothingModal(id=null){
+ editingClothingId=id;populateCategorySelect();
+ const item=id?clothingItems.find(x=>x.id===id):null;
+ el("clothingModalTitle").textContent=id?"Edit clothing":"Add clothing";
+ el("clothingName").value=item?.name||"";el("clothingColor").value=item?.color||"";el("clothingBrand").value=item?.brand||"";
+ if(item?.category_id)el("clothingCategory").value=item.category_id;else if(currentCategoryId)el("clothingCategory").value=currentCategoryId;
+ el("clothingPhoto").value="";el("photoPreview").classList.add("hidden");el("photoPreview").src="";
+ el("clothingModal").classList.remove("hidden");
+}
+function previewPhoto(e){
+ const file=e.target.files?.[0];if(!file)return;
+ const url=URL.createObjectURL(file);el("photoPreview").src=url;el("photoPreview").classList.remove("hidden");
+}
+async function saveClothing(){
+ const name=el("clothingName").value.trim();const category_id=el("clothingCategory").value;
+ if(!name||!category_id)return alert("Enter a name and choose a category.");
+ let photo_url=null;
+ const file=el("clothingPhoto").files?.[0];
+ if(file){
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+  const upload=await supabaseClient.storage.from("wardrobe-photos").upload(path,file,{upsert:false});
+  if(upload.error)return alert("Photo upload failed: "+upload.error.message);
+  photo_url=path;
+ }
+ let r;
+ const payload={name,color:el("clothingColor").value.trim(),brand:el("clothingBrand").value.trim(),category_id,user_id:currentUser.id};
+ if(editingClothingId){
+  if(photo_url)payload.photo_url=photo_url;
+  r=await supabaseClient.from("clothing_items").update(payload).eq("id",editingClothingId);
+ }else{payload.photo_url=photo_url;r=await supabaseClient.from("clothing_items").insert(payload)}
+ if(r.error)return alert(r.error.message);
+ closeModal("clothingModal");await loadAllData();renderCategories();renderClothingForCategory();
+}
+async function deleteClothing(id){
+ if(!confirm("Delete this clothing item?"))return;
+ const r=await supabaseClient.from("clothing_items").delete().eq("id",id);
+ if(r.error)return alert(r.error.message);
+ await loadAllData();renderCategories();renderClothingForCategory();performSearch();
+}
+
+function performSearch(){
+ const q=(el("searchInput")?.value||"").toLowerCase().trim();
+ const results=clothingItems.filter(i=>!q||[i.name,i.color,i.brand].join(" ").toLowerCase().includes(q));
+ el("searchResults").innerHTML=results.length?results.map(renderClothingCard).join(""):'<div class="empty-state" style="grid-column:1/-1">No matching clothing found.</div>';
+}
+
+function openSaveLookModal(){el("lookName").value="";el("saveLookModal").classList.remove("hidden")}
+async function createSavedLook(){
+ const name=el("lookName").value.trim()||"My Look";
+ if(!clothingItems.length)return alert("Add some clothing first.");
+ const shuffled=[...clothingItems].sort(()=>Math.random()-.5).slice(0,Math.min(4,clothingItems.length));
+ const r=await supabaseClient.from("saved_looks").insert({user_id:currentUser.id,name}).select().single();
+ if(r.error)return alert(r.error.message);
+ const rows=shuffled.map(i=>({look_id:r.data.id,clothing_item_id:i.id}));
+ const ir=await supabaseClient.from("look_items").insert(rows);
+ if(ir.error){await supabaseClient.from("saved_looks").delete().eq("id",r.data.id);return alert(ir.error.message)}
+ closeModal("saveLookModal");await loadAllData();renderLooks();
+}
+function renderLooks(){
+ const box=el("looksContainer");
+ if(!savedLooks.length){box.innerHTML='<div class="empty-state" style="grid-column:1/-1">No saved looks yet.</div>';return}
+ box.innerHTML=savedLooks.map(l=>{
+  const ids=lookItems.filter(x=>x.look_id===l.id).map(x=>x.clothing_item_id);
+  const items=clothingItems.filter(i=>ids.includes(i.id));
+  return `<div class="look-card"><div style="padding:15px"><strong>${escapeHtml(l.name)}</strong><div class="muted" style="margin-top:5px">${items.length} pieces</div><div class="look-items" style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:12px">${items.map(i=>i.displayPhoto?`<img src="${safeAttributeUrl(i.displayPhoto)}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px">`:`<div style="aspect-ratio:1;background:#eee;border-radius:9px;display:flex;align-items:center;justify-content:center">👕</div>`).join("")}</div></div></div>`
+ }).join("");
+}
+
+function profileStorageKey(){return currentUser?"mywardrobe_profile_"+currentUser.id:""}
+function storesStorageKey(){return currentUser?"mywardrobe_stores_"+currentUser.id:""}
+function loadShoppingProfile(){
+ try{
+  const p=JSON.parse(localStorage.getItem(profileStorageKey())||"{}");
+  el("profileCountry").value=p.country||"Australia";el("profileSize").value=p.size||"";el("profileFit").value=p.fit||"";
+  el("profileHeight").value=p.height||"";el("profileChest").value=p.chest||"";el("profileWaist").value=p.waist||"";
+ }catch(e){}
+}
+function saveShoppingProfile(){
+ const p={country:el("profileCountry").value,size:el("profileSize").value.trim(),fit:el("profileFit").value,height:el("profileHeight").value.trim(),chest:el("profileChest").value.trim(),waist:el("profileWaist").value.trim()};
+ localStorage.setItem(profileStorageKey(),JSON.stringify(p));alert("Shopping profile saved.");
+}
+function getCustomStores(){try{return JSON.parse(localStorage.getItem(storesStorageKey())||"[]")}catch(e){return[]}}
+function getSelectedStoreIds(){try{return JSON.parse(localStorage.getItem(storesStorageKey()+"_selected")||"[]")}catch(e){return[]}}
+function saveSelectedStoreIds(ids){localStorage.setItem(storesStorageKey()+"_selected",JSON.stringify(ids))}
+function updateStoreList(){
+ const country=el("profileCountry").value;const stores=getAllStores().filter(s=>s.country===country||s.country==="Custom");
+ const selected=getSelectedStoreIds();
+ if(!selected.length&&stores.length)saveSelectedStoreIds(stores.slice(0,5).map(s=>s.id));
+ const selected2=getSelectedStoreIds();
+ el("storeList").innerHTML=stores.map(s=>`<button class="store-option ${selected2.includes(s.id)?"selected":""}" onclick="toggleStore('${escapeJs(s.id)}')"><span>${selected2.includes(s.id)?"✓":"○"}</span><span><b class="store-name">${escapeHtml(s.name)}</b><br><span class="store-country">${escapeHtml(s.country)}</span></span></button>`).join("");
+}
+function toggleStore(id){let ids=getSelectedStoreIds();ids=ids.includes(id)?ids.filter(x=>x!==id):[...ids,id];saveSelectedStoreIds(ids);updateStoreList()}
+function addCustomStore(){
+ const name=el("customStoreName").value.trim(),url=el("customStoreUrl").value.trim();
+ if(!name||!/^https?:\/\//i.test(url))return alert("Enter a store name and full URL.");
+ const stores=getCustomStores();const id="custom-"+crypto.randomUUID();stores.push({id,name,country:"Custom",url});localStorage.setItem(storesStorageKey(),JSON.stringify(stores));
+ const ids=getSelectedStoreIds();ids.push(id);saveSelectedStoreIds(ids);el("customStoreName").value="";el("customStoreUrl").value="";updateStoreList();
+}
+function getAllStores(){return [...STORE_CATALOG,...getCustomStores()]}
+function getSelectedStores(){const ids=getSelectedStoreIds();return getAllStores().filter(s=>ids.includes(s.id))}
+function selectOccasion(value,button){
+ selectedOccasion=value;document.querySelectorAll("#occasionChips .chip").forEach(x=>x.classList.remove("active"));button.classList.add("active");
+}
+function getShoppingProfile(){return{country:el("profileCountry").value,size:el("profileSize").value.trim(),fit:el("profileFit").value,height:el("profileHeight").value.trim(),chest:el("profileChest").value.trim(),waist:el("profileWaist").value.trim()}}
+function getShoppingKeywords(request){
+ const q=request.toLowerCase();const words=[];
+ if(q.includes("shirt"))words.push("shirt");if(q.includes("t-shirt")||q.includes("tee"))words.push("t-shirt");
+ if(q.includes("pant")||q.includes("trouser"))words.push("trousers");if(q.includes("jean"))words.push("jeans");
+ if(q.includes("shoe")||q.includes("sneaker"))words.push("shoes");if(q.includes("jacket"))words.push("jacket");
+ if(q.includes("dress"))words.push("dress");if(q.includes("blazer"))words.push("blazer");if(q.includes("coat"))words.push("coat");
+ return words.length?[...new Set(words)]:request.split(/\s+/).filter(Boolean).slice(0,8);
+}
+function buildShoppingPlan(){
+ const profile=getShoppingProfile(),request=el("shopRequest").value.trim(),budget=el("shopBudget").value.trim();
+ const wardrobe=clothingItems.map(i=>`${i.name}${i.color?" "+i.color:""}`).slice(0,30);
+ return{profile,request,budget,occasion:selectedOccasion,wardrobe,keywords:getShoppingKeywords(request)}
+}
+function buildSmartStoreSearch(store,plan){
+ let terms=[...plan.keywords];if(plan.occasion)terms.push(plan.occasion);
+ if(plan.profile.size)terms.push(plan.profile.size);if(plan.profile.fit)terms.push(plan.profile.fit);
+ return terms.join(" ");
+}
+function createStoreSearchDescription(store,plan){return `Search ${store.name} for ${plan.request||"clothing"}${plan.occasion?" for "+plan.occasion:""}${plan.budget?" within "+plan.budget:""}.`}
+function buildOfficialSearchUrl(store,query){
+ return "https://www.google.com/search?q="+encodeURIComponent("site:"+getStoreDomain(store.url)+" "+query);
+}
+function getStoreDomain(url){try{return new URL(url).hostname.replace(/^www\./,"")}catch(e){return url}}
+function renderOfficialStoreRecommendations(plan){
+ const stores=getSelectedStores();if(!stores.length)return'<div class="notice">Select at least one store.</div>';
+ return stores.map(s=>{
+  const q=buildSmartStoreSearch(s,plan);const href=buildOfficialSearchUrl(s,q);
+  return `<div class="result-card"><h3>${escapeHtml(s.name)}</h3><div class="muted">${escapeHtml(createStoreSearchDescription(s,plan))}</div><a class="result-btn" href="${safeAttributeUrl(href)}" target="_blank" rel="noopener">Search official store</a></div>`;
+ }).join("");
+}
+function analyseWardrobeForShopping(plan){
+ const q=plan.request.toLowerCase();const matches=clothingItems.filter(i=>[i.name,i.color,i.brand].join(" ").toLowerCase().includes(q)).slice(0,5);
+ if(matches.length)return `<div class="notice"><b>You already own:</b> ${matches.map(i=>escapeHtml(i.name)).join(", ")}. Consider choosing something that works with these pieces instead of duplicating them.</div>`;
+ return `<div class="notice"><b>Wardrobe check:</b> I couldn't find an obvious match for "${escapeHtml(plan.request||"this request")}" in your wardrobe.</div>`;
+}
+function findShoppingOptions(){
+ const plan=buildShoppingPlan();if(!plan.request)return alert("Tell me what you want to shop for.");
+ const box=el("shoppingResults");box.innerHTML="<div class='notice'>Building your shopping plan...</div>";
+ box.innerHTML=analyseWardrobeForShopping(plan)+renderOfficialStoreRecommendations(plan);
+}
+
+function closeModal(id){el(id).classList.add("hidden")}
+document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.add("hidden")}));
+
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function escapeJs(v){return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;")}
+function safeUrl(v){try{const u=new URL(v);return/^https?:$/.test(u.protocol)?u.href:"#"}catch(e){return"#"}}
+function safeAttributeUrl(v){return escapeHtml(safeUrl(v))}
+
+el("profileCountry").addEventListener("change",()=>{saveSelectedStoreIds([]);updateStoreList()});
+
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+ if(session){currentUser=session.user;setTimeout(()=>startApp(),0)}
+ else if(event==="SIGNED_OUT"){currentUser=null}
+});
+
+async function checkSession(){
+ const {data}=await supabaseClient.auth.getSession();
+ if(data.session){currentUser=data.session.user;await startApp()}
+ else{el("authScreen").classList.remove("hidden");el("appScreen").classList.add("hidden")}
+}
+checkSession();
 </script>
+</body>
+</html>
