@@ -72,6 +72,15 @@ button{cursor:pointer}
 .result-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin:10px 0}
 .result-card h3{margin:0 0 6px}
 .result-btn{display:inline-block;text-decoration:none;background:#111;color:#fff;padding:9px 12px;border-radius:10px;margin-top:9px;font-size:13px}
+.live-products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.product-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.product-image{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fafafa;padding:8px}
+.product-body{padding:12px}
+.product-title{font-weight:800;font-size:14px;line-height:1.35;margin-bottom:6px}
+.product-price{font-size:18px;font-weight:900;margin:6px 0}
+.product-source{font-size:12px;color:var(--muted)}
+.product-meta{font-size:12px;color:var(--muted);margin-top:5px}
+.loading-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center;color:var(--muted)}
 .notice{background:#f7f7f7;border-radius:14px;padding:12px;color:#555;font-size:13px;margin:12px 0}
 .success-box{background:#edf8ee;color:#226b2a;padding:12px;border-radius:13px;margin:10px 0}
 .photo-preview{width:120px;height:120px;object-fit:cover;border-radius:15px;margin-top:8px}
@@ -79,6 +88,7 @@ button{cursor:pointer}
  .category-grid{grid-template-columns:repeat(4,1fr)}
  .clothing-grid{grid-template-columns:repeat(4,1fr)}
  .looks-grid{grid-template-columns:repeat(3,1fr)}
+ .live-products{grid-template-columns:repeat(4,1fr)}
  .modal{align-items:center;padding:20px}
  .modal-box{border-radius:25px}
 }
@@ -207,7 +217,7 @@ button{cursor:pointer}
         <button class="secondary" onclick="addCustomStore()">Add</button>
       </div>
 
-      <div style="margin-top:18px"><button class="primary" onclick="findShoppingOptions()">Find shopping options</button></div>
+      <div style="margin-top:18px"><button class="primary" onclick="findShoppingOptions()">Find real products</button></div>
       <div id="shoppingResults"></div>
     </section>
   </main>
@@ -254,6 +264,9 @@ button{cursor:pointer}
 const SUPABASE_URL="https://umtppiaeralgiqvefnbh.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_hgrE28tw0hGmNP929kPgYw_h5aPs0ey";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+// Secure Supabase Edge Function that holds your private SerpApi key.
+const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[];
 let currentCategoryId=null,editingCategoryId=null,editingClothingId=null,selectedOccasion="";
@@ -513,31 +526,192 @@ function buildShoppingPlan(){
  return{profile,request,budget,occasion:selectedOccasion,wardrobe,keywords:getShoppingKeywords(request)}
 }
 function buildSmartStoreSearch(store,plan){
- let terms=[...plan.keywords];if(plan.occasion)terms.push(plan.occasion);
- if(plan.profile.size)terms.push(plan.profile.size);if(plan.profile.fit)terms.push(plan.profile.fit);
- return terms.join(" ");
+ let terms=[...plan.keywords];
+ if(plan.occasion)terms.push(plan.occasion);
+ if(plan.profile.size)terms.push("size "+plan.profile.size);
+ if(plan.profile.fit)terms.push(plan.profile.fit+" fit");
+ if(plan.profile.country)terms.push(plan.profile.country);
+ if(store?.name)terms.push(store.name);
+ return terms.filter(Boolean).join(" ");
 }
-function createStoreSearchDescription(store,plan){return `Search ${store.name} for ${plan.request||"clothing"}${plan.occasion?" for "+plan.occasion:""}${plan.budget?" within "+plan.budget:""}.`}
+
+function createStoreSearchDescription(store,plan){
+ return `Search ${store.name} for ${plan.request||"clothing"}${plan.occasion?" for "+plan.occasion:""}${plan.budget?" within "+plan.budget:""}.`;
+}
+
 function buildOfficialSearchUrl(store,query){
  return "https://www.google.com/search?q="+encodeURIComponent("site:"+getStoreDomain(store.url)+" "+query);
 }
-function getStoreDomain(url){try{return new URL(url).hostname.replace(/^www\./,"")}catch(e){return url}}
+
+function getStoreDomain(url){
+ try{return new URL(url).hostname.replace(/^www\./,"")}
+ catch(e){return url}
+}
+
 function renderOfficialStoreRecommendations(plan){
- const stores=getSelectedStores();if(!stores.length)return'<div class="notice">Select at least one store.</div>';
+ const stores=getSelectedStores();
+ if(!stores.length)return'<div class="notice">Select at least one store.</div>';
  return stores.map(s=>{
-  const q=buildSmartStoreSearch(s,plan);const href=buildOfficialSearchUrl(s,q);
+  const q=buildSmartStoreSearch(s,plan);
+  const href=buildOfficialSearchUrl(s,q);
   return `<div class="result-card"><h3>${escapeHtml(s.name)}</h3><div class="muted">${escapeHtml(createStoreSearchDescription(s,plan))}</div><a class="result-btn" href="${safeAttributeUrl(href)}" target="_blank" rel="noopener">Search official store</a></div>`;
  }).join("");
 }
+
 function analyseWardrobeForShopping(plan){
- const q=plan.request.toLowerCase();const matches=clothingItems.filter(i=>[i.name,i.color,i.brand].join(" ").toLowerCase().includes(q)).slice(0,5);
- if(matches.length)return `<div class="notice"><b>You already own:</b> ${matches.map(i=>escapeHtml(i.name)).join(", ")}. Consider choosing something that works with these pieces instead of duplicating them.</div>`;
- return `<div class="notice"><b>Wardrobe check:</b> I couldn't find an obvious match for "${escapeHtml(plan.request||"this request")}" in your wardrobe.</div>`;
+ const request=(plan.request||"").toLowerCase();
+ const requestWords=request.split(/\s+/).filter(w=>w.length>2);
+
+ const scored=clothingItems.map(i=>{
+  const hay=[i.name,i.color,i.brand].join(" ").toLowerCase();
+  const score=requestWords.reduce((n,w)=>n+(hay.includes(w)?1:0),0);
+  return {item:i,score};
+ }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,5);
+
+ if(scored.length){
+  return `<div class="notice"><b>Wardrobe check:</b> You already own ${scored.map(x=>escapeHtml(x.item.name)).join(", ")}. I’ll still search online, but these pieces may already work with your outfit.</div>`;
+ }
+
+ return `<div class="notice"><b>Wardrobe check:</b> I couldn't find an obvious match for "${escapeHtml(plan.request||"this request")}" in your wardrobe, so I'll search online.</div>`;
 }
-function findShoppingOptions(){
- const plan=buildShoppingPlan();if(!plan.request)return alert("Tell me what you want to shop for.");
- const box=el("shoppingResults");box.innerHTML="<div class='notice'>Building your shopping plan...</div>";
- box.innerHTML=analyseWardrobeForShopping(plan)+renderOfficialStoreRecommendations(plan);
+
+function buildLiveSearchQuery(plan){
+ const parts=[];
+
+ if(plan.request)parts.push(plan.request);
+ if(plan.occasion)parts.push(plan.occasion);
+ if(plan.profile.fit)parts.push(plan.profile.fit+" fit");
+ if(plan.profile.size)parts.push("size "+plan.profile.size);
+ if(plan.profile.country)parts.push(plan.profile.country);
+
+ const wardrobeColours=[...new Set(clothingItems.map(i=>(i.color||"").trim()).filter(Boolean))].slice(0,3);
+ if(wardrobeColours.length)parts.push("matches "+wardrobeColours.join(" "));
+
+ if(plan.budget)parts.push("under "+plan.budget);
+
+ return parts.join(" ").replace(/\s+/g," ").trim();
+}
+
+async function searchProducts(query){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+
+ const headers={
+  "Content-Type":"application/json",
+  "apikey":SUPABASE_PUBLISHABLE_KEY
+ };
+
+ if(session?.access_token){
+  headers["Authorization"]="Bearer "+session.access_token;
+ }else{
+  headers["Authorization"]="Bearer "+SUPABASE_PUBLISHABLE_KEY;
+ }
+
+ const response=await fetch(SHOP_API_URL,{
+  method:"POST",
+  headers,
+  body:JSON.stringify({query})
+ });
+
+ let data={};
+ try{data=await response.json()}catch(e){}
+
+ if(!response.ok||data.success===false){
+  throw new Error(data.error||"Could not search for products.");
+ }
+
+ return Array.isArray(data.products)?data.products:[];
+}
+
+function normalizeStoreName(value){
+ return String(value||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+}
+
+function productMatchesSelectedStore(product,stores){
+ if(!stores.length)return true;
+ const source=normalizeStoreName(product.source);
+ return stores.some(store=>{
+  const name=normalizeStoreName(store.name);
+  return source.includes(name)||name.includes(source);
+ });
+}
+
+function renderProductCard(product){
+ const image=product.image
+  ? `<img class="product-image" src="${safeAttributeUrl(product.image)}" alt="${escapeHtml(product.title||"Product")}" loading="lazy">`
+  : `<div class="product-image" style="display:flex;align-items:center;justify-content:center;font-size:44px">🛍️</div>`;
+
+ const price=product.price||(
+  product.extractedPrice!=null
+   ? "$"+Number(product.extractedPrice).toFixed(2)
+   : "Price unavailable"
+ );
+
+ const rating=product.rating
+  ? `★ ${escapeHtml(product.rating)}${product.reviews?` (${escapeHtml(product.reviews)})`:""}`
+  : "";
+
+ const link=safeUrl(product.productLink||"");
+
+ return `<div class="product-card">
+  ${image}
+  <div class="product-body">
+   <div class="product-title">${escapeHtml(product.title||"Untitled product")}</div>
+   <div class="product-source">${escapeHtml(product.source||"Retailer")}</div>
+   <div class="product-price">${escapeHtml(price)}</div>
+   ${rating?`<div class="product-meta">${rating}</div>`:""}
+   ${product.delivery?`<div class="product-meta">${escapeHtml(product.delivery)}</div>`:""}
+   ${link!=="#"?`<a class="result-btn" href="${safeAttributeUrl(link)}" target="_blank" rel="noopener noreferrer">View product</a>`:""}
+  </div>
+ </div>`;
+}
+
+function renderLiveProducts(products,selectedStores){
+ let filtered=products.filter(p=>productMatchesSelectedStore(p,selectedStores));
+ let note="";
+
+ if(selectedStores.length&&!filtered.length){
+  filtered=products;
+  note='<div class="notice">I did not find an exact match from your selected stores in this search, so I’m showing the closest live shopping results instead.</div>';
+ }
+
+ if(!filtered.length){
+  return '<div class="empty-state">No live products were returned. Try a simpler search such as <b>black jacket</b> or <b>white sneakers</b>.</div>';
+ }
+
+ return note+`<div class="live-products">${filtered.map(renderProductCard).join("")}</div>`;
+}
+
+async function findShoppingOptions(){
+ const plan=buildShoppingPlan();
+ if(!plan.request)return alert("Tell me what you want to shop for.");
+
+ const box=el("shoppingResults");
+ const selectedStores=getSelectedStores();
+ const wardrobeNote=analyseWardrobeForShopping(plan);
+ const query=buildLiveSearchQuery(plan);
+
+ box.innerHTML=wardrobeNote+
+  `<div class="loading-box"><b>Searching real products…</b><br><span class="muted">${escapeHtml(query)}</span></div>`;
+
+ try{
+  const products=await searchProducts(query);
+
+  box.innerHTML=
+   wardrobeNote+
+   `<div class="section-head"><h2>Live products</h2></div>`+
+   renderLiveProducts(products,selectedStores)+
+   `<div class="section-head"><h2>Official store search</h2></div>`+
+   `<div class="notice">Use these buttons when you specifically want to search the official websites of the stores you selected.</div>`+
+   renderOfficialStoreRecommendations(plan);
+
+ }catch(error){
+  console.error(error);
+  box.innerHTML=
+   wardrobeNote+
+   `<div class="notice"><b>Live product search failed:</b> ${escapeHtml(error.message||"Unknown error")}</div>`+
+   `<div class="section-head"><h2>Official store search</h2></div>`+
+   renderOfficialStoreRecommendations(plan);
+ }
 }
 
 function closeModal(id){el(id).classList.add("hidden")}
