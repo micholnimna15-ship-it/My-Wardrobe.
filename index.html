@@ -6,6 +6,7 @@
 
   <meta name="theme-color" content="#111111">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Wardrobe">
 
@@ -28,7 +29,9 @@
     }
 
     button,
-    input {
+    input,
+    select,
+    textarea {
       font: inherit;
     }
 
@@ -40,7 +43,9 @@
       display: none !important;
     }
 
-    /* AUTH */
+    /* =========================
+       AUTH
+       ========================= */
 
     #authScreen {
       min-height: 100vh;
@@ -84,7 +89,9 @@
       margin-bottom: 7px;
     }
 
-    input {
+    input,
+    select,
+    textarea {
       width: 100%;
       border: 1px solid #ddd;
       border-radius: 12px;
@@ -93,7 +100,14 @@
       outline: none;
     }
 
-    input:focus {
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
       border-color: #111;
       background: white;
     }
@@ -157,11 +171,13 @@
       color: #176b2c;
     }
 
-    /* APP */
+    /* =========================
+       APP
+       ========================= */
 
     #appScreen {
       min-height: 100vh;
-      padding-bottom: 85px;
+      padding-bottom: 90px;
     }
 
     .topbar {
@@ -225,12 +241,17 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
+      gap: 10px;
     }
 
     .section-title h2 {
       font-size: 20px;
       margin: 0;
     }
+
+    /* =========================
+       CATEGORIES
+       ========================= */
 
     .category-grid {
       display: grid;
@@ -304,7 +325,9 @@
       font-weight: 700;
     }
 
-    /* CLOTHES */
+    /* =========================
+       CLOTHES
+       ========================= */
 
     .back-btn {
       border: none;
@@ -320,6 +343,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 15px;
+      gap: 10px;
     }
 
     .category-header h2 {
@@ -390,7 +414,9 @@
       margin-top: 8px;
     }
 
-    /* LOOKS */
+    /* =========================
+       LOOKS
+       ========================= */
 
     .look-card {
       background: white;
@@ -426,6 +452,10 @@
       color: #666;
     }
 
+    /* =========================
+       EMPTY / LOADING
+       ========================= */
+
     .empty {
       background: white;
       border-radius: 16px;
@@ -435,7 +465,320 @@
       border: 1px solid #eee;
     }
 
-    /* BOTTOM NAV */
+    .loading {
+      text-align: center;
+      padding: 50px 20px;
+      color: #777;
+    }
+
+    .spinner {
+      margin: auto auto 15px;
+      width: 35px;
+      height: 35px;
+      border: 4px solid #ddd;
+      border-top-color: #111;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================
+       SHOP FOR ME
+       ========================= */
+
+    .shop-hero {
+      background: linear-gradient(135deg, #111, #292929);
+      color: white;
+      border-radius: 22px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .shop-hero h1 {
+      margin: 0 0 8px;
+      font-size: 27px;
+    }
+
+    .shop-hero p {
+      margin: 0;
+      color: #d3d3d3;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .shop-card {
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 18px;
+      padding: 17px;
+      margin-bottom: 14px;
+    }
+
+    .shop-card h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    .shop-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .shop-card-header h3 {
+      margin: 0;
+    }
+
+    .country-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .country-flag {
+      font-size: 28px;
+    }
+
+    .store-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .store-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      padding: 12px;
+      background: #fafafa;
+    }
+
+    .store-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .store-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: #111;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .store-name {
+      font-weight: 750;
+      font-size: 14px;
+    }
+
+    .store-country {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .store-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .store-toggle {
+      border: none;
+      background: #111;
+      color: white;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .store-toggle.selected {
+      background: #e9f8ed;
+      color: #176b2c;
+    }
+
+    .store-remove {
+      border: none;
+      background: #ffe9e9;
+      color: #a00000;
+      border-radius: 9px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .selected-store-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .selected-store-pill {
+      background: #111;
+      color: white;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .occasion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .occasion-btn {
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 12px;
+      padding: 11px 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .occasion-btn.selected {
+      background: #111;
+      color: white;
+      border-color: #111;
+    }
+
+    .shop-result {
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 18px;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+
+    .shop-result-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .match-score {
+      background: #e9f8ed;
+      color: #176b2c;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .result-store {
+      color: #777;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .result-name {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .result-reason {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .result-price {
+      font-weight: 800;
+      font-size: 17px;
+      margin-bottom: 12px;
+    }
+
+    .view-product-btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      background: #111;
+      color: white;
+      padding: 12px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .wardrobe-summary {
+      background: #f7f7f7;
+      border-radius: 12px;
+      padding: 11px;
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .info-box {
+      background: #f1f5ff;
+      color: #30456f;
+      border-radius: 13px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    /* =========================
+       PROFILE
+       ========================= */
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .profile-grid .full {
+      grid-column: 1 / -1;
+    }
+
+    .fit-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .fit-btn {
+      border: 1px solid #ddd;
+      background: white;
+      padding: 9px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .fit-btn.selected {
+      background: #111;
+      color: white;
+      border-color: #111;
+    }
+
+    /* =========================
+       BOTTOM NAV
+       ========================= */
 
     .bottom-nav {
       position: fixed;
@@ -446,7 +789,7 @@
       border-top: 1px solid #ddd;
       display: flex;
       justify-content: space-around;
-      padding: 8px 5px calc(8px + env(safe-area-inset-bottom));
+      padding: 8px 2px calc(8px + env(safe-area-inset-bottom));
       z-index: 50;
     }
 
@@ -454,10 +797,10 @@
       border: none;
       background: none;
       color: #888;
-      font-size: 11px;
+      font-size: 10px;
       text-align: center;
-      min-width: 75px;
-      padding: 5px;
+      min-width: 65px;
+      padding: 5px 2px;
     }
 
     .nav-btn.active {
@@ -471,7 +814,9 @@
       margin-bottom: 2px;
     }
 
-    /* MODAL */
+    /* =========================
+       MODALS
+       ========================= */
 
     .modal {
       position: fixed;
@@ -566,25 +911,36 @@
       margin-top: 10px;
     }
 
-    .loading {
-      text-align: center;
-      padding: 50px 20px;
-      color: #777;
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
     }
 
-    .spinner {
-      margin: auto auto 15px;
-      width: 35px;
-      height: 35px;
-      border: 4px solid #ddd;
-      border-top-color: #111;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    .modal-buttons button {
+      flex: 1;
     }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
+    /* =========================
+       RESPONSIVE
+       ========================= */
+
+    @media (max-width: 420px) {
+      .nav-btn {
+        min-width: 55px;
+        font-size: 9px;
+      }
+
+      .nav-icon {
+        font-size: 19px;
+      }
+
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-grid .full {
+        grid-column: auto;
       }
     }
   </style>
@@ -592,16 +948,19 @@
 
 <body>
 
-  <!-- ========================= -->
-  <!-- LOGIN / SIGN UP SCREEN -->
-  <!-- ========================= -->
+  <!-- =====================================================
+       AUTH SCREEN
+       ===================================================== -->
 
   <div id="authScreen">
 
     <div class="auth-card">
 
       <div class="logo">👕 My Wardrobe</div>
-      <div class="auth-subtitle">Your clothes. Your account. Your wardrobe.</div>
+
+      <div class="auth-subtitle">
+        Your clothes. Your account. Your wardrobe.
+      </div>
 
       <div id="authMessage" class="message"></div>
 
@@ -611,6 +970,7 @@
 
         <div class="form-group">
           <label>Email</label>
+
           <input
             type="email"
             id="loginEmail"
@@ -621,6 +981,7 @@
 
         <div class="form-group">
           <label>Password</label>
+
           <input
             type="password"
             id="loginPassword"
@@ -629,13 +990,18 @@
           >
         </div>
 
-        <button class="primary-btn" onclick="login()">
+        <button
+          class="primary-btn"
+          onclick="login()"
+        >
           Login
         </button>
 
         <div class="auth-switch">
           Don't have an account?
-          <button onclick="showSignup()">Create account</button>
+          <button onclick="showSignup()">
+            Create account
+          </button>
         </div>
 
       </div>
@@ -647,6 +1013,7 @@
 
         <div class="form-group">
           <label>Email</label>
+
           <input
             type="email"
             id="signupEmail"
@@ -657,6 +1024,7 @@
 
         <div class="form-group">
           <label>Password</label>
+
           <input
             type="password"
             id="signupPassword"
@@ -667,6 +1035,7 @@
 
         <div class="form-group">
           <label>Confirm password</label>
+
           <input
             type="password"
             id="signupConfirm"
@@ -675,13 +1044,18 @@
           >
         </div>
 
-        <button class="primary-btn" onclick="signup()">
+        <button
+          class="primary-btn"
+          onclick="signup()"
+        >
           Create Account
         </button>
 
         <div class="auth-switch">
           Already have an account?
-          <button onclick="showLogin()">Login</button>
+          <button onclick="showLogin()">
+            Login
+          </button>
         </div>
 
       </div>
@@ -691,9 +1065,9 @@
   </div>
 
 
-  <!-- ========================= -->
-  <!-- MAIN APP -->
-  <!-- ========================= -->
+  <!-- =====================================================
+       MAIN APP
+       ===================================================== -->
 
   <div id="appScreen" class="hidden">
 
@@ -702,11 +1076,20 @@
       <div class="topbar-row">
 
         <div>
-          <div class="app-title">My Wardrobe</div>
-          <div id="userEmail" class="user-email"></div>
+          <div class="app-title">
+            My Wardrobe
+          </div>
+
+          <div
+            id="userEmail"
+            class="user-email"
+          ></div>
         </div>
 
-        <button class="logout-btn" onclick="logout()">
+        <button
+          class="logout-btn"
+          onclick="logout()"
+        >
           Logout
         </button>
 
@@ -717,33 +1100,50 @@
 
     <main class="content">
 
-      <!-- HOME -->
+      <!-- =========================
+           HOME
+           ========================= -->
 
       <section id="homePage">
 
         <div class="search-box">
+
           <input
             type="search"
             id="searchInput"
             placeholder="🔍 Search your clothes..."
             oninput="searchClothes()"
           >
+
         </div>
 
         <div class="section-title">
+
           <h2>My Categories</h2>
+
         </div>
 
-        <div id="categoryGrid" class="category-grid"></div>
+        <div
+          id="categoryGrid"
+          class="category-grid"
+        ></div>
 
       </section>
 
 
-      <!-- CATEGORY PAGE -->
+      <!-- =========================
+           CATEGORY PAGE
+           ========================= -->
 
-      <section id="categoryPage" class="hidden">
+      <section
+        id="categoryPage"
+        class="hidden"
+      >
 
-        <button class="back-btn" onclick="goHome()">
+        <button
+          class="back-btn"
+          onclick="goHome()"
+        >
           ← Back to categories
         </button>
 
@@ -760,27 +1160,43 @@
 
         </div>
 
-        <div id="clothesGrid" class="clothes-grid"></div>
+        <div
+          id="clothesGrid"
+          class="clothes-grid"
+        ></div>
 
       </section>
 
 
-      <!-- SEARCH PAGE -->
+      <!-- =========================
+           SEARCH PAGE
+           ========================= -->
 
-      <section id="searchPage" class="hidden">
+      <section
+        id="searchPage"
+        class="hidden"
+      >
 
         <div class="section-title">
           <h2>Search Results</h2>
         </div>
 
-        <div id="searchResults" class="clothes-grid"></div>
+        <div
+          id="searchResults"
+          class="clothes-grid"
+        ></div>
 
       </section>
 
 
-      <!-- LOOKS PAGE -->
+      <!-- =========================
+           LOOKS PAGE
+           ========================= -->
 
-      <section id="looksPage" class="hidden">
+      <section
+        id="looksPage"
+        class="hidden"
+      >
 
         <div class="section-title">
 
@@ -799,10 +1215,469 @@
 
       </section>
 
+
+      <!-- =========================
+           SHOP PAGE
+           ========================= -->
+
+      <section
+        id="shopPage"
+        class="hidden"
+      >
+
+        <div class="shop-hero">
+
+          <h1>🛍️ Shop for Me</h1>
+
+          <p>
+            Tell My Wardrobe what you need.
+            I'll use your wardrobe, fit preferences,
+            budget and selected stores to help find
+            the best options.
+          </p>
+
+        </div>
+
+
+        <!-- COUNTRY -->
+
+        <div class="shop-card">
+
+          <div class="shop-card-header">
+
+            <h3>🌎 Shopping country</h3>
+
+          </div>
+
+          <div class="country-row">
+
+            <div
+              id="selectedCountryFlag"
+              class="country-flag"
+            >
+              🇦🇺
+            </div>
+
+            <select
+              id="shoppingCountry"
+              onchange="changeShoppingCountry()"
+            >
+              <option value="AU">
+                🇦🇺 Australia
+              </option>
+
+              <option value="LK">
+                🇱🇰 Sri Lanka
+              </option>
+
+              <option value="US">
+                🇺🇸 United States
+              </option>
+
+              <option value="GB">
+                🇬🇧 United Kingdom
+              </option>
+
+              <option value="CA">
+                🇨🇦 Canada
+              </option>
+
+            </select>
+
+          </div>
+
+          <div class="info-box">
+            Choose the country where you want to shop.
+            Only stores selected below will be used for
+            your shopping request.
+          </div>
+
+        </div>
+
+
+        <!-- STORES -->
+
+        <div class="shop-card">
+
+          <div class="shop-card-header">
+
+            <h3>🏪 My stores</h3>
+
+            <button
+              class="secondary-btn"
+              onclick="openStoreModal()"
+            >
+              + Add Store
+            </button>
+
+          </div>
+
+          <div
+            id="selectedStores"
+            class="selected-store-summary"
+          ></div>
+
+          <div
+            id="storeEmptyMessage"
+            class="empty"
+            style="padding:20px;margin-top:10px;"
+          >
+            You haven't selected any stores yet.
+            Add the stores you want My Wardrobe to use.
+          </div>
+
+          <div
+            id="storeList"
+            class="store-list"
+            style="margin-top:12px;"
+          ></div>
+
+        </div>
+
+
+        <!-- REQUEST -->
+
+        <div class="shop-card">
+
+          <h3>✨ What are you shopping for?</h3>
+
+          <div class="form-group">
+
+            <textarea
+              id="shoppingRequest"
+              placeholder="Example: I have a wedding next month. I want a formal outfit that works with my black dress shoes and navy trousers. Keep the total under $500."
+            ></textarea>
+
+          </div>
+
+          <label>
+            Occasion
+          </label>
+
+          <div
+            class="occasion-grid"
+            style="margin-bottom:15px;"
+          >
+
+            <button
+              class="occasion-btn"
+              onclick="selectOccasion(this,'Wedding')"
+            >
+              💍 Wedding
+            </button>
+
+            <button
+              class="occasion-btn"
+              onclick="selectOccasion(this,'Date')"
+            >
+              ❤️ Date
+            </button>
+
+            <button
+              class="occasion-btn"
+              onclick="selectOccasion(this,'Work')"
+            >
+              💼 Work
+            </button>
+
+            <button
+              class="occasion-btn"
+              onclick="selectOccasion(this,'Casual')"
+            >
+              👕 Casual
+            </button>
+
+            <button
+              class="occasion-btn"
+              onclick="selectOccasion(this,'Party')"
+            >
+              🎉 Party
+            </button>
+
+            <button
+              class="occasion-btn"
+              onclick="selectOccasion(this,'Vacation')"
+            >
+              ✈️ Vacation
+            </button>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Maximum budget
+            </label>
+
+            <input
+              type="number"
+              id="shoppingBudget"
+              placeholder="e.g. 500"
+              min="0"
+              step="1"
+            >
+
+          </div>
+
+
+          <button
+            class="primary-btn"
+            onclick="findShoppingOptions()"
+          >
+            ✨ Find My Best Options
+          </button>
+
+
+          <div
+            id="wardrobeSummary"
+            class="wardrobe-summary"
+          ></div>
+
+        </div>
+
+
+        <!-- RESULTS -->
+
+        <div
+          id="shoppingResults"
+          style="margin-top:18px;"
+        ></div>
+
+      </section>
+
+
+      <!-- =========================
+           PROFILE PAGE
+           ========================= -->
+
+      <section
+        id="profilePage"
+        class="hidden"
+      >
+
+        <div class="section-title">
+
+          <h2>👤 My Fit</h2>
+
+        </div>
+
+        <div class="shop-card">
+
+          <h3>My measurements</h3>
+
+          <p
+            style="
+              color:#777;
+              font-size:13px;
+              line-height:1.5;
+            "
+          >
+            These measurements help the shopping
+            assistant understand what sizes and fits
+            may work best for you.
+          </p>
+
+          <div class="profile-grid">
+
+            <div class="form-group">
+              <label>Height (cm)</label>
+
+              <input
+                type="number"
+                id="profileHeight"
+                placeholder="e.g. 175"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Weight (kg)</label>
+
+              <input
+                type="number"
+                id="profileWeight"
+                placeholder="e.g. 75"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Chest / Bust (cm)</label>
+
+              <input
+                type="number"
+                id="profileChest"
+                placeholder="Optional"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Waist (cm)</label>
+
+              <input
+                type="number"
+                id="profileWaist"
+                placeholder="Optional"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Hips (cm)</label>
+
+              <input
+                type="number"
+                id="profileHips"
+                placeholder="Optional"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Shoulders (cm)</label>
+
+              <input
+                type="number"
+                id="profileShoulders"
+                placeholder="Optional"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Sleeve (cm)</label>
+
+              <input
+                type="number"
+                id="profileSleeve"
+                placeholder="Optional"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Inseam (cm)</label>
+
+              <input
+                type="number"
+                id="profileInseam"
+                placeholder="Optional"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Shoe size</label>
+
+              <input
+                type="text"
+                id="profileShoe"
+                placeholder="e.g. AU 10"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Preferred country</label>
+
+              <select id="profileCountry">
+
+                <option value="AU">
+                  🇦🇺 Australia
+                </option>
+
+                <option value="LK">
+                  🇱🇰 Sri Lanka
+                </option>
+
+                <option value="US">
+                  🇺🇸 United States
+                </option>
+
+                <option value="GB">
+                  🇬🇧 United Kingdom
+                </option>
+
+                <option value="CA">
+                  🇨🇦 Canada
+                </option>
+
+              </select>
+
+            </div>
+
+            <div class="form-group full">
+
+              <label>
+                Preferred fit
+              </label>
+
+              <div class="fit-options">
+
+                <button
+                  class="fit-btn"
+                  onclick="selectFit(this,'Slim')"
+                >
+                  Slim
+                </button>
+
+                <button
+                  class="fit-btn"
+                  onclick="selectFit(this,'Regular')"
+                >
+                  Regular
+                </button>
+
+                <button
+                  class="fit-btn"
+                  onclick="selectFit(this,'Relaxed')"
+                >
+                  Relaxed
+                </button>
+
+                <button
+                  class="fit-btn"
+                  onclick="selectFit(this,'Oversized')"
+                >
+                  Oversized
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <button
+            class="primary-btn"
+            onclick="saveProfile()"
+          >
+            Save My Fit
+          </button>
+
+        </div>
+
+
+        <div class="shop-card">
+
+          <h3>🧠 How My Wardrobe uses this</h3>
+
+          <div class="info-box">
+
+            Your measurements are used to help the
+            shopping assistant understand your preferred
+            fit and provide better size guidance.
+
+            <br><br>
+
+            Your retailer passwords are never requested
+            or stored by this app.
+
+          </div>
+
+        </div>
+
+      </section>
+
     </main>
 
 
-    <!-- BOTTOM NAV -->
+    <!-- =========================
+         BOTTOM NAV
+         ========================= -->
 
     <nav class="bottom-nav">
 
@@ -824,16 +1699,37 @@
         Looks
       </button>
 
+      <button
+        class="nav-btn"
+        id="shopNav"
+        onclick="showPage('shop')"
+      >
+        <span class="nav-icon">🛍️</span>
+        Shop
+      </button>
+
+      <button
+        class="nav-btn"
+        id="profileNav"
+        onclick="showPage('profile')"
+      >
+        <span class="nav-icon">👤</span>
+        Profile
+      </button>
+
     </nav>
 
   </div>
 
 
-  <!-- ========================= -->
-  <!-- CATEGORY MODAL -->
-  <!-- ========================= -->
+  <!-- =====================================================
+       CATEGORY MODAL
+       ===================================================== -->
 
-  <div id="categoryModal" class="modal hidden">
+  <div
+    id="categoryModal"
+    class="modal hidden"
+  >
 
     <div class="modal-card">
 
@@ -843,7 +1739,10 @@
           Add Category
         </h3>
 
-        <button class="close-btn" onclick="closeCategoryModal()">
+        <button
+          class="close-btn"
+          onclick="closeCategoryModal()"
+        >
           ✕
         </button>
 
@@ -867,18 +1766,89 @@
 
         <div class="emoji-options">
 
-          <button class="emoji-option selected" onclick="selectEmoji(this,'👕')">👕</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'👖')">👖</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'👟')">👟</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'🧥')">🧥</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'🧢')">🧢</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'👔')">👔</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'👗')">👗</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'🩳')">🩳</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'🧦')">🧦</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'🎒')">🎒</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'👜')">👜</button>
-          <button class="emoji-option" onclick="selectEmoji(this,'💍')">💍</button>
+          <button
+            class="emoji-option selected"
+            onclick="selectEmoji(this,'👕')"
+          >
+            👕
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'👖')"
+          >
+            👖
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'👟')"
+          >
+            👟
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'🧥')"
+          >
+            🧥
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'🧢')"
+          >
+            🧢
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'👔')"
+          >
+            👔
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'👗')"
+          >
+            👗
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'🩳')"
+          >
+            🩳
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'🧦')"
+          >
+            🧦
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'🎒')"
+          >
+            🎒
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'👜')"
+          >
+            👜
+          </button>
+
+          <button
+            class="emoji-option"
+            onclick="selectEmoji(this,'💍')"
+          >
+            💍
+          </button>
 
         </div>
 
@@ -904,11 +1874,14 @@
   </div>
 
 
-  <!-- ========================= -->
-  <!-- CLOTHING MODAL -->
-  <!-- ========================= -->
+  <!-- =====================================================
+       CLOTHING MODAL
+       ===================================================== -->
 
-  <div id="clothingModal" class="modal hidden">
+  <div
+    id="clothingModal"
+    class="modal hidden"
+  >
 
     <div class="modal-card">
 
@@ -916,7 +1889,10 @@
 
         <h3>Add Clothing</h3>
 
-        <button class="close-btn" onclick="closeClothingModal()">
+        <button
+          class="close-btn"
+          onclick="closeClothingModal()"
+        >
           ✕
         </button>
 
@@ -990,11 +1966,14 @@
   </div>
 
 
-  <!-- ========================= -->
-  <!-- CREATE LOOK MODAL -->
-  <!-- ========================= -->
+  <!-- =====================================================
+       LOOK MODAL
+       ===================================================== -->
 
-  <div id="lookModal" class="modal hidden">
+  <div
+    id="lookModal"
+    class="modal hidden"
+  >
 
     <div class="modal-card">
 
@@ -1002,15 +1981,24 @@
 
         <h3>Save This Look</h3>
 
-        <button class="close-btn" onclick="closeLookModal()">
+        <button
+          class="close-btn"
+          onclick="closeLookModal()"
+        >
           ✕
         </button>
 
       </div>
 
-      <div id="lookPreview" class="look-items"></div>
+      <div
+        id="lookPreview"
+        class="look-items"
+      ></div>
 
-      <div class="form-group" style="margin-top:20px;">
+      <div
+        class="form-group"
+        style="margin-top:20px;"
+      >
 
         <label>Look name</label>
 
@@ -1034,7 +2022,111 @@
   </div>
 
 
-  <!-- SUPABASE -->
+  <!-- =====================================================
+       STORE MODAL
+       ===================================================== -->
+
+  <div
+    id="storeModal"
+    class="modal hidden"
+  >
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+
+        <h3>🏪 Add Stores</h3>
+
+        <button
+          class="close-btn"
+          onclick="closeStoreModal()"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Search stores
+        </label>
+
+        <input
+          type="search"
+          id="storeSearch"
+          placeholder="Search store name..."
+          oninput="renderStoreModal()"
+        >
+
+      </div>
+
+      <div
+        id="availableStores"
+        class="store-list"
+      ></div>
+
+      <hr
+        style="
+          border:none;
+          border-top:1px solid #eee;
+          margin:20px 0;
+        "
+      >
+
+      <h3
+        style="
+          font-size:16px;
+          margin:0 0 10px;
+        "
+      >
+        Add a store manually
+      </h3>
+
+      <div class="form-group">
+
+        <label>Store name</label>
+
+        <input
+          type="text"
+          id="customStoreName"
+          placeholder="e.g. My Local Boutique"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Official website</label>
+
+        <input
+          type="url"
+          id="customStoreUrl"
+          placeholder="https://example.com"
+        >
+
+      </div>
+
+      <button
+        class="primary-btn"
+        onclick="addCustomStore()"
+      >
+        + Add My Store
+      </button>
+
+      <div class="info-box">
+        Only add the store's official website.
+        My Wardrobe does not need your store password.
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       SUPABASE
+       ===================================================== -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -1058,6 +2150,25 @@
       );
 
 
+    /*
+     * FUTURE AI / LIVE SHOPPING BACKEND
+     *
+     * Leave this blank for now.
+     *
+     * Later we can connect a secure backend such as:
+     *
+     * https://your-domain.com/api/shop
+     *
+     * IMPORTANT:
+     * Never put an OpenAI secret key,
+     * retailer API secret,
+     * affiliate secret,
+     * or Supabase service-role key here.
+     */
+
+    const SHOP_API_URL = "";
+
+
     /* =====================================================
        APP DATA
        ===================================================== */
@@ -1078,6 +2189,329 @@
 
     let currentLookItems = [];
 
+    let selectedOccasion = "";
+
+    let selectedFit = "Regular";
+
+
+    /*
+     * Shopping stores are kept separately from wardrobe
+     * data so the existing Supabase tables continue
+     * working without requiring new SQL immediately.
+     */
+
+    let selectedStores = [];
+
+    let customStores = [];
+
+    let userProfile = {};
+
+
+    /* =====================================================
+       STORE CATALOG
+       ===================================================== */
+
+    const STORE_CATALOG = {
+
+      AU: [
+
+        {
+          id: "au-myer",
+          name: "Myer",
+          country: "Australia",
+          url: "https://www.myer.com.au/"
+        },
+
+        {
+          id: "au-david-jones",
+          name: "David Jones",
+          country: "Australia",
+          url: "https://www.davidjones.com/"
+        },
+
+        {
+          id: "au-tommy",
+          name: "Tommy Hilfiger Australia",
+          country: "Australia",
+          url: "https://au.tommy.com/"
+        },
+
+        {
+          id: "au-calvin",
+          name: "Calvin Klein Australia",
+          country: "Australia",
+          url: "https://www.calvinklein.com.au/"
+        },
+
+        {
+          id: "au-rm",
+          name: "R.M.Williams",
+          country: "Australia",
+          url: "https://www.rmwilliams.com.au/"
+        },
+
+        {
+          id: "au-country-road",
+          name: "Country Road",
+          country: "Australia",
+          url: "https://www.countryroad.com.au/"
+        },
+
+        {
+          id: "au-uniqlo",
+          name: "UNIQLO Australia",
+          country: "Australia",
+          url: "https://www.uniqlo.com/au/"
+        },
+
+        {
+          id: "au-zara",
+          name: "ZARA Australia",
+          country: "Australia",
+          url: "https://www.zara.com/au/"
+        },
+
+        {
+          id: "au-hm",
+          name: "H&M Australia",
+          country: "Australia",
+          url: "https://www2.hm.com/en_au/"
+        },
+
+        {
+          id: "au-asos",
+          name: "ASOS Australia",
+          country: "Australia",
+          url: "https://www.asos.com/au/"
+        },
+
+        {
+          id: "au-jbhifi",
+          name: "THE ICONIC",
+          country: "Australia",
+          url: "https://www.theiconic.com.au/"
+        }
+
+      ],
+
+
+      LK: [
+
+        {
+          id: "lk-abans",
+          name: "Abans",
+          country: "Sri Lanka",
+          url: "https://abans.com/"
+        },
+
+        {
+          id: "lk-fashion-bug",
+          name: "Fashion Bug",
+          country: "Sri Lanka",
+          url: "https://www.fashionbug.lk/"
+        },
+
+        {
+          id: "lk-odel",
+          name: "ODEL",
+          country: "Sri Lanka",
+          url: "https://odel.lk/"
+        },
+
+        {
+          id: "lk-nolimit",
+          name: "NOLIMIT",
+          country: "Sri Lanka",
+          url: "https://www.nolimit.lk/"
+        },
+
+        {
+          id: "lk-house-of-fashions",
+          name: "House of Fashions",
+          country: "Sri Lanka",
+          url: "https://www.houseoffashions.lk/"
+        }
+
+      ],
+
+
+      US: [
+
+        {
+          id: "us-calvin",
+          name: "Calvin Klein",
+          country: "United States",
+          url: "https://www.calvinklein.us/"
+        },
+
+        {
+          id: "us-tommy",
+          name: "Tommy Hilfiger",
+          country: "United States",
+          url: "https://usa.tommy.com/"
+        },
+
+        {
+          id: "us-macys",
+          name: "Macy's",
+          country: "United States",
+          url: "https://www.macys.com/"
+        },
+
+        {
+          id: "us-nordstrom",
+          name: "Nordstrom",
+          country: "United States",
+          url: "https://www.nordstrom.com/"
+        },
+
+        {
+          id: "us-nike",
+          name: "Nike",
+          country: "United States",
+          url: "https://www.nike.com/"
+        },
+
+        {
+          id: "us-zara",
+          name: "ZARA",
+          country: "United States",
+          url: "https://www.zara.com/us/"
+        },
+
+        {
+          id: "us-uniqlo",
+          name: "UNIQLO",
+          country: "United States",
+          url: "https://www.uniqlo.com/us/"
+        }
+
+      ],
+
+
+      GB: [
+
+        {
+          id: "gb-tommy",
+          name: "Tommy Hilfiger UK",
+          country: "United Kingdom",
+          url: "https://uk.tommy.com/"
+        },
+
+        {
+          id: "gb-calvin",
+          name: "Calvin Klein UK",
+          country: "United Kingdom",
+          url: "https://www.calvinklein.co.uk/"
+        },
+
+        {
+          id: "gb-asos",
+          name: "ASOS UK",
+          country: "United Kingdom",
+          url: "https://www.asos.com/"
+        },
+
+        {
+          id: "gb-next",
+          name: "Next",
+          country: "United Kingdom",
+          url: "https://www.next.co.uk/"
+        },
+
+        {
+          id: "gb-zara",
+          name: "ZARA UK",
+          country: "United Kingdom",
+          url: "https://www.zara.com/uk/"
+        },
+
+        {
+          id: "gb-unqilo",
+          name: "UNIQLO UK",
+          country: "United Kingdom",
+          url: "https://www.uniqlo.com/uk/"
+        }
+
+      ],
+
+
+      CA: [
+
+        {
+          id: "ca-tommy",
+          name: "Tommy Hilfiger Canada",
+          country: "Canada",
+          url: "https://ca.tommy.com/"
+        },
+
+        {
+          id: "ca-calvin",
+          name: "Calvin Klein Canada",
+          country: "Canada",
+          url: "https://www.calvinklein.ca/"
+        },
+
+        {
+          id: "ca-simons",
+          name: "Simons",
+          country: "Canada",
+          url: "https://www.simons.ca/"
+        },
+
+        {
+          id: "ca-zara",
+          name: "ZARA Canada",
+          country: "Canada",
+          url: "https://www.zara.com/ca/"
+        },
+
+        {
+          id: "ca-uniqlo",
+          name: "UNIQLO Canada",
+          country: "Canada",
+          url: "https://www.uniqlo.com/ca/"
+        }
+
+      ]
+
+    };
+
+
+    const COUNTRY_INFO = {
+
+      AU: {
+        flag: "🇦🇺",
+        name: "Australia",
+        currency: "AUD"
+      },
+
+      LK: {
+        flag: "🇱🇰",
+        name: "Sri Lanka",
+        currency: "LKR"
+      },
+
+      US: {
+        flag: "🇺🇸",
+        name: "United States",
+        currency: "USD"
+      },
+
+      GB: {
+        flag: "🇬🇧",
+        name: "United Kingdom",
+        currency: "GBP"
+      },
+
+      CA: {
+        flag: "🇨🇦",
+        name: "Canada",
+        currency: "CAD"
+      }
+
+    };
+
 
     /* =====================================================
        AUTH
@@ -1087,7 +2521,9 @@
 
       const {
         data: { session }
-      } = await supabaseClient.auth.getSession();
+      } =
+        await supabaseClient.auth.getSession();
+
 
       if (session) {
 
@@ -1196,16 +2632,19 @@
     async function signup() {
 
       const email =
-        document.getElementById("signupEmail")
+        document
+          .getElementById("signupEmail")
           .value
           .trim();
 
       const password =
-        document.getElementById("signupPassword")
+        document
+          .getElementById("signupPassword")
           .value;
 
       const confirm =
-        document.getElementById("signupConfirm")
+        document
+          .getElementById("signupConfirm")
           .value;
 
 
@@ -1251,18 +2690,19 @@
       const {
         data,
         error
-      } = await supabaseClient.auth.signUp({
+      } =
+        await supabaseClient.auth.signUp({
 
-        email: email,
+          email: email,
 
-        password: password,
+          password: password,
 
-        options: {
-          emailRedirectTo:
-            window.location.href.split("?")[0]
-        }
+          options: {
+            emailRedirectTo:
+              window.location.href.split("?")[0]
+          }
 
-      });
+        });
 
 
       if (error) {
@@ -1298,12 +2738,14 @@
     async function login() {
 
       const email =
-        document.getElementById("loginEmail")
+        document
+          .getElementById("loginEmail")
           .value
           .trim();
 
       const password =
-        document.getElementById("loginPassword")
+        document
+          .getElementById("loginPassword")
           .value;
 
 
@@ -1327,13 +2769,14 @@
       const {
         data,
         error
-      } = await supabaseClient.auth.signInWithPassword({
+      } =
+        await supabaseClient.auth.signInWithPassword({
 
-        email: email,
+          email: email,
 
-        password: password
+          password: password
 
-      });
+        });
 
 
       if (error) {
@@ -1366,7 +2809,120 @@
 
       currentUser = null;
 
+      selectedStores = [];
+
+      customStores = [];
+
+      userProfile = {};
+
       showAuth();
+
+    }
+
+
+    /* =====================================================
+       USER LOCAL DATA
+       ===================================================== */
+
+    function userStorageKey(name) {
+
+      if (!currentUser)
+        return "mywardrobe_" + name;
+
+      return (
+        "mywardrobe_" +
+        name +
+        "_" +
+        currentUser.id
+      );
+
+    }
+
+
+    function loadShoppingPreferences() {
+
+      if (!currentUser)
+        return;
+
+
+      try {
+
+        const stores =
+          localStorage.getItem(
+            userStorageKey("stores")
+          );
+
+        const customs =
+          localStorage.getItem(
+            userStorageKey("customStores")
+          );
+
+        const profile =
+          localStorage.getItem(
+            userStorageKey("profile")
+          );
+
+
+        selectedStores =
+          stores
+            ? JSON.parse(stores)
+            : [];
+
+
+        customStores =
+          customs
+            ? JSON.parse(customs)
+            : [];
+
+
+        userProfile =
+          profile
+            ? JSON.parse(profile)
+            : {};
+
+      } catch (error) {
+
+        console.error(
+          "Could not load shopping preferences:",
+          error
+        );
+
+        selectedStores = [];
+
+        customStores = [];
+
+        userProfile = {};
+
+      }
+
+
+      applyProfileToForm();
+
+    }
+
+
+    function saveShoppingPreferences() {
+
+      if (!currentUser)
+        return;
+
+
+      localStorage.setItem(
+        userStorageKey("stores"),
+        JSON.stringify(selectedStores)
+      );
+
+
+      localStorage.setItem(
+        userStorageKey("customStores"),
+        JSON.stringify(customStores)
+      );
+
+
+      localStorage.setItem(
+        userStorageKey("profile"),
+        JSON.stringify(userProfile)
+      );
 
     }
 
@@ -1392,10 +2948,15 @@
         currentUser.email;
 
 
+      loadShoppingPreferences();
+
+
       showPage("home");
 
 
       await loadAllData();
+
+      updateWardrobeSummary();
 
     }
 
@@ -1485,6 +3046,8 @@
 
       renderLooks();
 
+      updateWardrobeSummary();
+
     }
 
 
@@ -1493,10 +3056,18 @@
       document
         .getElementById("categoryGrid")
         .innerHTML = `
-          <div class="loading" style="grid-column:1/-1;">
+
+          <div
+            class="loading"
+            style="grid-column:1/-1;"
+          >
+
             <div class="spinner"></div>
+
             Loading your wardrobe...
+
           </div>
+
         `;
 
     }
@@ -1524,6 +3095,14 @@
         .getElementById("looksPage")
         .classList.add("hidden");
 
+      document
+        .getElementById("shopPage")
+        .classList.add("hidden");
+
+      document
+        .getElementById("profilePage")
+        .classList.add("hidden");
+
 
       document
         .getElementById("homeNav")
@@ -1531,6 +3110,14 @@
 
       document
         .getElementById("lookNav")
+        .classList.remove("active");
+
+      document
+        .getElementById("shopNav")
+        .classList.remove("active");
+
+      document
+        .getElementById("profileNav")
         .classList.remove("active");
 
 
@@ -1560,6 +3147,36 @@
           .classList.add("active");
 
         renderLooks();
+
+      }
+
+
+      if (page === "shop") {
+
+        document
+          .getElementById("shopPage")
+          .classList.remove("hidden");
+
+        document
+          .getElementById("shopNav")
+          .classList.add("active");
+
+        renderShoppingPage();
+
+      }
+
+
+      if (page === "profile") {
+
+        document
+          .getElementById("profilePage")
+          .classList.remove("hidden");
+
+        document
+          .getElementById("profileNav")
+          .classList.add("active");
+
+        applyProfileToForm();
 
       }
 
@@ -1658,9 +3275,7 @@
       `;
 
 
-      if (
-        categories.length === 0
-      ) {
+      if (categories.length === 0) {
 
         html = `
 
@@ -1705,9 +3320,12 @@
 
       selectedEmoji = "👕";
 
+
       document
         .getElementById("categoryModalTitle")
-        .textContent = "Add Category";
+        .textContent =
+        "Add Category";
+
 
       document
         .getElementById("categoryNameInput")
@@ -1728,7 +3346,11 @@
           if (
             button.textContent === "👕"
           ) {
-            button.classList.add("selected");
+
+            button.classList.add(
+              "selected"
+            );
+
           }
 
         });
@@ -1749,7 +3371,8 @@
         );
 
 
-      if (!category) return;
+      if (!category)
+        return;
 
 
       editingCategoryId = id;
@@ -1760,12 +3383,14 @@
 
       document
         .getElementById("categoryModalTitle")
-        .textContent = "Edit Category";
+        .textContent =
+        "Edit Category";
 
 
       document
         .getElementById("categoryNameInput")
-        .value = category.name;
+        .value =
+        category.name;
 
 
       document
@@ -1779,7 +3404,8 @@
 
           button.classList.toggle(
             "selected",
-            button.textContent === selectedEmoji
+            button.textContent ===
+            selectedEmoji
           );
 
         });
@@ -1800,11 +3426,15 @@
       document
         .querySelectorAll(".emoji-option")
         .forEach(item =>
-          item.classList.remove("selected")
+          item.classList.remove(
+            "selected"
+          )
         );
 
 
-      button.classList.add("selected");
+      button.classList.add(
+        "selected"
+      );
 
     }
 
@@ -1822,14 +3452,18 @@
 
       const name =
         document
-          .getElementById("categoryNameInput")
+          .getElementById(
+            "categoryNameInput"
+          )
           .value
           .trim();
 
 
       if (!name) {
 
-        alert("Please enter a category name.");
+        alert(
+          "Please enter a category name."
+        );
 
         return;
       }
@@ -1839,16 +3473,20 @@
 
         const {
           error
-        } = await supabaseClient
-          .from("categories")
-          .update({
+        } =
+          await supabaseClient
+            .from("categories")
+            .update({
 
-            name: name,
+              name: name,
 
-            icon: selectedEmoji
+              icon: selectedEmoji
 
-          })
-          .eq("id", editingCategoryId);
+            })
+            .eq(
+              "id",
+              editingCategoryId
+            );
 
 
         if (error) {
@@ -1863,17 +3501,19 @@
 
         const {
           error
-        } = await supabaseClient
-          .from("categories")
-          .insert({
+        } =
+          await supabaseClient
+            .from("categories")
+            .insert({
 
-            user_id: currentUser.id,
+              user_id:
+                currentUser.id,
 
-            name: name,
+              name: name,
 
-            icon: selectedEmoji
+              icon: selectedEmoji
 
-          });
+            });
 
 
         if (error) {
@@ -1895,22 +3535,27 @@
 
     async function deleteCurrentCategory() {
 
-      if (!editingCategoryId) return;
+      if (!editingCategoryId)
+        return;
 
 
       const category =
         categories.find(
-          item => item.id === editingCategoryId
+          item =>
+            item.id ===
+            editingCategoryId
         );
 
 
-      if (!category) return;
+      if (!category)
+        return;
 
 
       const count =
         clothes.filter(
           item =>
-            item.category_id === editingCategoryId
+            item.category_id ===
+            editingCategoryId
         ).length;
 
 
@@ -1923,28 +3568,31 @@
         );
 
 
-      if (!confirmed) return;
+      if (!confirmed)
+        return;
 
-
-      /*
-       * Remove photos belonging to this category.
-       */
 
       const categoryClothes =
         clothes.filter(
           item =>
-            item.category_id === editingCategoryId
+            item.category_id ===
+            editingCategoryId
         );
 
 
-      for (const item of categoryClothes) {
+      for (
+        const item
+        of categoryClothes
+      ) {
 
         if (item.photo_url) {
 
           await supabaseClient
             .storage
             .from("wardrobe-photos")
-            .remove([item.photo_url]);
+            .remove([
+              item.photo_url
+            ]);
 
         }
 
@@ -1953,10 +3601,14 @@
 
       const {
         error
-      } = await supabaseClient
-        .from("categories")
-        .delete()
-        .eq("id", editingCategoryId);
+      } =
+        await supabaseClient
+          .from("categories")
+          .delete()
+          .eq(
+            "id",
+            editingCategoryId
+          );
 
 
       if (error) {
@@ -1980,11 +3632,13 @@
 
       const category =
         categories.find(
-          item => item.id === id
+          item =>
+            item.id === id
         );
 
 
-      if (!category) return;
+      if (!category)
+        return;
 
 
       const count =
@@ -2003,7 +3657,8 @@
         );
 
 
-      if (!confirmed) return;
+      if (!confirmed)
+        return;
 
 
       editingCategoryId = id;
@@ -2021,11 +3676,13 @@
 
       currentCategory =
         categories.find(
-          category => category.id === id
+          category =>
+            category.id === id
         );
 
 
-      if (!currentCategory) return;
+      if (!currentCategory)
+        return;
 
 
       document
@@ -2057,7 +3714,9 @@
     function renderClothes() {
 
       const grid =
-        document.getElementById("clothesGrid");
+        document.getElementById(
+          "clothesGrid"
+        );
 
 
       if (!currentCategory) {
@@ -2071,11 +3730,15 @@
       const categoryClothes =
         clothes.filter(
           item =>
-            item.category_id === currentCategory.id
+            item.category_id ===
+            currentCategory.id
         );
 
 
-      if (categoryClothes.length === 0) {
+      if (
+        categoryClothes.length ===
+        0
+      ) {
 
         grid.innerHTML = `
 
@@ -2109,12 +3772,18 @@
       }
 
 
-      grid.innerHTML = categoryClothes
-        .map(item => clothingCard(item))
-        .join("");
+      grid.innerHTML =
+        categoryClothes
+          .map(
+            item =>
+              clothingCard(item)
+          )
+          .join("");
 
 
-      loadPhotoUrls(categoryClothes);
+      loadPhotoUrls(
+        categoryClothes
+      );
 
     }
 
@@ -2126,13 +3795,17 @@
 
       if (item.color)
         details.push(
-          escapeHtml(item.color)
+          escapeHtml(
+            item.color
+          )
         );
 
 
       if (item.brand)
         details.push(
-          escapeHtml(item.brand)
+          escapeHtml(
+            item.brand
+          )
         );
 
 
@@ -2144,7 +3817,9 @@
         >
 
           <div id="photo-${item.id}">
-            <div class="no-photo">👕</div>
+            <div class="no-photo">
+              👕
+            </div>
           </div>
 
           <div class="clothing-info">
@@ -2181,7 +3856,10 @@
 
     async function loadPhotoUrls(items) {
 
-      for (const item of items) {
+      for (
+        const item
+        of items
+      ) {
 
         if (!item.photo_url)
           continue;
@@ -2193,7 +3871,9 @@
         } =
           await supabaseClient
             .storage
-            .from("wardrobe-photos")
+            .from(
+              "wardrobe-photos"
+            )
             .createSignedUrl(
               item.photo_url,
               3600
@@ -2205,13 +3885,16 @@
           !data ||
           !data.signedUrl
         ) {
+
           continue;
+
         }
 
 
         const container =
           document.getElementById(
-            "photo-" + item.id
+            "photo-" +
+            item.id
           );
 
 
@@ -2238,40 +3921,58 @@
 
       if (!currentCategory) {
 
-        alert("Please open a category first.");
+        alert(
+          "Please open a category first."
+        );
 
         return;
       }
 
 
       document
-        .getElementById("clothingName")
+        .getElementById(
+          "clothingName"
+        )
         .value = "";
 
 
       document
-        .getElementById("clothingColor")
+        .getElementById(
+          "clothingColor"
+        )
         .value = "";
 
 
       document
-        .getElementById("clothingBrand")
+        .getElementById(
+          "clothingBrand"
+        )
         .value = "";
 
 
       document
-        .getElementById("clothingPhoto")
+        .getElementById(
+          "clothingPhoto"
+        )
         .value = "";
 
 
       document
-        .getElementById("photoPreview")
-        .classList.add("hidden");
+        .getElementById(
+          "photoPreview"
+        )
+        .classList.add(
+          "hidden"
+        );
 
 
       document
-        .getElementById("clothingModal")
-        .classList.remove("hidden");
+        .getElementById(
+          "clothingModal"
+        )
+        .classList.remove(
+          "hidden"
+        );
 
     }
 
@@ -2279,8 +3980,12 @@
     function closeClothingModal() {
 
       document
-        .getElementById("clothingModal")
-        .classList.add("hidden");
+        .getElementById(
+          "clothingModal"
+        )
+        .classList.add(
+          "hidden"
+        );
 
     }
 
@@ -2289,7 +3994,9 @@
 
       const file =
         document
-          .getElementById("clothingPhoto")
+          .getElementById(
+            "clothingPhoto"
+          )
           .files[0];
 
 
@@ -2301,19 +4008,25 @@
 
       if (!file) {
 
-        preview.classList.add("hidden");
+        preview.classList.add(
+          "hidden"
+        );
 
         return;
       }
 
 
       const url =
-        URL.createObjectURL(file);
+        URL.createObjectURL(
+          file
+        );
 
 
       preview.src = url;
 
-      preview.classList.remove("hidden");
+      preview.classList.remove(
+        "hidden"
+      );
 
     }
 
@@ -2322,34 +4035,44 @@
 
       const name =
         document
-          .getElementById("clothingName")
+          .getElementById(
+            "clothingName"
+          )
           .value
           .trim();
 
 
       const color =
         document
-          .getElementById("clothingColor")
+          .getElementById(
+            "clothingColor"
+          )
           .value
           .trim();
 
 
       const brand =
         document
-          .getElementById("clothingBrand")
+          .getElementById(
+            "clothingBrand"
+          )
           .value
           .trim();
 
 
       const file =
         document
-          .getElementById("clothingPhoto")
+          .getElementById(
+            "clothingPhoto"
+          )
           .files[0];
 
 
       if (!name) {
 
-        alert("Please enter a clothing name.");
+        alert(
+          "Please enter a clothing name."
+        );
 
         return;
       }
@@ -2369,10 +4092,6 @@
 
       let photoPath = null;
 
-
-      /*
-       * Upload photo to private Supabase Storage.
-       */
 
       if (file) {
 
@@ -2400,13 +4119,18 @@
         } =
           await supabaseClient
             .storage
-            .from("wardrobe-photos")
+            .from(
+              "wardrobe-photos"
+            )
             .upload(
               photoPath,
               file,
               {
-                cacheControl: "3600",
-                upsert: false
+                cacheControl:
+                  "3600",
+
+                upsert:
+                  false
               }
             );
 
@@ -2418,7 +4142,9 @@
             error.message
           );
 
-          button.disabled = false;
+
+          button.disabled =
+            false;
 
           button.textContent =
             "Add Clothing";
@@ -2429,15 +4155,13 @@
       }
 
 
-      /*
-       * Save clothing record.
-       */
-
       const {
         error
       } =
         await supabaseClient
-          .from("clothing_items")
+          .from(
+            "clothing_items"
+          )
           .insert({
 
             user_id:
@@ -2446,11 +4170,14 @@
             category_id:
               currentCategory.id,
 
-            name: name,
+            name:
+              name,
 
-            color: color || null,
+            color:
+              color || null,
 
-            brand: brand || null,
+            brand:
+              brand || null,
 
             photo_url:
               photoPath
@@ -2464,15 +4191,23 @@
 
           await supabaseClient
             .storage
-            .from("wardrobe-photos")
-            .remove([photoPath]);
+            .from(
+              "wardrobe-photos"
+            )
+            .remove([
+              photoPath
+            ]);
 
         }
 
 
-        alert(error.message);
+        alert(
+          error.message
+        );
 
-        button.disabled = false;
+
+        button.disabled =
+          false;
 
         button.textContent =
           "Add Clothing";
@@ -2481,7 +4216,8 @@
       }
 
 
-      button.disabled = false;
+      button.disabled =
+        false;
 
       button.textContent =
         "Add Clothing";
@@ -2491,7 +4227,9 @@
 
       await loadAllData();
 
-      openCategory(currentCategory.id);
+      openCategory(
+        currentCategory.id
+      );
 
     }
 
@@ -2505,7 +4243,8 @@
         );
 
 
-      if (!item) return;
+      if (!item)
+        return;
 
 
       const confirmed =
@@ -2518,42 +4257,46 @@
         return;
 
 
-      /*
-       * Delete private photo.
-       */
-
       if (item.photo_url) {
 
         await supabaseClient
           .storage
-          .from("wardrobe-photos")
-          .remove([item.photo_url]);
+          .from(
+            "wardrobe-photos"
+          )
+          .remove([
+            item.photo_url
+          ]);
 
       }
 
-
-      /*
-       * Delete database record.
-       */
 
       const {
         error
       } =
         await supabaseClient
-          .from("clothing_items")
+          .from(
+            "clothing_items"
+          )
           .delete()
-          .eq("id", id);
+          .eq(
+            "id",
+            id
+          );
 
 
       if (error) {
 
-        alert(error.message);
+        alert(
+          error.message
+        );
 
         return;
       }
 
 
       await loadAllData();
+
 
       if (currentCategory) {
 
@@ -2574,7 +4317,9 @@
 
       const search =
         document
-          .getElementById("searchInput")
+          .getElementById(
+            "searchInput"
+          )
           .value
           .toLowerCase()
           .trim();
@@ -2583,64 +4328,109 @@
       if (!search) {
 
         document
-          .getElementById("searchPage")
-          .classList.add("hidden");
+          .getElementById(
+            "searchPage"
+          )
+          .classList.add(
+            "hidden"
+          );
 
         document
-          .getElementById("homePage")
-          .classList.remove("hidden");
+          .getElementById(
+            "homePage"
+          )
+          .classList.remove(
+            "hidden"
+          );
 
         return;
       }
 
 
       document
-        .getElementById("homePage")
-        .classList.add("hidden");
+        .getElementById(
+          "homePage"
+        )
+        .classList.add(
+          "hidden"
+        );
 
       document
-        .getElementById("categoryPage")
-        .classList.add("hidden");
+        .getElementById(
+          "categoryPage"
+        )
+        .classList.add(
+          "hidden"
+        );
 
       document
-        .getElementById("looksPage")
-        .classList.add("hidden");
+        .getElementById(
+          "looksPage"
+        )
+        .classList.add(
+          "hidden"
+        );
 
       document
-        .getElementById("searchPage")
-        .classList.remove("hidden");
+        .getElementById(
+          "shopPage"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+      document
+        .getElementById(
+          "profilePage"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+      document
+        .getElementById(
+          "searchPage"
+        )
+        .classList.remove(
+          "hidden"
+        );
 
 
       const results =
-        clothes.filter(item => {
+        clothes.filter(
+          item => {
 
-          const category =
-            categories.find(
-              c =>
-                c.id === item.category_id
+            const category =
+              categories.find(
+                c =>
+                  c.id ===
+                  item.category_id
+              );
+
+
+            const text = [
+
+              item.name,
+
+              item.color,
+
+              item.brand,
+
+              category
+                ? category.name
+                : ""
+
+            ]
+              .join(" ")
+              .toLowerCase();
+
+
+            return text.includes(
+              search
             );
 
-
-          const text = [
-
-            item.name,
-
-            item.color,
-
-            item.brand,
-
-            category
-              ? category.name
-              : ""
-
-          ]
-            .join(" ")
-            .toLowerCase();
-
-
-          return text.includes(search);
-
-        });
+          }
+        );
 
 
       const container =
@@ -2668,13 +4458,16 @@
 
       container.innerHTML =
         results
-          .map(item =>
-            clothingCard(item)
+          .map(
+            item =>
+              clothingCard(item)
           )
           .join("");
 
 
-      loadPhotoUrls(results);
+      loadPhotoUrls(
+        results
+      );
 
     }
 
@@ -2695,15 +4488,12 @@
       }
 
 
-      /*
-       * Try to choose one item from
-       * different categories.
-       */
-
       const shuffled =
         [...clothes]
           .sort(
-            () => Math.random() - 0.5
+            () =>
+              Math.random() -
+              0.5
           );
 
 
@@ -2713,7 +4503,10 @@
         new Set();
 
 
-      for (const item of shuffled) {
+      for (
+        const item
+        of shuffled
+      ) {
 
         if (
           !usedCategories.has(
@@ -2721,7 +4514,9 @@
           )
         ) {
 
-          selected.push(item);
+          selected.push(
+            item
+          );
 
           usedCategories.add(
             item.category_id
@@ -2730,33 +4525,41 @@
         }
 
 
-        if (selected.length >= 3)
+        if (
+          selected.length >= 3
+        )
           break;
 
       }
 
 
-      /*
-       * If there aren't enough categories,
-       * fill with random clothes.
-       */
+      if (
+        selected.length < 3
+      ) {
 
-      if (selected.length < 3) {
-
-        for (const item of shuffled) {
+        for (
+          const item
+          of shuffled
+        ) {
 
           if (
             !selected.some(
-              x => x.id === item.id
+              x =>
+                x.id ===
+                item.id
             )
           ) {
 
-            selected.push(item);
+            selected.push(
+              item
+            );
 
           }
 
 
-          if (selected.length >= 3)
+          if (
+            selected.length >= 3
+          )
             break;
 
         }
@@ -2808,20 +4611,25 @@
 
 
       document
-        .getElementById("lookName")
+        .getElementById(
+          "lookName"
+        )
         .value = "";
 
 
       document
-        .getElementById("lookModal")
-        .classList.remove("hidden");
+        .getElementById(
+          "lookModal"
+        )
+        .classList.remove(
+          "hidden"
+        );
 
 
-      /*
-       * Load signed private image URLs.
-       */
-
-      for (const item of selected) {
+      for (
+        const item
+        of selected
+      ) {
 
         if (!item.photo_url)
           continue;
@@ -2832,7 +4640,9 @@
         } =
           await supabaseClient
             .storage
-            .from("wardrobe-photos")
+            .from(
+              "wardrobe-photos"
+            )
             .createSignedUrl(
               item.photo_url,
               3600
@@ -2848,7 +4658,8 @@
 
         const box =
           document.getElementById(
-            "look-photo-" + item.id
+            "look-photo-" +
+            item.id
           );
 
 
@@ -2878,8 +4689,12 @@
     function closeLookModal() {
 
       document
-        .getElementById("lookModal")
-        .classList.add("hidden");
+        .getElementById(
+          "lookModal"
+        )
+        .classList.add(
+          "hidden"
+        );
 
     }
 
@@ -2888,32 +4703,35 @@
 
       const name =
         document
-          .getElementById("lookName")
+          .getElementById(
+            "lookName"
+          )
           .value
           .trim() ||
         "My Look";
 
 
-      if (!currentLookItems.length)
+      if (
+        !currentLookItems.length
+      )
         return;
 
-
-      /*
-       * Create saved look.
-       */
 
       const {
         data,
         error
       } =
         await supabaseClient
-          .from("saved_looks")
+          .from(
+            "saved_looks"
+          )
           .insert({
 
             user_id:
               currentUser.id,
 
-            name: name
+            name:
+              name
 
           })
           .select()
@@ -2922,15 +4740,13 @@
 
       if (error) {
 
-        alert(error.message);
+        alert(
+          error.message
+        );
 
         return;
       }
 
-
-      /*
-       * Add clothing items to look.
-       */
 
       const rows =
         currentLookItems.map(
@@ -2950,13 +4766,19 @@
         error: itemError
       } =
         await supabaseClient
-          .from("look_items")
-          .insert(rows);
+          .from(
+            "look_items"
+          )
+          .insert(
+            rows
+          );
 
 
       if (itemError) {
 
-        alert(itemError.message);
+        alert(
+          itemError.message
+        );
 
         return;
       }
@@ -2966,7 +4788,9 @@
 
       await loadAllData();
 
-      showPage("looks");
+      showPage(
+        "looks"
+      );
 
     }
 
@@ -2989,7 +4813,9 @@
               ✨
             </div>
 
-            <h3>No saved looks yet</h3>
+            <h3>
+              No saved looks yet
+            </h3>
 
             <p>
               Create a look from your wardrobe
@@ -3014,16 +4840,14 @@
       container.innerHTML = "";
 
 
-      /*
-       * Load all look items in one query.
-       */
-
       const {
         data: lookItems,
         error
       } =
         await supabaseClient
-          .from("look_items")
+          .from(
+            "look_items"
+          )
           .select("*");
 
 
@@ -3038,13 +4862,17 @@
       }
 
 
-      for (const look of savedLooks) {
+      for (
+        const look
+        of savedLooks
+      ) {
 
         const items =
           (lookItems || [])
             .filter(
               item =>
-                item.look_id === look.id
+                item.look_id ===
+                look.id
             )
             .map(
               link =>
@@ -3054,7 +4882,9 @@
                     link.clothing_item_id
                 )
             )
-            .filter(Boolean);
+            .filter(
+              Boolean
+            );
 
 
         const card =
@@ -3110,6 +4940,7 @@
                     )
                     .join("")
                 : `
+
                     <div
                       style="
                         color:#888;
@@ -3118,6 +4949,7 @@
                     >
                       No items
                     </div>
+
                   `
             }
 
@@ -3133,14 +4965,15 @@
         `;
 
 
-        container.appendChild(card);
+        container.appendChild(
+          card
+        );
 
 
-        /*
-         * Load private signed photos.
-         */
-
-        for (const item of items) {
+        for (
+          const item
+          of items
+        ) {
 
           if (!item.photo_url)
             continue;
@@ -3151,7 +4984,9 @@
           } =
             await supabaseClient
               .storage
-              .from("wardrobe-photos")
+              .from(
+                "wardrobe-photos"
+              )
               .createSignedUrl(
                 item.photo_url,
                 3600
@@ -3211,7 +5046,8 @@
         );
 
 
-      if (!look) return;
+      if (!look)
+        return;
 
 
       const confirmed =
@@ -3228,14 +5064,21 @@
         error
       } =
         await supabaseClient
-          .from("saved_looks")
+          .from(
+            "saved_looks"
+          )
           .delete()
-          .eq("id", id);
+          .eq(
+            "id",
+            id
+          );
 
 
       if (error) {
 
-        alert(error.message);
+        alert(
+          error.message
+        );
 
         return;
       }
@@ -3249,13 +5092,1844 @@
 
 
     /* =====================================================
+       SHOPPING - COUNTRY
+       ===================================================== */
+
+    function changeShoppingCountry() {
+
+      const country =
+        document.getElementById(
+          "shoppingCountry"
+        ).value;
+
+
+      if (
+        COUNTRY_INFO[country]
+      ) {
+
+        document
+          .getElementById(
+            "selectedCountryFlag"
+          )
+          .textContent =
+          COUNTRY_INFO[
+            country
+          ].flag;
+
+      }
+
+
+      renderStoreList();
+
+    }
+
+
+    function renderShoppingPage() {
+
+      const country =
+        userProfile.country ||
+        "AU";
+
+
+      document
+        .getElementById(
+          "shoppingCountry"
+        )
+        .value =
+        country;
+
+
+      document
+        .getElementById(
+          "profileCountry"
+        )
+        .value =
+        country;
+
+
+      document
+        .getElementById(
+          "selectedCountryFlag"
+        )
+        .textContent =
+        COUNTRY_INFO[
+          country
+        ]
+          ? COUNTRY_INFO[
+              country
+            ].flag
+          : "🌎";
+
+
+      renderSelectedStores();
+
+      renderStoreList();
+
+      updateWardrobeSummary();
+
+    }
+
+
+    /* =====================================================
+       STORE MANAGEMENT
+       ===================================================== */
+
+    function getAvailableStores() {
+
+      const country =
+        document.getElementById(
+          "shoppingCountry"
+        ).value ||
+        "AU";
+
+
+      return [
+        ...(STORE_CATALOG[
+          country
+        ] || []),
+        ...customStores.filter(
+          store =>
+            store.countryCode ===
+            country
+        )
+      ];
+
+    }
+
+
+    function getStoreById(id) {
+
+      const all = [
+        ...Object.values(
+          STORE_CATALOG
+        ).flat(),
+        ...customStores
+      ];
+
+
+      return all.find(
+        store =>
+          store.id === id
+      );
+
+    }
+
+
+    function renderSelectedStores() {
+
+      const container =
+        document.getElementById(
+          "selectedStores"
+        );
+
+
+      const empty =
+        document.getElementById(
+          "storeEmptyMessage"
+        );
+
+
+      if (
+        !selectedStores.length
+      ) {
+
+        container.innerHTML = "";
+
+        empty.classList.remove(
+          "hidden"
+        );
+
+        return;
+      }
+
+
+      empty.classList.add(
+        "hidden"
+      );
+
+
+      container.innerHTML =
+        selectedStores
+          .map(
+            id => {
+
+              const store =
+                getStoreById(id);
+
+
+              if (!store)
+                return "";
+
+
+              return `
+
+                <span
+                  class="selected-store-pill"
+                >
+                  ${escapeHtml(
+                    store.name
+                  )}
+                </span>
+
+              `;
+
+            }
+          )
+          .join("");
+
+    }
+
+
+    function renderStoreList() {
+
+      const container =
+        document.getElementById(
+          "storeList"
+        );
+
+
+      if (!container)
+        return;
+
+
+      const stores =
+        getAvailableStores();
+
+
+      if (!stores.length) {
+
+        container.innerHTML = `
+          <div class="empty">
+            No stores available for this country yet.
+            Use + Add Store to add one manually.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      container.innerHTML =
+        stores
+          .map(
+            store => {
+
+              const selected =
+                selectedStores.includes(
+                  store.id
+                );
+
+
+              return `
+
+                <div class="store-chip">
+
+                  <div class="store-info">
+
+                    <div class="store-logo">
+                      ${escapeHtml(
+                        store.name
+                          .charAt(0)
+                          .toUpperCase()
+                      )}
+                    </div>
+
+                    <div>
+
+                      <div class="store-name">
+                        ${escapeHtml(
+                          store.name
+                        )}
+                      </div>
+
+                      <div class="store-country">
+                        ${escapeHtml(
+                          store.country
+                        )}
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <div class="store-actions">
+
+                    <button
+                      class="store-toggle ${
+                        selected
+                          ? "selected"
+                          : ""
+                      }"
+                      onclick="toggleStore('${store.id}')"
+                    >
+                      ${
+                        selected
+                          ? "✓ Selected"
+                          : "Select"
+                      }
+                    </button>
+
+                    ${
+                      customStores.some(
+                        x =>
+                          x.id ===
+                          store.id
+                      )
+                        ? `
+                          <button
+                            class="store-remove"
+                            onclick="removeCustomStore('${store.id}')"
+                          >
+                            ✕
+                          </button>
+                        `
+                        : ""
+                    }
+
+                  </div>
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join("");
+
+    }
+
+
+    function toggleStore(id) {
+
+      if (
+        selectedStores.includes(
+          id
+        )
+      ) {
+
+        selectedStores =
+          selectedStores.filter(
+            storeId =>
+              storeId !== id
+          );
+
+      } else {
+
+        selectedStores.push(
+          id
+        );
+
+      }
+
+
+      saveShoppingPreferences();
+
+      renderSelectedStores();
+
+      renderStoreList();
+
+    }
+
+
+    function openStoreModal() {
+
+      document
+        .getElementById(
+          "storeSearch"
+        )
+        .value = "";
+
+
+      document
+        .getElementById(
+          "customStoreName"
+        )
+        .value = "";
+
+
+      document
+        .getElementById(
+          "customStoreUrl"
+        )
+        .value = "";
+
+
+      renderStoreModal();
+
+
+      document
+        .getElementById(
+          "storeModal"
+        )
+        .classList.remove(
+          "hidden"
+        );
+
+    }
+
+
+    function closeStoreModal() {
+
+      document
+        .getElementById(
+          "storeModal"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+    }
+
+
+    function renderStoreModal() {
+
+      const container =
+        document.getElementById(
+          "availableStores"
+        );
+
+
+      const search =
+        document
+          .getElementById(
+            "storeSearch"
+          )
+          .value
+          .toLowerCase()
+          .trim();
+
+
+      const stores =
+        getAvailableStores()
+          .filter(
+            store =>
+              !search ||
+              store.name
+                .toLowerCase()
+                .includes(search)
+          );
+
+
+      if (!stores.length) {
+
+        container.innerHTML = `
+          <div class="empty">
+            No matching stores.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      container.innerHTML =
+        stores
+          .map(
+            store => {
+
+              const selected =
+                selectedStores.includes(
+                  store.id
+                );
+
+
+              return `
+
+                <div class="store-chip">
+
+                  <div class="store-info">
+
+                    <div class="store-logo">
+                      ${escapeHtml(
+                        store.name
+                          .charAt(0)
+                          .toUpperCase()
+                      )}
+                    </div>
+
+                    <div>
+
+                      <div class="store-name">
+                        ${escapeHtml(
+                          store.name
+                        )}
+                      </div>
+
+                      <div class="store-country">
+                        ${escapeHtml(
+                          store.country
+                        )}
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <button
+                    class="store-toggle ${
+                      selected
+                        ? "selected"
+                        : ""
+                    }"
+                    onclick="toggleStoreFromModal('${store.id}')"
+                  >
+                    ${
+                      selected
+                        ? "✓ Selected"
+                        : "Select"
+                    }
+                  </button>
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join("");
+
+    }
+
+
+    function toggleStoreFromModal(id) {
+
+      toggleStore(id);
+
+      renderStoreModal();
+
+    }
+
+
+    function addCustomStore() {
+
+      const name =
+        document
+          .getElementById(
+            "customStoreName"
+          )
+          .value
+          .trim();
+
+
+      let url =
+        document
+          .getElementById(
+            "customStoreUrl"
+          )
+          .value
+          .trim();
+
+
+      const countryCode =
+        document
+          .getElementById(
+            "shoppingCountry"
+          )
+          .value;
+
+
+      if (!name) {
+
+        alert(
+          "Please enter the store name."
+        );
+
+        return;
+      }
+
+
+      if (!url) {
+
+        alert(
+          "Please enter the official store website."
+        );
+
+        return;
+      }
+
+
+      if (
+        !url.startsWith(
+          "http://"
+        ) &&
+        !url.startsWith(
+          "https://"
+        )
+      ) {
+
+        url =
+          "https://" +
+          url;
+
+      }
+
+
+      try {
+
+        const parsed =
+          new URL(url);
+
+
+        if (
+          parsed.protocol !==
+            "http:" &&
+          parsed.protocol !==
+            "https:"
+        ) {
+
+          throw new Error();
+
+        }
+
+      } catch (error) {
+
+        alert(
+          "Please enter a valid website URL."
+        );
+
+        return;
+      }
+
+
+      const id =
+        "custom-" +
+        Date.now();
+
+
+      const store = {
+
+        id: id,
+
+        name: name,
+
+        country:
+          COUNTRY_INFO[
+            countryCode
+          ]
+            ? COUNTRY_INFO[
+                countryCode
+              ].name
+            : countryCode,
+
+        countryCode:
+          countryCode,
+
+        url: url,
+
+        custom: true
+
+      };
+
+
+      customStores.push(
+        store
+      );
+
+
+      selectedStores.push(
+        id
+      );
+
+
+      saveShoppingPreferences();
+
+      renderSelectedStores();
+
+      renderStoreList();
+
+      renderStoreModal();
+
+      document
+        .getElementById(
+          "customStoreName"
+        )
+        .value = "";
+
+      document
+        .getElementById(
+          "customStoreUrl"
+        )
+        .value = "";
+
+
+      alert(
+        name +
+        " has been added to My Stores."
+      );
+
+    }
+
+
+    function removeCustomStore(id) {
+
+      customStores =
+        customStores.filter(
+          store =>
+            store.id !== id
+        );
+
+
+      selectedStores =
+        selectedStores.filter(
+          storeId =>
+            storeId !== id
+        );
+
+
+      saveShoppingPreferences();
+
+      renderSelectedStores();
+
+      renderStoreList();
+
+      renderStoreModal();
+
+    }
+
+
+    /* =====================================================
+       PROFILE / FIT
+       ===================================================== */
+
+    function applyProfileToForm() {
+
+      const profile =
+        userProfile || {};
+
+
+      const fields = {
+
+        profileHeight:
+          profile.height || "",
+
+        profileWeight:
+          profile.weight || "",
+
+        profileChest:
+          profile.chest || "",
+
+        profileWaist:
+          profile.waist || "",
+
+        profileHips:
+          profile.hips || "",
+
+        profileShoulders:
+          profile.shoulders || "",
+
+        profileSleeve:
+          profile.sleeve || "",
+
+        profileInseam:
+          profile.inseam || "",
+
+        profileShoe:
+          profile.shoe || "",
+
+        profileCountry:
+          profile.country || "AU"
+
+      };
+
+
+      Object.keys(fields)
+        .forEach(
+          id => {
+
+            const element =
+              document.getElementById(
+                id
+              );
+
+
+            if (element)
+              element.value =
+                fields[id];
+
+          }
+        );
+
+
+      selectedFit =
+        profile.fit ||
+        "Regular";
+
+
+      document
+        .querySelectorAll(
+          ".fit-btn"
+        )
+        .forEach(
+          button => {
+
+            button.classList.toggle(
+              "selected",
+              button.textContent
+                .trim()
+                .toLowerCase() ===
+                selectedFit
+                  .toLowerCase()
+            );
+
+          }
+        );
+
+    }
+
+
+    function selectFit(
+      button,
+      fit
+    ) {
+
+      selectedFit =
+        fit;
+
+
+      document
+        .querySelectorAll(
+          ".fit-btn"
+        )
+        .forEach(
+          item =>
+            item.classList.remove(
+              "selected"
+            )
+        );
+
+
+      button.classList.add(
+        "selected"
+      );
+
+    }
+
+
+    function saveProfile() {
+
+      userProfile = {
+
+        height:
+          document
+            .getElementById(
+              "profileHeight"
+            )
+            .value
+            .trim(),
+
+        weight:
+          document
+            .getElementById(
+              "profileWeight"
+            )
+            .value
+            .trim(),
+
+        chest:
+          document
+            .getElementById(
+              "profileChest"
+            )
+            .value
+            .trim(),
+
+        waist:
+          document
+            .getElementById(
+              "profileWaist"
+            )
+            .value
+            .trim(),
+
+        hips:
+          document
+            .getElementById(
+              "profileHips"
+            )
+            .value
+            .trim(),
+
+        shoulders:
+          document
+            .getElementById(
+              "profileShoulders"
+            )
+            .value
+            .trim(),
+
+        sleeve:
+          document
+            .getElementById(
+              "profileSleeve"
+            )
+            .value
+            .trim(),
+
+        inseam:
+          document
+            .getElementById(
+              "profileInseam"
+            )
+            .value
+            .trim(),
+
+        shoe:
+          document
+            .getElementById(
+              "profileShoe"
+            )
+            .value
+            .trim(),
+
+        country:
+          document
+            .getElementById(
+              "profileCountry"
+            )
+            .value,
+
+        fit:
+          selectedFit
+
+      };
+
+
+      saveShoppingPreferences();
+
+
+      document
+        .getElementById(
+          "shoppingCountry"
+        )
+        .value =
+        userProfile.country;
+
+
+      changeShoppingCountry();
+
+
+      alert(
+        "Your fit preferences have been saved."
+      );
+
+    }
+
+
+    /* =====================================================
+       OCCASION
+       ===================================================== */
+
+    function selectOccasion(
+      button,
+      occasion
+    ) {
+
+      selectedOccasion =
+        occasion;
+
+
+      document
+        .querySelectorAll(
+          ".occasion-btn"
+        )
+        .forEach(
+          item =>
+            item.classList.remove(
+              "selected"
+            )
+        );
+
+
+      button.classList.add(
+        "selected"
+      );
+
+    }
+
+
+    /* =====================================================
+       WARDROBE SUMMARY
+       ===================================================== */
+
+    function getWardrobeSummary() {
+
+      if (!clothes.length)
+        return "Your wardrobe is currently empty.";
+
+
+      const categoryCounts =
+        {};
+
+
+      clothes.forEach(
+        item => {
+
+          const category =
+            categories.find(
+              c =>
+                c.id ===
+                item.category_id
+            );
+
+
+          const name =
+            category
+              ? category.name
+              : "Other";
+
+
+          categoryCounts[
+            name
+          ] =
+            (
+              categoryCounts[
+                name
+              ] || 0
+            ) + 1;
+
+        }
+      );
+
+
+      const categoryText =
+        Object.keys(
+          categoryCounts
+        )
+          .map(
+            name =>
+              `${name}: ${categoryCounts[name]}`
+          )
+          .join(", ");
+
+
+      const brands =
+        [...new Set(
+          clothes
+            .map(
+              item =>
+                item.brand
+            )
+            .filter(Boolean)
+        )];
+
+
+      const colors =
+        [...new Set(
+          clothes
+            .map(
+              item =>
+                item.color
+            )
+            .filter(Boolean)
+        )];
+
+
+      return (
+
+        `${clothes.length} clothing items. ` +
+
+        `Categories: ${categoryText}. ` +
+
+        (
+          brands.length
+            ? `Brands: ${brands.join(", ")}. `
+            : ""
+        ) +
+
+        (
+          colors.length
+            ? `Colours: ${colors.join(", ")}.`
+            : ""
+        )
+
+      );
+
+    }
+
+
+    function updateWardrobeSummary() {
+
+      const element =
+        document.getElementById(
+          "wardrobeSummary"
+        );
+
+
+      if (!element)
+        return;
+
+
+      element.innerHTML = `
+
+        <strong>
+          👕 Your wardrobe:
+        </strong>
+
+        ${escapeHtml(
+          getWardrobeSummary()
+        )}
+
+      `;
+
+    }
+
+
+    /* =====================================================
+       SHOPPING REQUEST
+       ===================================================== */
+
+    async function findShoppingOptions() {
+
+      const request =
+        document
+          .getElementById(
+            "shoppingRequest"
+          )
+          .value
+          .trim();
+
+
+      const budgetValue =
+        document
+          .getElementById(
+            "shoppingBudget"
+          )
+          .value
+          .trim();
+
+
+      const budget =
+        budgetValue
+          ? Number(
+              budgetValue
+            )
+          : null;
+
+
+      if (!request) {
+
+        alert(
+          "Tell me what you are shopping for first."
+        );
+
+        return;
+      }
+
+
+      if (
+        !selectedStores.length
+      ) {
+
+        alert(
+          "Please select at least one store first."
+        );
+
+        return;
+      }
+
+
+      const country =
+        document
+          .getElementById(
+            "shoppingCountry"
+          )
+          .value;
+
+
+      const results =
+        document.getElementById(
+          "shoppingResults"
+        );
+
+
+      results.innerHTML = `
+
+        <div class="shop-card">
+
+          <div class="loading">
+
+            <div class="spinner"></div>
+
+            Preparing your shopping recommendations...
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      /*
+       * If a real backend has been configured,
+       * send the full shopping context to it.
+       */
+
+      if (SHOP_API_URL) {
+
+        try {
+
+          const response =
+            await fetch(
+              SHOP_API_URL,
+              {
+
+                method:
+                  "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                  JSON.stringify({
+
+                    user: {
+
+                      id:
+                        currentUser.id,
+
+                      email:
+                        currentUser.email
+
+                    },
+
+                    profile:
+                      userProfile,
+
+                    wardrobe:
+                      clothes.map(
+                        item => {
+
+                          const category =
+                            categories.find(
+                              c =>
+                                c.id ===
+                                item.category_id
+                            );
+
+
+                          return {
+
+                            name:
+                              item.name,
+
+                            colour:
+                              item.color,
+
+                            brand:
+                              item.brand,
+
+                            category:
+                              category
+                                ? category.name
+                                : null
+
+                          };
+
+                        }
+                      ),
+
+                    stores:
+                      selectedStores
+                        .map(
+                          id =>
+                            getStoreById(
+                              id
+                            )
+                        )
+                        .filter(
+                          Boolean
+                        ),
+
+                    country:
+                      country,
+
+                    request:
+                      request,
+
+                    occasion:
+                      selectedOccasion,
+
+                    budget:
+                      budget
+
+                  })
+
+              }
+            );
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              "Shopping service returned an error."
+            );
+
+          }
+
+
+          const data =
+            await response.json();
+
+
+          renderLiveShoppingResults(
+            data
+          );
+
+
+          return;
+
+        } catch (error) {
+
+          console.error(
+            "Shopping API error:",
+            error
+          );
+
+          /*
+           * Fall back to store search links
+           * rather than showing fake products.
+           */
+
+        }
+
+      }
+
+
+      /*
+       * No live backend yet.
+       *
+       * We deliberately do NOT invent product
+       * names/prices. Instead, generate official
+       * retailer search links.
+       */
+
+      renderFallbackShoppingResults({
+
+        request:
+          request,
+
+        budget:
+          budget,
+
+        country:
+          country,
+
+        occasion:
+          selectedOccasion
+
+      });
+
+    }
+
+
+    /* =====================================================
+       FALLBACK SHOPPING RESULTS
+       ===================================================== */
+
+    function renderFallbackShoppingResults(
+      data
+    ) {
+
+      const results =
+        document.getElementById(
+          "shoppingResults"
+        );
+
+
+      const stores =
+        selectedStores
+          .map(
+            id =>
+              getStoreById(id)
+          )
+          .filter(
+            Boolean
+          );
+
+
+      if (!stores.length) {
+
+        results.innerHTML = "";
+
+        return;
+
+      }
+
+
+      const query =
+        buildShoppingQuery(
+          data.request,
+          data.occasion
+        );
+
+
+      results.innerHTML = `
+
+        <div class="shop-card">
+
+          <h3>
+            🔎 Official store searches
+          </h3>
+
+          <div class="info-box">
+
+            Live product feeds have not been connected
+            yet, so My Wardrobe will not pretend that
+            a particular product or price is available.
+
+            These buttons take you directly to the
+            selected retailer's official website.
+
+          </div>
+
+        </div>
+
+        ${stores
+          .map(
+            store => {
+
+              const url =
+                buildOfficialSearchUrl(
+                  store,
+                  query
+                );
+
+
+              return `
+
+                <div class="shop-result">
+
+                  <div class="shop-result-top">
+
+                    <div>
+
+                      <div class="result-store">
+                        ${escapeHtml(
+                          store.country
+                        )}
+                      </div>
+
+                      <div class="result-name">
+                        ${escapeHtml(
+                          store.name
+                        )}
+                      </div>
+
+                    </div>
+
+                    <div class="match-score">
+                      Selected store
+                    </div>
+
+                  </div>
+
+                  <div class="result-reason">
+
+                    Search for:
+                    <strong>
+                      ${escapeHtml(
+                        query
+                      )}
+                    </strong>
+
+                    ${
+                      data.budget
+                        ? `<br>Budget:
+                           ${escapeHtml(
+                             formatCurrency(
+                               data.budget,
+                               data.country
+                             )
+                           )}`
+                        : ""
+                    }
+
+                  </div>
+
+                  <a
+                    class="view-product-btn"
+                    href="${escapeAttribute(
+                      url
+                    )}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View on
+                    ${escapeHtml(
+                      store.name
+                    )}
+                    ↗
+                  </a>
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join("")}
+
+      `;
+
+    }
+
+
+    function buildShoppingQuery(
+      request,
+      occasion
+    ) {
+
+      let query =
+        request
+          .replace(
+            /\s+/g,
+            " "
+          )
+          .trim();
+
+
+      if (occasion) {
+
+        query =
+          occasion +
+          " " +
+          query;
+
+      }
+
+
+      return query
+        .slice(
+          0,
+          180
+        );
+
+    }
+
+
+    function buildOfficialSearchUrl(
+      store,
+      query
+    ) {
+
+      const encoded =
+        encodeURIComponent(
+          query
+        );
+
+
+      /*
+       * Use known search routes when practical.
+       * Otherwise send the user to the official
+       * retailer website.
+       */
+
+      const name =
+        store.name
+          .toLowerCase();
+
+
+      if (
+        name.includes(
+          "asos"
+        )
+      ) {
+
+        return (
+          store.url.replace(
+            /\/$/,
+            ""
+          ) +
+          "/search/?q=" +
+          encoded
+        );
+
+      }
+
+
+      if (
+        name.includes(
+          "zara"
+        )
+      ) {
+
+        return (
+          store.url
+            .replace(
+              /\/$/,
+              ""
+            ) +
+          "/search?search=" +
+          encoded
+        );
+
+      }
+
+
+      if (
+        name.includes(
+          "uniqlo"
+        )
+      ) {
+
+        return (
+          store.url
+            .replace(
+              /\/$/,
+              ""
+            ) +
+          "/search?q=" +
+          encoded
+        );
+
+      }
+
+
+      /*
+       * For retailers where we have not verified
+       * a search endpoint, use the official site.
+       */
+
+      return store.url;
+
+    }
+
+
+    /* =====================================================
+       LIVE AI RESULTS
+       ===================================================== */
+
+    function renderLiveShoppingResults(
+      data
+    ) {
+
+      const results =
+        document.getElementById(
+          "shoppingResults"
+        );
+
+
+      const products =
+        Array.isArray(
+          data
+            ? data.products
+            : null
+        )
+          ? data.products
+          : [];
+
+
+      if (!products.length) {
+
+        results.innerHTML = `
+
+          <div class="shop-card">
+
+            <h3>
+              No live products found
+            </h3>
+
+            <p
+              style="
+                color:#777;
+                font-size:13px;
+              "
+            >
+              Try changing your request,
+              budget or selected stores.
+            </p>
+
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+
+      results.innerHTML = `
+
+        <div class="shop-card">
+
+          <h3>
+            ✨ Your recommendations
+          </h3>
+
+          <div class="info-box">
+
+            These recommendations were generated
+            from your wardrobe, fit preferences,
+            budget and selected stores.
+
+          </div>
+
+        </div>
+
+        ${products
+          .map(
+            product => `
+
+              <div class="shop-result">
+
+                <div class="shop-result-top">
+
+                  <div>
+
+                    <div class="result-store">
+                      ${escapeHtml(
+                        product.storeName ||
+                        "Selected store"
+                      )}
+                    </div>
+
+                    <div class="result-name">
+                      ${escapeHtml(
+                        product.name ||
+                        "Product"
+                      )}
+                    </div>
+
+                  </div>
+
+                  ${
+                    product.matchScore
+                      ? `
+                        <div class="match-score">
+                          ${escapeHtml(
+                            String(
+                              product.matchScore
+                            )
+                          )}% match
+                        </div>
+                      `
+                      : ""
+                  }
+
+                </div>
+
+                ${
+                  product.price
+                    ? `
+                      <div class="result-price">
+                        ${escapeHtml(
+                          String(
+                            product.price
+                          )
+                        )}
+                      </div>
+                    `
+                    : ""
+                }
+
+                ${
+                  product.reason
+                    ? `
+                      <div class="result-reason">
+                        ${escapeHtml(
+                          product.reason
+                        )}
+                      </div>
+                    `
+                    : ""
+                }
+
+                ${
+                  product.url
+                    ? `
+                      <a
+                        class="view-product-btn"
+                        href="${escapeAttribute(
+                          product.url
+                        )}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View Exact Product ↗
+                      </a>
+                    `
+                    : ""
+                }
+
+              </div>
+
+            `
+          )
+          .join("")}
+
+      `;
+
+    }
+
+
+    /* =====================================================
+       CURRENCY
+       ===================================================== */
+
+    function formatCurrency(
+      value,
+      country
+    ) {
+
+      const info =
+        COUNTRY_INFO[
+          country
+        ];
+
+
+      if (!info)
+        return String(
+          value
+        );
+
+
+      try {
+
+        return new Intl.NumberFormat(
+          undefined,
+          {
+            style:
+              "currency",
+
+            currency:
+              info.currency,
+
+            maximumFractionDigits:
+              0
+          }
+        ).format(
+          Number(value)
+        );
+
+      } catch (
+        error
+      ) {
+
+        return (
+          info.currency +
+          " " +
+          value
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
        SECURITY / HTML ESCAPING
        ===================================================== */
 
-    function escapeHtml(value) {
+    function escapeHtml(
+      value
+    ) {
 
-      if (value === null ||
-          value === undefined) {
+      if (
+        value === null ||
+        value === undefined
+      ) {
 
         return "";
 
@@ -3263,27 +6937,56 @@
 
 
       return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+        .replace(
+          /</g,
+          "&lt;"
+        )
+        .replace(
+          />/g,
+          "&gt;"
+        )
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+
+    function escapeAttribute(
+      value
+    ) {
+
+      return escapeHtml(
+        value
+      );
 
     }
 
 
     /* =====================================================
-       CLOSE MODALS WHEN CLICKING BACKGROUND
+       CLOSE MODALS
        ===================================================== */
 
     document
-      .getElementById("categoryModal")
+      .getElementById(
+        "categoryModal"
+      )
       .addEventListener(
         "click",
         function(event) {
 
           if (
-            event.target === this
+            event.target ===
+            this
           ) {
 
             closeCategoryModal();
@@ -3295,13 +6998,16 @@
 
 
     document
-      .getElementById("clothingModal")
+      .getElementById(
+        "clothingModal"
+      )
       .addEventListener(
         "click",
         function(event) {
 
           if (
-            event.target === this
+            event.target ===
+            this
           ) {
 
             closeClothingModal();
@@ -3313,16 +7019,40 @@
 
 
     document
-      .getElementById("lookModal")
+      .getElementById(
+        "lookModal"
+      )
       .addEventListener(
         "click",
         function(event) {
 
           if (
-            event.target === this
+            event.target ===
+            this
           ) {
 
             closeLookModal();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "storeModal"
+      )
+      .addEventListener(
+        "click",
+        function(event) {
+
+          if (
+            event.target ===
+            this
+          ) {
+
+            closeStoreModal();
 
           }
 
