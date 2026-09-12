@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="My Wardrobe">
 <title>My Wardrobe</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 
 <style>
 *{box-sizing:border-box}
@@ -296,6 +298,7 @@ body{
       <div id="profileMenu" class="profile-menu hidden">
         <button onclick="openProfileModal()">👤 Profile</button>
         <button onclick="openFitModal()">📏 My Fit</button>
+        <button id="installAppBtn" onclick="handleInstallApp()">📲 Install App</button>
         <button class="danger" onclick="logout()">Log out</button>
       </div>
     </div>
@@ -1190,6 +1193,66 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
  if(session){currentUser=session.user;setTimeout(()=>startApp(),0)}
  else if(event==="SIGNED_OUT"){currentUser=null}
 });
+
+let deferredInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", event => {
+ event.preventDefault();
+ deferredInstallPrompt = event;
+});
+
+window.addEventListener("appinstalled", () => {
+ deferredInstallPrompt = null;
+ const btn = el("installAppBtn");
+ if(btn) btn.style.display = "none";
+ alert("My Wardrobe has been installed 🎉");
+});
+
+function isAppInstalled(){
+ return window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+}
+
+async function handleInstallApp(){
+ const menu = el("profileMenu");
+ if(menu) menu.classList.add("hidden");
+
+ if(isAppInstalled()){
+  alert("My Wardrobe is already installed on this device.");
+  return;
+ }
+
+ const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+ if(isIOS){
+  alert(
+   "Install My Wardrobe on iPhone:\\n\\n" +
+   "1. Make sure this page is open in Safari\\n" +
+   "2. Tap the Share button ⬆️\\n" +
+   "3. Scroll down and tap “Add to Home Screen”\\n" +
+   "4. Tap “Add”"
+  );
+  return;
+ }
+
+ if(deferredInstallPrompt){
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  return;
+ }
+
+ alert(
+  "Open your browser menu and choose “Install app” or “Add to Home screen”."
+ );
+}
+
+if("serviceWorker" in navigator){
+ window.addEventListener("load", () => {
+  navigator.serviceWorker.register("./service-worker.js")
+   .catch(err => console.warn("Service worker registration failed:", err));
+ });
+}
 
 async function checkSession(){
  const {data}=await supabaseClient.auth.getSession();
