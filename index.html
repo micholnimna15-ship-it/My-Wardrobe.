@@ -84,6 +84,19 @@ button{cursor:pointer}
 .notice{background:#f7f7f7;border-radius:14px;padding:12px;color:#555;font-size:13px;margin:12px 0}
 .success-box{background:#edf8ee;color:#226b2a;padding:12px;border-radius:13px;margin:10px 0}
 .photo-preview{width:120px;height:120px;object-fit:cover;border-radius:15px;margin-top:8px}
+
+.ai-outfit-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;margin:14px 0}
+.ai-outfit-title{font-size:22px;font-weight:900;margin-bottom:6px}
+.ai-outfit-explanation{color:#555;line-height:1.5;margin-bottom:16px}
+.ai-wardrobe-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ai-piece{background:#fafafa;border:1px solid var(--line);border-radius:15px;overflow:hidden}
+.ai-piece img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#eee}
+.ai-piece-body{padding:10px}
+.ai-piece-name{font-weight:800;font-size:13px}
+.ai-missing{background:#fff8e8;border:1px solid #f1dca8;border-radius:16px;padding:14px;margin:14px 0}
+.ai-missing h3{margin:0 0 5px}
+.ai-status{background:#edf8ee;color:#226b2a;border-radius:14px;padding:13px;margin:12px 0}
+
 @media(min-width:700px){
  .category-grid{grid-template-columns:repeat(4,1fr)}
  .clothing-grid{grid-template-columns:repeat(4,1fr)}
@@ -177,11 +190,11 @@ button{cursor:pointer}
 
     <section id="shopPage" class="hidden">
       <div class="hero">
-        <h1>Style shopping</h1>
-        <p>Tell me what you need and I’ll create official-store searches based on your wardrobe.</p>
+        <h1>AI Stylist</h1>
+        <p>Choose an occasion. I’ll build an outfit from your wardrobe first, then suggest only the pieces that would genuinely help.</p>
       </div>
 
-      <div class="section-head"><h2>Your shopping profile</h2></div>
+      <div class="section-head"><h2>Your profile</h2></div>
       <div class="field"><label>Country</label><select id="profileCountry">
         <option value="Australia">Australia</option><option value="Sri Lanka">Sri Lanka</option>
         <option value="UK">United Kingdom</option><option value="US">United States</option><option value="Canada">Canada</option>
@@ -193,7 +206,7 @@ button{cursor:pointer}
       <div class="field"><label>Waist (optional)</label><input id="profileWaist" placeholder="e.g. 82 cm"></div>
       <button class="secondary" onclick="saveShoppingProfile()">Save profile</button>
 
-      <div class="section-head"><h2>Occasion</h2></div>
+      <div class="section-head"><h2>1. Choose the occasion</h2></div>
       <div id="occasionChips" class="chips">
         <button class="chip" onclick="selectOccasion('Casual',this)">Casual</button>
         <button class="chip" onclick="selectOccasion('University',this)">University</button>
@@ -205,11 +218,17 @@ button{cursor:pointer}
         <button class="chip" onclick="selectOccasion('Travel',this)">Travel</button>
       </div>
 
-      <div class="section-head"><h2>What do you need?</h2></div>
-      <div class="field"><label>Item or style</label><input id="shopRequest" placeholder="e.g. black shirt, white sneakers, smart trousers"></div>
-      <div class="field"><label>Budget</label><input id="shopBudget" placeholder="e.g. $100"></div>
+      <div class="section-head"><h2>2. Style preference</h2></div>
+      <div class="field"><label>Style (optional)</label><select id="stylePreference">
+        <option value="">Let AI decide</option>
+        <option>Smart casual</option><option>Minimal</option><option>Classic</option>
+        <option>Streetwear</option><option>Formal</option><option>Comfortable</option>
+      </select></div>
 
-      <div class="section-head"><h2>Stores</h2></div>
+      <div class="field"><label>Budget for additions (optional)</label><input id="shopBudget" placeholder="e.g. $100"></div>
+
+      <div class="section-head"><h2>3. Preferred stores</h2></div>
+      <div class="notice">The AI will use your wardrobe first. Store choices are used only if it recommends something you do not have.</div>
       <div id="storeList"></div>
       <div style="display:flex;gap:8px">
         <input id="customStoreName" placeholder="Store name" style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px">
@@ -217,7 +236,7 @@ button{cursor:pointer}
         <button class="secondary" onclick="addCustomStore()">Add</button>
       </div>
 
-      <div style="margin-top:18px"><button class="primary" onclick="findShoppingOptions()">Find real products</button></div>
+      <div style="margin-top:20px"><button id="createOutfitButton" class="primary" onclick="createAIOutfit()">✨ Create my outfit</button></div>
       <div id="shoppingResults"></div>
     </section>
   </main>
@@ -267,6 +286,7 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHA
 
 // Secure Supabase Edge Function that holds your private SerpApi key.
 const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
+const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[];
 let currentCategoryId=null,editingCategoryId=null,editingClothingId=null,selectedOccasion="";
@@ -512,99 +532,58 @@ function selectOccasion(value,button){
  selectedOccasion=value;document.querySelectorAll("#occasionChips .chip").forEach(x=>x.classList.remove("active"));button.classList.add("active");
 }
 function getShoppingProfile(){return{country:el("profileCountry").value,size:el("profileSize").value.trim(),fit:el("profileFit").value,height:el("profileHeight").value.trim(),chest:el("profileChest").value.trim(),waist:el("profileWaist").value.trim()}}
-function getShoppingKeywords(request){
- const q=request.toLowerCase();const words=[];
- if(q.includes("shirt"))words.push("shirt");if(q.includes("t-shirt")||q.includes("tee"))words.push("t-shirt");
- if(q.includes("pant")||q.includes("trouser"))words.push("trousers");if(q.includes("jean"))words.push("jeans");
- if(q.includes("shoe")||q.includes("sneaker"))words.push("shoes");if(q.includes("jacket"))words.push("jacket");
- if(q.includes("dress"))words.push("dress");if(q.includes("blazer"))words.push("blazer");if(q.includes("coat"))words.push("coat");
- return words.length?[...new Set(words)]:request.split(/\s+/).filter(Boolean).slice(0,8);
-}
-function buildShoppingPlan(){
- const profile=getShoppingProfile(),request=el("shopRequest").value.trim(),budget=el("shopBudget").value.trim();
- const wardrobe=clothingItems.map(i=>`${i.name}${i.color?" "+i.color:""}`).slice(0,30);
- return{profile,request,budget,occasion:selectedOccasion,wardrobe,keywords:getShoppingKeywords(request)}
-}
-function buildSmartStoreSearch(store,plan){
- let terms=[...plan.keywords];
- if(plan.occasion)terms.push(plan.occasion);
- if(plan.profile.size)terms.push("size "+plan.profile.size);
- if(plan.profile.fit)terms.push(plan.profile.fit+" fit");
- if(plan.profile.country)terms.push(plan.profile.country);
- if(store?.name)terms.push(store.name);
- return terms.filter(Boolean).join(" ");
+function getCategoryName(categoryId){
+ const c=categories.find(x=>x.id===categoryId);
+ return c?.name||"";
 }
 
-function createStoreSearchDescription(store,plan){
- return `Search ${store.name} for ${plan.request||"clothing"}${plan.occasion?" for "+plan.occasion:""}${plan.budget?" within "+plan.budget:""}.`;
+function getWardrobeForAI(){
+ return clothingItems.map(i=>({
+  id:String(i.id),
+  name:i.name||"",
+  category:getCategoryName(i.category_id),
+  color:i.color||"",
+  brand:i.brand||""
+ }));
 }
 
-function buildOfficialSearchUrl(store,query){
- return "https://www.google.com/search?q="+encodeURIComponent("site:"+getStoreDomain(store.url)+" "+query);
-}
-
-function getStoreDomain(url){
- try{return new URL(url).hostname.replace(/^www\./,"")}
- catch(e){return url}
-}
-
-function renderOfficialStoreRecommendations(plan){
- const stores=getSelectedStores();
- if(!stores.length)return'<div class="notice">Select at least one store.</div>';
- return stores.map(s=>{
-  const q=buildSmartStoreSearch(s,plan);
-  const href=buildOfficialSearchUrl(s,q);
-  return `<div class="result-card"><h3>${escapeHtml(s.name)}</h3><div class="muted">${escapeHtml(createStoreSearchDescription(s,plan))}</div><a class="result-btn" href="${safeAttributeUrl(href)}" target="_blank" rel="noopener">Search official store</a></div>`;
- }).join("");
-}
-
-function analyseWardrobeForShopping(plan){
- const request=(plan.request||"").toLowerCase();
- const requestWords=request.split(/\s+/).filter(w=>w.length>2);
-
- const scored=clothingItems.map(i=>{
-  const hay=[i.name,i.color,i.brand].join(" ").toLowerCase();
-  const score=requestWords.reduce((n,w)=>n+(hay.includes(w)?1:0),0);
-  return {item:i,score};
- }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,5);
-
- if(scored.length){
-  return `<div class="notice"><b>Wardrobe check:</b> You already own ${scored.map(x=>escapeHtml(x.item.name)).join(", ")}. I’ll still search online, but these pieces may already work with your outfit.</div>`;
- }
-
- return `<div class="notice"><b>Wardrobe check:</b> I couldn't find an obvious match for "${escapeHtml(plan.request||"this request")}" in your wardrobe, so I'll search online.</div>`;
-}
-
-function buildLiveSearchQuery(plan){
- const parts=[];
-
- if(plan.request)parts.push(plan.request);
- if(plan.occasion)parts.push(plan.occasion);
- if(plan.profile.fit)parts.push(plan.profile.fit+" fit");
- if(plan.profile.size)parts.push("size "+plan.profile.size);
- if(plan.profile.country)parts.push(plan.profile.country);
-
- const wardrobeColours=[...new Set(clothingItems.map(i=>(i.color||"").trim()).filter(Boolean))].slice(0,3);
- if(wardrobeColours.length)parts.push("matches "+wardrobeColours.join(" "));
-
- if(plan.budget)parts.push("under "+plan.budget);
-
- return parts.join(" ").replace(/\s+/g," ").trim();
-}
-
-async function searchProducts(query){
+async function callStyleAI(){
  const {data:{session}}=await supabaseClient.auth.getSession();
-
  const headers={
   "Content-Type":"application/json",
   "apikey":SUPABASE_PUBLISHABLE_KEY
  };
+ if(session?.access_token)headers["Authorization"]="Bearer "+session.access_token;
+ else headers["Authorization"]="Bearer "+SUPABASE_PUBLISHABLE_KEY;
 
- if(session?.access_token){
-  headers["Authorization"]="Bearer "+session.access_token;
- }else{
-  headers["Authorization"]="Bearer "+SUPABASE_PUBLISHABLE_KEY;
- }
+ const payload={
+  occasion:selectedOccasion,
+  stylePreference:el("stylePreference").value,
+  budget:el("shopBudget").value.trim(),
+  wardrobe:getWardrobeForAI()
+ };
+
+ const response=await fetch(STYLE_API_URL,{
+  method:"POST",
+  headers,
+  body:JSON.stringify(payload)
+ });
+
+ let data={};
+ try{data=await response.json()}catch(e){}
+ if(!response.ok||data.success===false)throw new Error(data.error||"AI stylist failed.");
+ if(!data.outfit)throw new Error("AI stylist returned no outfit.");
+ return data.outfit;
+}
+
+async function searchProducts(query){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ const headers={
+  "Content-Type":"application/json",
+  "apikey":SUPABASE_PUBLISHABLE_KEY
+ };
+ if(session?.access_token)headers["Authorization"]="Bearer "+session.access_token;
+ else headers["Authorization"]="Bearer "+SUPABASE_PUBLISHABLE_KEY;
 
  const response=await fetch(SHOP_API_URL,{
   method:"POST",
@@ -614,11 +593,7 @@ async function searchProducts(query){
 
  let data={};
  try{data=await response.json()}catch(e){}
-
- if(!response.ok||data.success===false){
-  throw new Error(data.error||"Could not search for products.");
- }
-
+ if(!response.ok||data.success===false)throw new Error(data.error||"Could not search for products.");
  return Array.isArray(data.products)?data.products:[];
 }
 
@@ -640,16 +615,8 @@ function renderProductCard(product){
   ? `<img class="product-image" src="${safeAttributeUrl(product.image)}" alt="${escapeHtml(product.title||"Product")}" loading="lazy">`
   : `<div class="product-image" style="display:flex;align-items:center;justify-content:center;font-size:44px">🛍️</div>`;
 
- const price=product.price||(
-  product.extractedPrice!=null
-   ? "$"+Number(product.extractedPrice).toFixed(2)
-   : "Price unavailable"
- );
-
- const rating=product.rating
-  ? `★ ${escapeHtml(product.rating)}${product.reviews?` (${escapeHtml(product.reviews)})`:""}`
-  : "";
-
+ const price=product.price||(product.extractedPrice!=null?"$"+Number(product.extractedPrice).toFixed(2):"Price unavailable");
+ const rating=product.rating?`★ ${escapeHtml(product.rating)}${product.reviews?` (${escapeHtml(product.reviews)})`:""}`:"";
  const link=safeUrl(product.productLink||"");
 
  return `<div class="product-card">
@@ -668,49 +635,104 @@ function renderProductCard(product){
 function renderLiveProducts(products,selectedStores){
  let filtered=products.filter(p=>productMatchesSelectedStore(p,selectedStores));
  let note="";
-
  if(selectedStores.length&&!filtered.length){
   filtered=products;
-  note='<div class="notice">I did not find an exact match from your selected stores in this search, so I’m showing the closest live shopping results instead.</div>';
+  note='<div class="notice">I did not find an exact result from your selected stores, so I’m showing the closest live products instead.</div>';
  }
-
- if(!filtered.length){
-  return '<div class="empty-state">No live products were returned. Try a simpler search such as <b>black jacket</b> or <b>white sneakers</b>.</div>';
- }
-
+ if(!filtered.length)return '<div class="empty-state">No live products were returned for this suggestion.</div>';
  return note+`<div class="live-products">${filtered.map(renderProductCard).join("")}</div>`;
 }
 
-async function findShoppingOptions(){
- const plan=buildShoppingPlan();
- if(!plan.request)return alert("Tell me what you want to shop for.");
+function renderAIWardrobeItems(ids){
+ const idSet=new Set((ids||[]).map(String));
+ const items=clothingItems.filter(i=>idSet.has(String(i.id)));
+ if(!items.length)return '<div class="notice">The AI did not select any matching wardrobe items.</div>';
+
+ return `<div class="ai-wardrobe-grid">${items.map(i=>{
+  const photo=i.displayPhoto
+   ? `<img src="${safeAttributeUrl(i.displayPhoto)}" alt="${escapeHtml(i.name)}">`
+   : `<div style="aspect-ratio:1;background:#eee;display:flex;align-items:center;justify-content:center;font-size:40px">👕</div>`;
+  return `<div class="ai-piece">${photo}<div class="ai-piece-body"><div class="ai-piece-name">${escapeHtml(i.name)}</div><div class="muted">${escapeHtml(i.color||"")}${i.brand?" • "+escapeHtml(i.brand):""}</div></div></div>`;
+ }).join("")}</div>`;
+}
+
+function getStoreDomain(url){
+ try{return new URL(url).hostname.replace(/^www\./,"")}
+ catch(e){return url}
+}
+
+function buildOfficialSearchUrl(store,query){
+ return "https://www.google.com/search?q="+encodeURIComponent("site:"+getStoreDomain(store.url)+" "+query);
+}
+
+function renderOfficialStoreLinks(query){
+ const stores=getSelectedStores();
+ if(!stores.length)return "";
+ return `<div class="section-head"><h2>Search selected official stores</h2></div>`+
+ stores.map(store=>{
+  const href=buildOfficialSearchUrl(store,query);
+  return `<div class="result-card"><h3>${escapeHtml(store.name)}</h3><div class="muted">Search the official ${escapeHtml(store.name)} website for ${escapeHtml(query)}.</div><a class="result-btn" href="${safeAttributeUrl(href)}" target="_blank" rel="noopener">Search official store</a></div>`;
+ }).join("");
+}
+
+async function createAIOutfit(){
+ if(!selectedOccasion)return alert("Choose an occasion first.");
+ if(!clothingItems.length)return alert("Add some clothes to your wardrobe first.");
 
  const box=el("shoppingResults");
- const selectedStores=getSelectedStores();
- const wardrobeNote=analyseWardrobeForShopping(plan);
- const query=buildLiveSearchQuery(plan);
-
- box.innerHTML=wardrobeNote+
-  `<div class="loading-box"><b>Searching real products…</b><br><span class="muted">${escapeHtml(query)}</span></div>`;
+ const button=el("createOutfitButton");
+ button.disabled=true;
+ button.textContent="Creating your outfit…";
+ box.innerHTML='<div class="loading-box"><b>AI is checking your wardrobe first…</b><br><span class="muted">It will only shop for pieces that are genuinely missing or useful.</span></div>';
 
  try{
-  const products=await searchProducts(query);
+  const outfit=await callStyleAI();
+  const missing=Array.isArray(outfit.missingItems)?outfit.missingItems.slice(0,2):[];
 
-  box.innerHTML=
-   wardrobeNote+
-   `<div class="section-head"><h2>Live products</h2></div>`+
-   renderLiveProducts(products,selectedStores)+
-   `<div class="section-head"><h2>Official store search</h2></div>`+
-   `<div class="notice">Use these buttons when you specifically want to search the official websites of the stores you selected.</div>`+
-   renderOfficialStoreRecommendations(plan);
+  let html=`<div class="ai-outfit-card">
+   <div class="ai-outfit-title">${escapeHtml(outfit.outfitName||selectedOccasion+" outfit")}</div>
+   <div class="ai-outfit-explanation">${escapeHtml(outfit.explanation||"")}</div>
+   <div class="section-head"><h2>From your wardrobe</h2></div>
+   ${renderAIWardrobeItems(outfit.wardrobeItemIds)}
+  </div>`;
 
+  if(outfit.completeFromWardrobe||!missing.length){
+   html+=`<div class="ai-status"><b>You already have what you need.</b><br>I found a complete outfit in your wardrobe, so I’m not recommending an unnecessary purchase.</div>`;
+   box.innerHTML=html;
+   return;
+  }
+
+  html+=`<div class="section-head"><h2>Suggested additions</h2></div>`;
+
+  for(const item of missing){
+   const query=(item.searchQuery||item.item||"").trim();
+   html+=`<div class="ai-missing"><h3>${escapeHtml(item.item||"Suggested item")}</h3><div class="muted">${escapeHtml(item.reason||"This would complete the outfit.")}</div></div>`;
+
+   if(query){
+    html+=`<div class="loading-box" id="loading-${escapeHtml(query)}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`;
+    box.innerHTML=html;
+
+    try{
+     const products=await searchProducts(query);
+     html=html.replace(
+      `<div class="loading-box" id="loading-${escapeHtml(query)}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`,
+      renderLiveProducts(products,getSelectedStores())+renderOfficialStoreLinks(query)
+     );
+    }catch(searchError){
+     html=html.replace(
+      `<div class="loading-box" id="loading-${escapeHtml(query)}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`,
+      `<div class="notice"><b>Product search failed:</b> ${escapeHtml(searchError.message||"Unknown error")}</div>`+renderOfficialStoreLinks(query)
+     );
+    }
+    box.innerHTML=html;
+   }
+  }
  }catch(error){
   console.error(error);
-  box.innerHTML=
-   wardrobeNote+
-   `<div class="notice"><b>Live product search failed:</b> ${escapeHtml(error.message||"Unknown error")}</div>`+
-   `<div class="section-head"><h2>Official store search</h2></div>`+
-   renderOfficialStoreRecommendations(plan);
+  box.innerHTML=`<div class="notice"><b>AI stylist failed:</b> ${escapeHtml(error.message||"Unknown error")}</div>`;
+ }finally{
+  button.disabled=false;
+  button.textContent="✨ Create my outfit";
  }
 }
 
