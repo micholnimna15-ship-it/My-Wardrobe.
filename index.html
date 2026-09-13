@@ -840,7 +840,8 @@ async function loadUserProfile(){
 
 function toggleProfileMenu(event){
  event?.stopPropagation();
- el("profileMenu").classList.toggle("hidden");
+ const menu=el("profileMenu");
+ if(menu) menu.classList.toggle("hidden");
 }
 document.addEventListener("click",e=>{
  const menu=el("profileMenu");
@@ -869,16 +870,28 @@ function renderTopAvatar(){
 }
 
 async function openProfileModal(){
- el("profileMenu").classList.add("hidden");
- await loadUserProfile();
- await createProfileSignedUrl();
- el("profileName").value=userProfile?.display_name||"";
- el("profileGender").value=userProfile?.gender||"";
- el("profileBirthday").value=userProfile?.birthday||"";
- el("profileCountryMain").value=userProfile?.country||"Australia";
- el("profilePhoto").value="";
+ const modal=el("profileModal");
+ if(!modal){alert("Profile window could not be found. Please refresh the app.");return;}
+
+ // Open immediately so the button always feels responsive.
+ modal.classList.remove("hidden");
+
+ const menu=el("profileMenu");
+ if(menu) menu.classList.add("hidden");
+
+ try{
+  await loadUserProfile();
+  await createProfileSignedUrl();
+ }catch(err){
+  console.error("Profile load error:",err);
+ }
+
+ const name=el("profileName"); if(name) name.value=userProfile?.display_name||"";
+ const gender=el("profileGender"); if(gender) gender.value=userProfile?.gender||"";
+ const birthday=el("profileBirthday"); if(birthday) birthday.value=userProfile?.birthday||"";
+ const country=el("profileCountryMain"); if(country) country.value=userProfile?.country||"Australia";
+ const photo=el("profilePhoto"); if(photo) photo.value="";
  renderProfileAvatar();
- el("profileModal").classList.remove("hidden");
 }
 
 function previewProfilePhoto(e){
@@ -914,18 +927,33 @@ async function saveProfile(){
 }
 
 async function openFitModal(){
- el("profileMenu").classList.add("hidden");
- await loadUserProfile();
- el("fitHeight").value=userProfile?.height_cm??"";
- el("fitChest").value=userProfile?.chest_cm??"";
- el("fitWaist").value=userProfile?.waist_cm??"";
- el("fitHips").value=userProfile?.hips_cm??"";
- el("fitInseam").value=userProfile?.inseam_cm??"";
- el("fitShoe").value=userProfile?.shoe_size||"";
- el("fitTop").value=userProfile?.top_size||"";
- el("fitBottom").value=userProfile?.bottom_size||"";
- el("fitPreference").value=userProfile?.preferred_fit||"";
- el("fitModal").classList.remove("hidden");
+ const modal=el("fitModal");
+ if(!modal){alert("My Fit window could not be found. Please refresh the app.");return;}
+
+ // Open immediately, then load the saved measurements.
+ modal.classList.remove("hidden");
+
+ const menu=el("profileMenu");
+ if(menu) menu.classList.add("hidden");
+
+ try{
+  await loadUserProfile();
+ }catch(err){
+  console.error("My Fit load error:",err);
+ }
+
+ const values={
+  fitHeight:userProfile?.height_cm??"",
+  fitChest:userProfile?.chest_cm??"",
+  fitWaist:userProfile?.waist_cm??"",
+  fitHips:userProfile?.hips_cm??"",
+  fitInseam:userProfile?.inseam_cm??"",
+  fitShoe:userProfile?.shoe_size||"",
+  fitTop:userProfile?.top_size||"",
+  fitBottom:userProfile?.bottom_size||"",
+  fitPreference:userProfile?.preferred_fit||""
+ };
+ Object.entries(values).forEach(([id,value])=>{const node=el(id);if(node)node.value=value;});
 }
 
 async function saveFit(){
