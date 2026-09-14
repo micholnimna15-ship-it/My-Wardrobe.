@@ -262,6 +262,26 @@ body{
 
 
 
+
+/* ===== SHOP AI FEATURE MENU + UPLOADED ITEM STYLING ===== */
+.shop-feature-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+.shop-feature-card{width:100%;text-align:left;border:1px solid var(--line);border-radius:22px;padding:18px;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(249,246,255,.94));box-shadow:var(--shadow);transition:.18s ease}
+.shop-feature-card:hover{transform:translateY(-2px);border-color:rgba(124,92,255,.28)}
+.shop-feature-icon{font-size:32px;margin-bottom:10px}
+.shop-feature-title{font-size:18px;font-weight:900;margin-bottom:5px}
+.shop-feature-card p{margin:0;color:var(--muted);line-height:1.45}
+.shop-subhead{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.shop-subhead h2{margin:0}
+.upload-drop{border:1px dashed rgba(91,62,125,.30);background:linear-gradient(145deg,#faf8ff,#fff);border-radius:20px;padding:18px;text-align:center}
+.upload-preview{margin-top:14px}
+.upload-preview img{width:min(280px,100%);max-height:340px;object-fit:contain;border-radius:18px;background:#f6f4fa;border:1px solid var(--line)}
+.item-analysis-card{background:linear-gradient(115deg,#f4f0ff,#fff2f8);border:1px solid rgba(124,92,255,.10);border-radius:18px;padding:15px;margin:14px 0}
+.shop-ai-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+@media(min-width:700px){
+ .shop-feature-grid{grid-template-columns:repeat(3,1fr)}
+ .shop-ai-actions{grid-template-columns:1fr 1fr}
+}
+
 /* ===== MANUAL LOOK BUILDER ===== */
 .look-builder-category{margin:16px 0}
 .look-builder-category h3{margin:0 0 9px;font-size:15px}
@@ -378,55 +398,151 @@ body{
     </section>
 
     <section id="shopPage" class="hidden">
-      <div class="hero">
-        <h1>AI Stylist</h1>
-        <p>Choose an occasion. I’ll build an outfit from your wardrobe first, then suggest only the pieces that would genuinely help.</p>
+
+      <!-- SHOP AI HOME MENU -->
+      <div id="shopMenuView">
+        <div class="hero">
+          <h1>AI Stylist</h1>
+          <p>Choose how you want My Wardrobe to help you style or shop.</p>
+        </div>
+
+        <div class="shop-feature-grid">
+          <button type="button" class="shop-feature-card" onclick="openShopFeature('occasion')">
+            <div class="shop-feature-icon">🎯</div>
+            <div class="shop-feature-title">Choose the Occasion</div>
+            <p>Pick an occasion and let AI build an outfit from your wardrobe first, then suggest useful additions from your selected shops.</p>
+          </button>
+
+          <button type="button" class="shop-feature-card" onclick="openShopFeature('wardrobeMatch')">
+            <div class="shop-feature-icon">👕</div>
+            <div class="shop-feature-title">Match With My Wardrobe</div>
+            <p>Upload a photo of something you are thinking of buying and find the best pieces you already own to wear with it.</p>
+          </button>
+
+          <button type="button" class="shop-feature-card" onclick="openShopFeature('onlineMatch')">
+            <div class="shop-feature-icon">🛍️</div>
+            <div class="shop-feature-title">Find Matching Items Online</div>
+            <p>Upload a product photo, choose your stores, and find real online items that pair well with it.</p>
+          </button>
+        </div>
       </div>
 
-      <div class="section-head"><h2>Your profile</h2></div>
-      <div class="field"><label>Country</label><select id="profileCountry">
-        <option value="Australia">Australia</option><option value="Sri Lanka">Sri Lanka</option>
-        <option value="UK">United Kingdom</option><option value="US">United States</option><option value="Canada">Canada</option>
-      </select></div>
-      <div class="field"><label>Usual size</label><input id="profileSize" placeholder="e.g. M / 32 / 10"></div>
-      <div class="field"><label>Fit</label><select id="profileFit"><option value="">Any</option><option>Slim</option><option>Regular</option><option>Relaxed</option><option>Oversized</option></select></div>
-      <div class="field"><label>Height (optional)</label><input id="profileHeight" placeholder="e.g. 175 cm"></div>
-      <div class="field"><label>Chest (optional)</label><input id="profileChest" placeholder="e.g. 96 cm"></div>
-      <div class="field"><label>Waist (optional)</label><input id="profileWaist" placeholder="e.g. 82 cm"></div>
-      <button class="secondary" onclick="saveShoppingProfile()">Save profile</button>
+      <!-- EXISTING OCCASION FEATURE -->
+      <div id="occasionShopView" class="hidden">
+        <div class="shop-subhead">
+          <button type="button" class="secondary" onclick="openShopFeature('menu')">← Back</button>
+          <h2>Choose the Occasion</h2>
+        </div>
 
-      <div class="section-head"><h2>1. Choose the occasion</h2></div>
-      <div id="occasionChips" class="chips">
-        <button class="chip" onclick="selectOccasion('Casual',this)">Casual</button>
-        <button class="chip" onclick="selectOccasion('University',this)">University</button>
-        <button class="chip" onclick="selectOccasion('Work',this)">Work</button>
-        <button class="chip" onclick="selectOccasion('Date',this)">Date</button>
-        <button class="chip" onclick="selectOccasion('Party',this)">Party</button>
-        <button class="chip" onclick="selectOccasion('Formal',this)">Formal</button>
-        <button class="chip" onclick="selectOccasion('Wedding',this)">Wedding</button>
-        <button class="chip" onclick="selectOccasion('Travel',this)">Travel</button>
+        <div class="hero">
+          <h1>AI Stylist</h1>
+          <p>Choose an occasion. I’ll build an outfit from your wardrobe first, then suggest only the pieces that would genuinely help.</p>
+        </div>
+
+        <div class="section-head"><h2>Your profile</h2></div>
+        <div class="field"><label>Country</label><select id="profileCountry">
+          <option value="Australia">Australia</option><option value="Sri Lanka">Sri Lanka</option>
+          <option value="UK">United Kingdom</option><option value="US">United States</option><option value="Canada">Canada</option>
+        </select></div>
+        <div class="field"><label>Usual size</label><input id="profileSize" placeholder="e.g. M / 32 / 10"></div>
+        <div class="field"><label>Fit</label><select id="profileFit"><option value="">Any</option><option>Slim</option><option>Regular</option><option>Relaxed</option><option>Oversized</option></select></div>
+        <div class="field"><label>Height (optional)</label><input id="profileHeight" placeholder="e.g. 175 cm"></div>
+        <div class="field"><label>Chest (optional)</label><input id="profileChest" placeholder="e.g. 96 cm"></div>
+        <div class="field"><label>Waist (optional)</label><input id="profileWaist" placeholder="e.g. 82 cm"></div>
+        <button class="secondary" onclick="saveShoppingProfile()">Save profile</button>
+
+        <div class="section-head"><h2>1. Choose the occasion</h2></div>
+        <div id="occasionChips" class="chips">
+          <button class="chip" onclick="selectOccasion('Casual',this)">Casual</button>
+          <button class="chip" onclick="selectOccasion('University',this)">University</button>
+          <button class="chip" onclick="selectOccasion('Work',this)">Work</button>
+          <button class="chip" onclick="selectOccasion('Date',this)">Date</button>
+          <button class="chip" onclick="selectOccasion('Party',this)">Party</button>
+          <button class="chip" onclick="selectOccasion('Formal',this)">Formal</button>
+          <button class="chip" onclick="selectOccasion('Wedding',this)">Wedding</button>
+          <button class="chip" onclick="selectOccasion('Travel',this)">Travel</button>
+        </div>
+
+        <div class="section-head"><h2>2. Style preference</h2></div>
+        <div class="field"><label>Style (optional)</label><select id="stylePreference">
+          <option value="">Let AI decide</option>
+          <option>Smart casual</option><option>Minimal</option><option>Classic</option>
+          <option>Streetwear</option><option>Formal</option><option>Comfortable</option>
+        </select></div>
+
+        <div class="field"><label>Budget for additions (optional)</label><input id="shopBudget" placeholder="e.g. $100"></div>
+
+        <div class="section-head"><h2>3. Preferred stores</h2></div>
+        <div class="notice">The AI will use your wardrobe first. Store choices are used only if it recommends something you do not have.</div>
+        <div id="storeList"></div>
+        <div style="display:flex;gap:8px">
+          <input id="customStoreName" placeholder="Store name" style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px">
+          <input id="customStoreUrl" placeholder="https://..." style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px">
+          <button class="secondary" onclick="addCustomStore()">Add</button>
+        </div>
+
+        <div style="margin-top:20px"><button id="createOutfitButton" class="primary" onclick="createAIOutfit()">✨ Create my outfit</button></div>
+        <div id="shoppingResults"></div>
       </div>
 
-      <div class="section-head"><h2>2. Style preference</h2></div>
-      <div class="field"><label>Style (optional)</label><select id="stylePreference">
-        <option value="">Let AI decide</option>
-        <option>Smart casual</option><option>Minimal</option><option>Classic</option>
-        <option>Streetwear</option><option>Formal</option><option>Comfortable</option>
-      </select></div>
+      <!-- NEW: MATCH UPLOADED ITEM WITH WARDROBE -->
+      <div id="wardrobeMatchView" class="hidden">
+        <div class="shop-subhead">
+          <button type="button" class="secondary" onclick="openShopFeature('menu')">← Back</button>
+          <h2>Match With My Wardrobe</h2>
+        </div>
 
-      <div class="field"><label>Budget for additions (optional)</label><input id="shopBudget" placeholder="e.g. $100"></div>
+        <div class="hero">
+          <h1>👕 Match With My Wardrobe</h1>
+          <p>Upload something you are thinking of buying. AI will analyse it and pair it with clothes you already own.</p>
+        </div>
 
-      <div class="section-head"><h2>3. Preferred stores</h2></div>
-      <div class="notice">The AI will use your wardrobe first. Store choices are used only if it recommends something you do not have.</div>
-      <div id="storeList"></div>
-      <div style="display:flex;gap:8px">
-        <input id="customStoreName" placeholder="Store name" style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px">
-        <input id="customStoreUrl" placeholder="https://..." style="flex:1;padding:12px;border:1px solid var(--line);border-radius:12px">
-        <button class="secondary" onclick="addCustomStore()">Add</button>
+        <div class="upload-drop">
+          <strong>Upload the product photo</strong>
+          <div class="muted" style="margin:6px 0 12px">Use a clear photo of the shirt, trousers, shoes, jacket or other item.</div>
+          <input id="wardrobeMatchPhoto" type="file" accept="image/*" onchange="previewUploadedStyleItem(event,'wardrobe')">
+          <div id="wardrobeMatchPreview" class="upload-preview"></div>
+        </div>
+
+        <div style="margin-top:16px">
+          <button id="wardrobeMatchButton" class="primary" onclick="analyseUploadedItem('wardrobe')">✨ Find matches in my wardrobe</button>
+        </div>
+
+        <div id="wardrobeMatchResults"></div>
       </div>
 
-      <div style="margin-top:20px"><button id="createOutfitButton" class="primary" onclick="createAIOutfit()">✨ Create my outfit</button></div>
-      <div id="shoppingResults"></div>
+      <!-- NEW: MATCH UPLOADED ITEM WITH ONLINE PRODUCTS -->
+      <div id="onlineMatchView" class="hidden">
+        <div class="shop-subhead">
+          <button type="button" class="secondary" onclick="openShopFeature('menu')">← Back</button>
+          <h2>Find Matching Items Online</h2>
+        </div>
+
+        <div class="hero">
+          <h1>🛍️ Find Matching Items Online</h1>
+          <p>Upload something you are thinking of buying, choose your stores, and AI will find suitable pieces to complete the outfit.</p>
+        </div>
+
+        <div class="upload-drop">
+          <strong>Upload the product photo</strong>
+          <div class="muted" style="margin:6px 0 12px">The AI will identify the item, colour and style before searching.</div>
+          <input id="onlineMatchPhoto" type="file" accept="image/*" onchange="previewUploadedStyleItem(event,'online')">
+          <div id="onlineMatchPreview" class="upload-preview"></div>
+        </div>
+
+        <div class="section-head"><h2>Choose stores</h2></div>
+        <div class="notice">Select the stores you want the app to use for matching products.</div>
+        <div id="uploadedStoreList"></div>
+
+        <div class="field"><label>Budget (optional)</label><input id="uploadedItemBudget" placeholder="e.g. $150"></div>
+
+        <div style="margin-top:16px">
+          <button id="onlineMatchButton" class="primary" onclick="analyseUploadedItem('online')">✨ Find matching products online</button>
+        </div>
+
+        <div id="onlineMatchResults"></div>
+      </div>
+
     </section>
 
     <section id="laundryPage" class="hidden">
@@ -572,9 +688,11 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHA
 const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
 const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing";
+const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
 let selectedClothingFile=null,cleanedClothingFile=null;
+let wardrobeMatchFile=null,onlineMatchFile=null;
 let currentCategoryId=null,editingCategoryId=null,editingClothingId=null,selectedOccasion="";
 let editingLookId=null;
 let appStarted=false,appStarting=false;
@@ -664,7 +782,7 @@ function showPage(page){
  hideAllPages();clearNavActive();
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
- if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active")}
+ if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
  if(page==="me"){el("mePage").classList.remove("hidden");el("navMe").classList.add("active");renderMePage()}
 }
@@ -1090,11 +1208,16 @@ function getCustomStores(){try{return JSON.parse(localStorage.getItem(storesStor
 function getSelectedStoreIds(){try{return JSON.parse(localStorage.getItem(storesStorageKey()+"_selected")||"[]")}catch(e){return[]}}
 function saveSelectedStoreIds(ids){localStorage.setItem(storesStorageKey()+"_selected",JSON.stringify(ids))}
 function updateStoreList(){
- const country=el("profileCountry").value;const stores=getAllStores().filter(s=>s.country===country||s.country==="Custom");
+ const country=el("profileCountry")?.value||userProfile?.country||"Australia";
+ const stores=getAllStores().filter(s=>s.country===country||s.country==="Custom");
  const selected=getSelectedStoreIds();
  if(!selected.length&&stores.length)saveSelectedStoreIds(stores.slice(0,5).map(s=>s.id));
  const selected2=getSelectedStoreIds();
- el("storeList").innerHTML=stores.map(s=>`<button class="store-option ${selected2.includes(s.id)?"selected":""}" onclick="toggleStore('${escapeJs(s.id)}')"><span>${selected2.includes(s.id)?"✓":"○"}</span><span><b class="store-name">${escapeHtml(s.name)}</b><br><span class="store-country">${escapeHtml(s.country)}</span></span></button>`).join("");
+
+ const html=stores.map(s=>`<button type="button" class="store-option ${selected2.includes(s.id)?"selected":""}" onclick="toggleStore('${escapeJs(s.id)}')"><span>${selected2.includes(s.id)?"✓":"○"}</span><span><b class="store-name">${escapeHtml(s.name)}</b><br><span class="store-country">${escapeHtml(s.country)}</span></span></button>`).join("");
+
+ if(el("storeList"))el("storeList").innerHTML=html;
+ if(el("uploadedStoreList"))el("uploadedStoreList").innerHTML=html;
 }
 function toggleStore(id){let ids=getSelectedStoreIds();ids=ids.includes(id)?ids.filter(x=>x!==id):[...ids,id];saveSelectedStoreIds(ids);updateStoreList()}
 function addCustomStore(){
@@ -1122,6 +1245,181 @@ function getWardrobeForAI(){
   color:i.color||"",
   brand:i.brand||""
  }));
+}
+
+
+function openShopFeature(feature){
+ const views=["shopMenuView","occasionShopView","wardrobeMatchView","onlineMatchView"];
+ views.forEach(id=>el(id)?.classList.add("hidden"));
+
+ if(feature==="occasion"){
+  el("occasionShopView")?.classList.remove("hidden");
+  updateStoreList();
+  return;
+ }
+ if(feature==="wardrobeMatch"){
+  el("wardrobeMatchView")?.classList.remove("hidden");
+  return;
+ }
+ if(feature==="onlineMatch"){
+  el("onlineMatchView")?.classList.remove("hidden");
+  updateStoreList();
+  return;
+ }
+ el("shopMenuView")?.classList.remove("hidden");
+}
+
+function previewUploadedStyleItem(event,mode){
+ const file=event.target.files?.[0];
+ if(!file)return;
+
+ if(mode==="wardrobe")wardrobeMatchFile=file;
+ else onlineMatchFile=file;
+
+ const preview=el(mode==="wardrobe"?"wardrobeMatchPreview":"onlineMatchPreview");
+ if(preview){
+  const url=URL.createObjectURL(file);
+  preview.innerHTML=`<img src="${url}" alt="Uploaded item preview"><div class="muted" style="margin-top:7px">${escapeHtml(file.name||"Selected photo")}</div>`;
+ }
+ const results=el(mode==="wardrobe"?"wardrobeMatchResults":"onlineMatchResults");
+ if(results)results.innerHTML="";
+}
+
+function getProfileForStyleItem(){
+ return {
+  name:userProfile?.display_name||"",
+  gender:userProfile?.gender||"",
+  country:userProfile?.country||el("profileCountry")?.value||"Australia",
+  heightCm:userProfile?.height_cm??null,
+  chestCm:userProfile?.chest_cm??null,
+  waistCm:userProfile?.waist_cm??null,
+  hipsCm:userProfile?.hips_cm??null,
+  inseamCm:userProfile?.inseam_cm??null,
+  shoeSize:userProfile?.shoe_size||"",
+  topSize:userProfile?.top_size||"",
+  bottomSize:userProfile?.bottom_size||"",
+  preferredFit:userProfile?.preferred_fit||""
+ };
+}
+
+async function callStyleItemAI(mode,file){
+ const dataUrl=await fileToDataUrl(file);
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ const headers={"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY};
+ headers["Authorization"]="Bearer "+(session?.access_token||SUPABASE_PUBLISHABLE_KEY);
+
+ const payload={
+  mode,
+  imageBase64:String(dataUrl).split(",")[1],
+  mimeType:file.type||"image/jpeg",
+  profile:getProfileForStyleItem(),
+  wardrobe:getWardrobeForAI(),
+  stores:getSelectedStores().map(s=>({name:s.name,country:s.country,url:s.url})),
+  budget:mode==="online"?(el("uploadedItemBudget")?.value||"").trim():""
+ };
+
+ const response=await fetch(STYLE_ITEM_API_URL,{
+  method:"POST",
+  headers,
+  body:JSON.stringify(payload)
+ });
+
+ let data={};
+ try{data=await response.json()}catch(e){}
+ if(!response.ok||data.success===false)throw new Error(data.error||"Could not analyse the uploaded item.");
+ return data;
+}
+
+function renderUploadedItemAnalysis(data){
+ const item=data?.item||{};
+ return `<div class="item-analysis-card">
+  <strong>AI identified: ${escapeHtml(item.name||"Uploaded fashion item")}</strong>
+  <div class="muted" style="margin-top:5px">${escapeHtml(item.description||"")}</div>
+  ${item.color?`<div class="muted" style="margin-top:4px"><b>Colour:</b> ${escapeHtml(item.color)}</div>`:""}
+  ${item.style?`<div class="muted" style="margin-top:4px"><b>Style:</b> ${escapeHtml(item.style)}</div>`:""}
+ </div>`;
+}
+
+async function analyseUploadedItem(mode){
+ const file=mode==="wardrobe"?wardrobeMatchFile:onlineMatchFile;
+ if(!file)return alert("Upload a product photo first.");
+ if(mode==="wardrobe"&&!clothingItems.length)return alert("Add some clothes to your wardrobe first.");
+
+ const button=el(mode==="wardrobe"?"wardrobeMatchButton":"onlineMatchButton");
+ const results=el(mode==="wardrobe"?"wardrobeMatchResults":"onlineMatchResults");
+
+ if(mode==="online"&&!getSelectedStores().length)return alert("Choose at least one store.");
+
+ button.disabled=true;
+ const originalText=button.textContent;
+ button.textContent="Analysing…";
+ results.innerHTML='<div class="loading-box"><b>AI is analysing the uploaded item…</b><br><span class="muted">This may take a moment.</span></div>';
+
+ try{
+  const data=await callStyleItemAI(mode,file);
+  let html=renderUploadedItemAnalysis(data);
+
+  if(mode==="wardrobe"){
+   const match=data.wardrobeMatch||{};
+   html+=`<div class="ai-outfit-card">
+    <div class="ai-outfit-title">${escapeHtml(match.outfitName||"Best wardrobe match")}</div>
+    <div class="ai-outfit-explanation">${escapeHtml(match.explanation||"These pieces pair well with the uploaded item.")}</div>
+    <div class="section-head"><h2>From your wardrobe</h2></div>
+    ${renderAIWardrobeItems(match.wardrobeItemIds||[])}
+   </div>`;
+
+   if(Array.isArray(match.alternatives)&&match.alternatives.length){
+    html+=`<div class="section-head"><h2>Other combinations</h2></div>`;
+    for(const alt of match.alternatives.slice(0,2)){
+     html+=`<div class="ai-outfit-card"><div class="ai-outfit-title">${escapeHtml(alt.name||"Alternative")}</div><div class="ai-outfit-explanation">${escapeHtml(alt.explanation||"")}</div>${renderAIWardrobeItems(alt.wardrobeItemIds||[])}</div>`;
+    }
+   }
+   results.innerHTML=html;
+   return;
+  }
+
+  const suggestions=Array.isArray(data.onlineSuggestions)?data.onlineSuggestions.slice(0,3):[];
+  if(!suggestions.length){
+   html+='<div class="notice">The AI did not return any matching product suggestions.</div>';
+   results.innerHTML=html;
+   return;
+  }
+
+  html+=`<div class="section-head"><h2>Matching pieces to look for</h2></div>`;
+  results.innerHTML=html;
+
+  for(let index=0; index<suggestions.length; index++){
+   const s=suggestions[index]||{};
+   const query=(s.searchQuery||s.item||"").trim();
+   html+=`<div class="ai-missing"><h3>${escapeHtml(s.item||"Matching item")}</h3><div class="muted">${escapeHtml(s.reason||"This should pair well with the uploaded item.")}</div></div>`;
+
+   if(query){
+    const loadingId=`uploaded-search-${index}`;
+    html+=`<div class="loading-box" id="${loadingId}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`;
+    results.innerHTML=html;
+
+    try{
+     const products=await searchProducts(query);
+     html=html.replace(
+      `<div class="loading-box" id="${loadingId}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`,
+      renderLiveProducts(products,getSelectedStores())+renderOfficialStoreLinks(query)
+     );
+    }catch(err){
+     html=html.replace(
+      `<div class="loading-box" id="${loadingId}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`,
+      `<div class="notice"><b>Product search failed:</b> ${escapeHtml(err.message||"Unknown error")}</div>`+renderOfficialStoreLinks(query)
+     );
+    }
+    results.innerHTML=html;
+   }
+  }
+ }catch(err){
+  console.error(err);
+  results.innerHTML=`<div class="notice"><b>Could not style this item:</b> ${escapeHtml(err.message||"Unknown error")}</div>`;
+ }finally{
+  button.disabled=false;
+  button.textContent=originalText;
+ }
 }
 
 async function callStyleAI(){
@@ -1336,7 +1634,7 @@ function escapeJs(v){return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\
 function safeUrl(v){try{const u=new URL(v);return/^https?:$/.test(u.protocol)?u.href:"#"}catch(e){return"#"}}
 function safeAttributeUrl(v){return escapeHtml(safeUrl(v))}
 
-el("profileCountry").addEventListener("change",()=>{saveSelectedStoreIds([]);updateStoreList()});
+el("profileCountry")?.addEventListener("change",()=>{saveSelectedStoreIds([]);updateStoreList()});
 
 supabaseClient.auth.onAuthStateChange((event,session)=>{
  if(session){currentUser=session.user;setTimeout(()=>startApp(),0)}
