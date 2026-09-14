@@ -534,6 +534,14 @@ body{
         <div class="notice">Select the stores you want the app to use for matching products.</div>
         <div id="uploadedStoreList"></div>
 
+        <div class="section-head"><h2>Add your own store</h2></div>
+        <div class="notice">You can add any store you want. Enter the store name and its official website.</div>
+        <div style="display:grid;grid-template-columns:1fr;gap:8px">
+          <input id="uploadedCustomStoreName" placeholder="Store name e.g. Nike" style="padding:12px;border:1px solid var(--line);border-radius:12px">
+          <input id="uploadedCustomStoreUrl" placeholder="Official website e.g. https://www.nike.com" style="padding:12px;border:1px solid var(--line);border-radius:12px">
+          <button class="secondary" onclick="addUploadedCustomStore()">+ Add store</button>
+        </div>
+
         <div class="field"><label>Budget (optional)</label><input id="uploadedItemBudget" placeholder="e.g. $150"></div>
 
         <div style="margin-top:16px">
@@ -1226,6 +1234,42 @@ function addCustomStore(){
  const stores=getCustomStores();const id="custom-"+crypto.randomUUID();stores.push({id,name,country:"Custom",url});localStorage.setItem(storesStorageKey(),JSON.stringify(stores));
  const ids=getSelectedStoreIds();ids.push(id);saveSelectedStoreIds(ids);el("customStoreName").value="";el("customStoreUrl").value="";updateStoreList();
 }
+
+function addUploadedCustomStore(){
+ const name=(el("uploadedCustomStoreName")?.value||"").trim();
+ let url=(el("uploadedCustomStoreUrl")?.value||"").trim();
+
+ if(!name)return alert("Enter the store name.");
+ if(!url)return alert("Enter the official store website.");
+
+ if(!/^https?:\/\//i.test(url))url="https://"+url;
+
+ try{new URL(url)}catch(e){return alert("Enter a valid website address.");}
+
+ const stores=getCustomStores();
+ const id="custom-"+Date.now();
+
+ stores.push({
+  id,
+  name,
+  url,
+  country:"Custom"
+ });
+
+ localStorage.setItem("customStores",JSON.stringify(stores));
+
+ const selected=getSelectedStoreIds();
+ if(!selected.includes(id)){
+  selected.push(id);
+  saveSelectedStoreIds(selected);
+ }
+
+ if(el("uploadedCustomStoreName"))el("uploadedCustomStoreName").value="";
+ if(el("uploadedCustomStoreUrl"))el("uploadedCustomStoreUrl").value="";
+
+ updateStoreList();
+}
+
 function getAllStores(){return [...STORE_CATALOG,...getCustomStores()]}
 function getSelectedStores(){const ids=getSelectedStoreIds();return getAllStores().filter(s=>ids.includes(s.id))}
 function selectOccasion(value,button){
