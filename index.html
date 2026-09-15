@@ -1522,7 +1522,15 @@ async function searchProducts(query){
  const response=await fetch(SHOP_API_URL,{
   method:"POST",
   headers,
-  body:JSON.stringify({query})
+  body:JSON.stringify({
+    query,
+    stores:getSelectedStores().map(store=>({
+      name:store.name,
+      country:store.country,
+      url:store.url
+    })),
+    country:userProfile?.country || el("profileCountry")?.value || "Australia"
+   })
  });
 
  let data={};
