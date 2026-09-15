@@ -319,6 +319,15 @@ body{
 .credit-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(124,92,255,.18);background:linear-gradient(115deg,#f4f0ff,#fff2f8);padding:8px 11px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
 .credit-card{background:linear-gradient(115deg,#f4f0ff,#fff2f8);border:1px solid rgba(124,92,255,.12);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
 .credit-balance{font-size:28px;font-weight:900;margin:4px 0}
+
+/* ===== BUY AI CREDITS / STRIPE CHECKOUT ===== */
+.buy-credits-btn{width:100%;border:0;border-radius:14px;padding:12px 14px;margin-top:13px;font-weight:900;color:#fff;background:linear-gradient(115deg,#5f46e8 0%,#8d5cf5 45%,#e465a7 100%);box-shadow:0 10px 22px rgba(112,73,225,.20)}
+.credit-packages{display:grid;grid-template-columns:1fr;gap:11px}
+.credit-package{border:1px solid rgba(124,92,255,.14);border-radius:18px;padding:15px;background:linear-gradient(145deg,#fff,#faf7ff);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.credit-package-info strong{display:block;font-size:17px}.credit-package-price{font-size:20px;font-weight:900;white-space:nowrap}.credit-package button{width:auto;min-width:92px}
+.payment-message{margin-top:12px;padding:12px;border-radius:13px;font-size:13px}.payment-message.success{background:#edf8ee;color:#226b2a}.payment-message.cancelled{background:#fff8e8;color:#7a5b12}
+@media(min-width:700px){.credit-packages{grid-template-columns:repeat(3,1fr)}.credit-package{display:block}.credit-package-price{margin:10px 0}.credit-package button{width:100%}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -571,7 +580,7 @@ body{
         <button type="button" class="secondary" onclick="openProfileModal()">👤 Edit Profile</button>
       </div>
       <div class="me-card"><h3 style="margin-top:0">📏 My Fit</h3><p class="muted">Measurements, sizes and preferred fit for better recommendations.</p><button type="button" class="secondary" onclick="openFitModal()">View / Edit My Fit</button></div>
-      <div class="credit-card"><div class="muted">AI Credits</div><div class="credit-balance">✨ <span id="creditBalanceMe">—</span></div><div class="muted">1 credit is used after a successful AI outfit generation.</div></div>
+      <div class="credit-card"><div class="muted">AI Credits</div><div class="credit-balance">✨ <span id="creditBalanceMe">—</span></div><div class="muted">1 credit is used after a successful AI outfit generation.</div><button type="button" class="buy-credits-btn" onclick="openBuyCreditsModal()">💳 Buy AI Credits</button><div id="paymentReturnMessage"></div></div>
        <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button id="installAppBtn" class="secondary" onclick="handleInstallApp()">📲 Install App</button><button class="secondary danger" style="margin-top:8px" onclick="logout()">Log out</button></div>
     </section>
   </main>
@@ -694,6 +703,15 @@ body{
   </div>
 </div>
 
+<div id="buyCreditsModal" class="modal hidden"><div class="modal-box">
+<div class="modal-head"><h2>✨ Buy AI Credits</h2><button class="close" onclick="closeModal('buyCreditsModal')">×</button></div>
+<div class="notice">Choose a one-time credit pack. Payment is securely handled by Stripe.</div>
+<div class="credit-packages">
+<div class="credit-package"><div class="credit-package-info"><strong>25 AI Credits</strong><div class="muted">One-time purchase</div></div><div class="credit-package-price">A$2.99</div><button type="button" class="primary" onclick="buyCredits('25',this)">Buy</button></div>
+<div class="credit-package"><div class="credit-package-info"><strong>75 AI Credits</strong><div class="muted">One-time purchase</div></div><div class="credit-package-price">A$6.99</div><button type="button" class="primary" onclick="buyCredits('75',this)">Buy</button></div>
+<div class="credit-package"><div class="credit-package-info"><strong>200 AI Credits</strong><div class="muted">One-time purchase</div></div><div class="credit-package-price">A$14.99</div><button type="button" class="primary" onclick="buyCredits('200',this)">Buy</button></div>
+</div><div id="checkoutStatus" class="muted" style="margin-top:12px"></div></div></div>
+
 <script>
 const SUPABASE_URL="https://umtppiaeralgiqvefnbh.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_hgrE28tw0hGmNP929kPgYw_h5aPs0ey";
@@ -705,6 +723,7 @@ const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
 const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing";
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
+const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
 let selectedClothingFile=null,cleanedClothingFile=null;
@@ -769,7 +788,7 @@ async function startApp(){
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
  el("welcomeText").textContent="Welcome to My Wardrobe";
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -802,6 +821,58 @@ async function useAICredit(){
  updateCreditDisplay();
  return aiCreditBalance;
 }
+
+
+function openBuyCreditsModal(){
+ if(!currentUser)return alert("Please log in first.");
+ el("checkoutStatus").textContent="";
+ el("buyCreditsModal").classList.remove("hidden");
+}
+async function buyCredits(packageKey,button){
+ const allowed=["25","75","200"];
+ if(!allowed.includes(String(packageKey)))return alert("Invalid credit package.");
+ const originalText=button?.textContent||"Buy";
+ if(button){button.disabled=true;button.textContent="Opening..."}
+ if(el("checkoutStatus"))el("checkoutStatus").textContent="Opening secure Stripe checkout...";
+ try{
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session?.access_token)throw new Error("Please log in again.");
+  const cleanReturnUrl=window.location.origin+window.location.pathname;
+  const response=await fetch(CREATE_CHECKOUT_API_URL,{
+   method:"POST",
+   headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},
+   body:JSON.stringify({package:String(packageKey),successUrl:cleanReturnUrl+"?payment=success",cancelUrl:cleanReturnUrl+"?payment=cancelled"})
+  });
+  let data={};try{data=await response.json()}catch(e){}
+  if(!response.ok||data.success===false||!data.checkoutUrl)throw new Error(data.error||"Could not open Stripe Checkout.");
+  window.location.href=data.checkoutUrl;
+ }catch(error){
+  console.error("Checkout error:",error);
+  if(el("checkoutStatus"))el("checkoutStatus").textContent=error?.message||"Could not start checkout.";
+  if(button){button.disabled=false;button.textContent=originalText}
+ }
+}
+async function handlePaymentReturn(){
+ const params=new URLSearchParams(window.location.search);
+ const payment=params.get("payment");
+ if(payment!=="success"&&payment!=="cancelled")return;
+ try{window.history.replaceState({},document.title,window.location.pathname+window.location.hash)}catch(e){}
+ showPage("me");
+ const box=el("paymentReturnMessage");
+ if(payment==="cancelled"){
+  if(box)box.innerHTML='<div class="payment-message cancelled">Payment cancelled. No credits were added.</div>';
+  return;
+ }
+ if(box)box.innerHTML='<div class="payment-message success">Payment received. Updating your AI credits…</div>';
+ const startingBalance=aiCreditBalance;
+ for(let attempt=0;attempt<6;attempt++){
+  if(attempt>0)await new Promise(resolve=>setTimeout(resolve,1500));
+  await loadCreditBalance();
+  if(startingBalance===null||aiCreditBalance!==startingBalance)break;
+ }
+ if(box)box.innerHTML='<div class="payment-message success">Payment successful. Your AI credit balance has been refreshed.</div>';
+}
+
 
 async function loadAllData(){
  const results=await Promise.all([
