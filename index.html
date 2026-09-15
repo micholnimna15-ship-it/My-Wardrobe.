@@ -314,6 +314,11 @@ body{
 .category-card.drag-over{outline:2px solid #7c5cff;outline-offset:2px}
 .drag-hint{font-size:11px;color:var(--muted);margin-top:5px}
 @media(max-width:700px){.laundry-board{grid-template-columns:1fr}.nav-btn{font-size:10px}.nav-btn span{font-size:19px}}
+
+/* ===== AI CREDIT DISPLAY ===== */
+.credit-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(124,92,255,.18);background:linear-gradient(115deg,#f4f0ff,#fff2f8);padding:8px 11px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.credit-card{background:linear-gradient(115deg,#f4f0ff,#fff2f8);border:1px solid rgba(124,92,255,.12);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.credit-balance{font-size:28px;font-weight:900;margin:4px 0}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -347,7 +352,8 @@ body{
 <div id="appScreen" class="app hidden">
   <header class="topbar">
     <div class="topbar-title">My Wardrobe</div>
-    <button class="icon-btn mini-profile-btn" onclick="showPage('me')" aria-label="My profile"><span id="topAvatarSlot">👤</span></button>
+    <div style="display:flex;align-items:center;gap:8px"><div id="creditPill" class="credit-pill">✨ <span id="creditBalanceTop">—</span> AI Credits</div>
+    <button class="icon-btn mini-profile-btn" onclick="showPage('me')" aria-label="My profile"><span id="topAvatarSlot">👤</span></button></div>
   </header>
 
   <main class="container">
@@ -565,7 +571,8 @@ body{
         <button type="button" class="secondary" onclick="openProfileModal()">👤 Edit Profile</button>
       </div>
       <div class="me-card"><h3 style="margin-top:0">📏 My Fit</h3><p class="muted">Measurements, sizes and preferred fit for better recommendations.</p><button type="button" class="secondary" onclick="openFitModal()">View / Edit My Fit</button></div>
-      <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button id="installAppBtn" class="secondary" onclick="handleInstallApp()">📲 Install App</button><button class="secondary danger" style="margin-top:8px" onclick="logout()">Log out</button></div>
+      <div class="credit-card"><div class="muted">AI Credits</div><div class="credit-balance">✨ <span id="creditBalanceMe">—</span></div><div class="muted">1 credit is used after a successful AI outfit generation.</div></div>
+       <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button id="installAppBtn" class="secondary" onclick="handleInstallApp()">📲 Install App</button><button class="secondary danger" style="margin-top:8px" onclick="logout()">Log out</button></div>
     </section>
   </main>
 
@@ -697,6 +704,7 @@ const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
 const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing";
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
+const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
 let selectedClothingFile=null,cleanedClothingFile=null;
@@ -704,6 +712,7 @@ let wardrobeMatchFile=null,onlineMatchFile=null;
 let currentCategoryId=null,editingCategoryId=null,editingClothingId=null,selectedOccasion="";
 let editingLookId=null;
 let appStarted=false,appStarting=false;
+let aiCreditBalance=null;
 
 const STORE_CATALOG=[
  {id:"myer-au",name:"Myer",country:"Australia",url:"https://www.myer.com.au/"},
@@ -760,10 +769,40 @@ async function startApp(){
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
  el("welcomeText").textContent="Welcome to My Wardrobe";
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
+async function loadCreditBalance(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient.from("user_credits").select("balance").eq("user_id",currentUser.id).maybeSingle();
+ if(error){console.warn("Could not load AI credits:",error.message);aiCreditBalance=null;updateCreditDisplay();return}
+ aiCreditBalance=Number(data?.balance??0);
+ updateCreditDisplay();
+}
+
+function updateCreditDisplay(){
+ const value=aiCreditBalance===null?"—":String(aiCreditBalance);
+ if(el("creditBalanceTop"))el("creditBalanceTop").textContent=value;
+ if(el("creditBalanceMe"))el("creditBalanceMe").textContent=value;
+}
+
+async function useAICredit(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session?.access_token)throw new Error("Please log in again.");
+ const response=await fetch(USE_CREDIT_API_URL,{
+  method:"POST",
+  headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},
+  body:JSON.stringify({})
+ });
+ let data={};
+ try{data=await response.json()}catch(e){}
+ if(!response.ok||data.success===false)throw new Error(data.error||"Could not use an AI credit.");
+ aiCreditBalance=Number(data.balance??0);
+ updateCreditDisplay();
+ return aiCreditBalance;
+}
+
 async function loadAllData(){
  const results=await Promise.all([
   supabaseClient.from("categories").select("*").order("created_at",{ascending:true}),
@@ -1620,6 +1659,8 @@ function renderOfficialStoreLinks(query){
 async function createAIOutfit(){
  if(!selectedOccasion)return alert("Choose an occasion first.");
  if(!clothingItems.length)return alert("Add some clothes to your wardrobe first.");
+ if(aiCreditBalance===null)await loadCreditBalance();
+ if((aiCreditBalance??0)<1)return alert("You don't have enough AI credits.");
 
  const box=el("shoppingResults");
  const button=el("createOutfitButton");
@@ -1629,6 +1670,8 @@ async function createAIOutfit(){
 
  try{
   const outfit=await callStyleAI();
+  // Charge one credit only after the AI successfully creates an outfit.
+  await useAICredit();
   const missing=Array.isArray(outfit.missingItems)?outfit.missingItems.slice(0,2):[];
 
   let html=`<div class="ai-outfit-card">
