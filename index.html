@@ -736,28 +736,87 @@ body{
 }
 
 
-/* ===== FINAL DARK LUXURY TOP SECTION ===== */
-.topbar{position:relative!important;top:auto!important;min-height:92px!important;padding:24px 24px 18px!important;background:#0d0e0d!important}
-.topbar-title{font-family:Georgia,"Times New Roman",serif!important;font-size:38px!important;line-height:.95!important;font-weight:400!important;letter-spacing:-1.1px!important;color:#f5f0e9!important}
-.topbar-title::after{content:"YOUR STYLE · YOUR STORY.";display:block;margin-top:10px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:9px;line-height:1;letter-spacing:3px;font-weight:500;color:#b7a793}
-.topbar .icon-btn{width:46px!important;height:46px!important;border-radius:50%!important}
-.home-luxury-hero{min-height:390px!important;padding:46px 42px!important;border-radius:30px!important;background:linear-gradient(90deg,rgba(10,10,9,.99) 0%,rgba(12,12,11,.94) 35%,rgba(12,12,11,.42) 55%,rgba(12,12,11,.03) 80%),url("./wardrobe-hero.jpg") right center/64% 100% no-repeat!important}
-.home-luxury-copy{max-width:50%!important;position:relative;z-index:2}
-.home-eyebrow{display:none!important}
-.home-luxury-hero h1{font-family:Georgia,"Times New Roman",serif!important;font-size:56px!important;line-height:1.02!important;font-weight:400!important;color:#fff!important;margin:0 0 20px!important;max-width:470px!important}
-.home-luxury-hero p{color:#cbbcab!important;font-size:12px!important;line-height:1.5!important;letter-spacing:2.8px!important;margin:0!important}
-.hero-add-btn{margin-top:28px!important;min-width:190px!important;padding:15px 28px!important;border-radius:999px!important;font-size:17px!important;background:linear-gradient(135deg,#dfc092,#c99f6c)!important;color:#17130f!important}
-@media(max-width:700px){
- .topbar{min-height:78px!important;padding:18px 16px 14px!important}
- .topbar-title{font-size:29px!important}.topbar-title::after{margin-top:7px;font-size:7px;letter-spacing:2.1px}
- .topbar .icon-btn{width:38px!important;height:38px!important}
- .home-luxury-hero{min-height:315px!important;padding:30px 22px!important;border-radius:24px!important;background:linear-gradient(90deg,rgba(10,10,9,.98) 0%,rgba(12,12,11,.91) 39%,rgba(12,12,11,.30) 63%,rgba(12,12,11,.04) 100%),url("./wardrobe-hero.jpg") right center/74% 100% no-repeat!important}
- .home-luxury-copy{max-width:65%!important}
- .home-luxury-hero h1{font-size:42px!important;line-height:1.02!important;margin-bottom:16px!important}
- .home-luxury-hero p{font-size:9px!important;letter-spacing:1.8px!important}
- .hero-add-btn{margin-top:22px!important;min-width:150px!important;padding:12px 20px!important;font-size:14px!important}
+/* ===== FINAL REFERENCE-MATCH OVERRIDE ===== */
+.luxury-topbar{
+  max-width:100%!important;
+  padding:18px clamp(18px,4vw,58px)!important;
+  min-height:88px!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
 }
-@media(max-width:390px){.home-luxury-hero{min-height:290px!important;padding:26px 18px!important}.home-luxury-copy{max-width:69%!important}.home-luxury-hero h1{font-size:37px!important}}
+.brand-block{display:flex;flex-direction:column;gap:3px}
+.brand-tagline{font-size:9px;letter-spacing:3px;color:#d4b789;font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:14px}
+.bell-icon{font-size:25px;color:#eee6dc;transform:rotate(180deg);opacity:.9}
+.profile-circle-btn{
+  width:44px;height:44px;border-radius:50%;overflow:hidden;border:1px solid #806b52;
+  background:#a88a67;color:#fff;font:400 18px Georgia,"Times New Roman",serif;
+  display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer
+}
+.profile-circle-btn .top-avatar{width:100%!important;height:100%!important;border-radius:50%!important;object-fit:cover!important}
+#homePage{width:100%}
+#homePage>.home-luxury-hero,
+#homePage>.home-section-heading,
+#homePage>#categoryGrid,
+#homePage>.ai-promo,
+#homePage>.recent-section{
+  width:100%!important;max-width:none!important;
+}
+.container{width:min(1290px,100%)!important;max-width:1290px!important;padding:24px 22px 115px!important}
+.home-luxury-hero{
+  width:100%!important;max-width:none!important;
+  min-height:300px!important;
+  border-radius:24px!important;
+  padding:38px 52px!important;
+  background:
+    linear-gradient(90deg,rgba(9,9,8,.98) 0%,rgba(9,9,8,.91) 31%,rgba(9,9,8,.48) 48%,rgba(9,9,8,.03) 69%),
+    url("./wardrobe-hero.jpg") right center/66% 100% no-repeat!important;
+  border:1px solid #554c42!important;
+}
+.home-luxury-copy{max-width:48%!important}
+.hero-greeting{
+  margin:0 0 14px!important;
+  color:#fff!important;
+  font:400 clamp(38px,4.3vw,61px)/1.02 Georgia,"Times New Roman",serif!important;
+  letter-spacing:-1px!important;
+}
+.home-luxury-hero p{
+  font-size:12px!important;letter-spacing:3px!important;color:#d7c7b5!important;
+  margin:0!important
+}
+.hero-add-btn{
+  margin-top:25px!important;
+  min-width:185px!important;padding:15px 27px!important;
+  border-radius:999px!important;
+  font-size:17px!important;
+  background:#d9b37f!important;color:#17120e!important
+}
+.home-section-heading{margin:28px 0 13px!important}
+.home-section-title{font-size:31px!important}
+.category-grid{gap:16px!important}
+.category-card{min-height:235px!important}
+.ai-promo{margin-top:24px!important}
+.recent-section{margin-top:25px!important}
+@media(min-width:900px){
+  .category-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+  .luxury-topbar{min-height:72px!important;padding:12px 14px!important}
+  .brand-tagline{font-size:7px;letter-spacing:2px}
+  .bell-icon{display:none}
+  .credit-pill{font-size:9px!important}
+  .profile-circle-btn{width:38px;height:38px}
+  .container{padding:14px 13px 105px!important}
+  .home-luxury-hero{
+    min-height:240px!important;padding:28px 22px!important;
+    background:
+      linear-gradient(90deg,rgba(9,9,8,.98) 0%,rgba(9,9,8,.86) 42%,rgba(9,9,8,.18) 72%),
+      url("./wardrobe-hero.jpg") right center/78% 100% no-repeat!important;
+  }
+  .home-luxury-copy{max-width:70%!important}
+  .hero-greeting{font-size:37px!important}
+  .home-luxury-hero p{font-size:9px!important;letter-spacing:1.8px!important}
+  .hero-add-btn{min-width:145px!important;padding:12px 19px!important;font-size:14px!important}
+}
 
 </style>
 
@@ -790,19 +849,24 @@ body{
 </div>
 
 <div id="appScreen" class="app hidden">
-  <header class="topbar">
-    <div class="topbar-title">My Wardrobe</div>
-    <div style="display:flex;align-items:center;gap:8px"><div id="creditPill" class="credit-pill">✨ <span id="creditBalanceTop">—</span> AI Credits</div>
-    <button class="icon-btn mini-profile-btn" onclick="showPage('me')" aria-label="My profile"><span id="topAvatarSlot">👤</span></button></div>
+  <header class="topbar luxury-topbar">
+    <div class="brand-block">
+      <div class="topbar-title">My Wardrobe</div>
+      <div class="brand-tagline">YOUR STYLE. YOUR STORY.</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="bell-icon" aria-hidden="true">♧</div>
+      <div id="creditPill" class="credit-pill">✦ <span id="creditBalanceTop">—</span> AI Credits</div>
+      <button class="profile-circle-btn" onclick="showPage('me')" aria-label="My profile"><span id="topAvatarSlot">M</span></button>
+    </div>
   </header>
 
   <main class="container">
     <section id="homePage">
       <div class="home-luxury-hero">
         <div class="home-luxury-copy">
-          <div class="home-eyebrow">Your style · Your story</div>
-          <h1 id="welcomeText">Welcome.</h1>
-          <p>Confidence looks good on you.</p>
+          <h1 class="hero-greeting"><span id="greetingText">Good evening,</span><br><span id="heroUserName">there.</span></h1>
+          <p>CONFIDENCE LOOKS GOOD ON YOU.</p>
           <button class="hero-add-btn" onclick="openClothingModal()">＋ &nbsp; Add Item</button>
         </div>
         <div class="wardrobe-mark" aria-hidden="true"></div>
@@ -1234,17 +1298,15 @@ async function login(e){
 async function logout(){await supabaseClient.auth.signOut();currentUser=null;appStarted=false;el("appScreen").classList.add("hidden");el("authScreen").classList.remove("hidden");showLogin()}
 
 
-function updateLuxuryGreeting(){
- const greetingEl=el("welcomeText");
- if(!greetingEl)return;
- const hour=new Date().getHours();
- let greeting="Good evening";
- if(hour<12)greeting="Good morning";
- else if(hour<17)greeting="Good afternoon";
- const displayName=(userProfile?.name||"").trim();
- greetingEl.innerHTML=displayName
-   ? `${greeting},<br>${escapeHtml(displayName)}.`
-   : `${greeting}.`;
+function updateHomeGreeting(){
+  const hour=new Date().getHours();
+  const greeting=hour<12?"Good morning,":hour<18?"Good afternoon,":"Good evening,";
+  const rawName=(userProfile?.display_name||"").trim();
+  const firstName=rawName?rawName.split(/\s+/)[0]:"";
+  const greetingEl=el("greetingText");
+  const nameEl=el("heroUserName");
+  if(greetingEl)greetingEl.textContent=greeting;
+  if(nameEl)nameEl.textContent=(firstName||"there")+".";
 }
 
 async function startApp(){
@@ -1252,8 +1314,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- 
- try{await loadAllData();await loadUserProfile();updateLuxuryGreeting();await createProfileSignedUrl();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -1745,7 +1806,7 @@ async function saveProfile(){
  };
  const {error}=await supabaseClient.from("profiles").upsert(payload,{onConflict:"user_id"});
  if(error)return alert(error.message);
- await loadUserProfile();updateLuxuryGreeting();
+ await loadUserProfile();
  await createProfileSignedUrl();
  syncShoppingProfileFromUserProfile();
  updateMePage();
