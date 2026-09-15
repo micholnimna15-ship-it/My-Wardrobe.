@@ -543,6 +543,198 @@ body{
   .category-card{min-height:112px !important}
 }
 
+
+/* ===== DARK LUXURY — MATCHING THE APPROVED REFERENCE ===== */
+:root{
+  --bg:#0d0e0d;
+  --card:#171613;
+  --text:#f3eee7;
+  --muted:#b7aa9c;
+  --line:#4a433b;
+  --dark:#0d0e0d;
+  --soft:#211f1b;
+  --danger:#d46a65;
+  --gold:#d2ad7b;
+  --shadow:0 14px 34px rgba(0,0,0,.28);
+}
+html,body{background:#0d0e0d!important;color:var(--text)!important}
+body{
+  background:
+    radial-gradient(circle at 85% 5%,rgba(125,93,57,.08),transparent 26%),
+    linear-gradient(180deg,#0c0d0c 0%,#11110f 100%)!important;
+}
+.container{width:min(1120px,100%);padding:22px 18px 110px}
+.topbar{
+  position:sticky;top:0;
+  background:rgba(13,14,13,.93)!important;
+  border-bottom:1px solid rgba(210,173,123,.16)!important;
+  box-shadow:none!important;
+  padding:17px 20px!important;
+}
+.topbar-title,.logo{
+  color:#f5f0e9!important;background:none!important;
+  -webkit-background-clip:initial!important;background-clip:initial!important;
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:500!important;letter-spacing:-.8px!important;
+}
+.topbar-title{font-size:28px!important}
+.credit-pill{
+  background:#1b1916!important;border:1px solid #51483f!important;color:#d7b88f!important;
+  border-radius:999px!important
+}
+.icon-btn,.secondary,.small-btn{
+  background:#191815!important;border:1px solid #4d463f!important;color:#eee7de!important;
+  box-shadow:none!important
+}
+.primary,.buy-credits-btn,.ai-clean-btn{
+  background:linear-gradient(135deg,#d7b483,#b88c58)!important;
+  color:#17130f!important;border:0!important;box-shadow:none!important;font-weight:800!important
+}
+.home-luxury-hero{
+  min-height:305px!important;border-radius:28px!important;border:1px solid #4b443c!important;
+  background:
+    linear-gradient(90deg,rgba(12,12,11,.98) 0%,rgba(13,13,12,.90) 40%,rgba(13,13,12,.15) 68%,rgba(13,13,12,.05) 100%),
+    url("./wardrobe-hero.jpg") right center/58% 100% no-repeat!important;
+  box-shadow:0 20px 48px rgba(0,0,0,.30)!important;
+  padding:38px 38px!important;display:flex!important;align-items:center!important;
+}
+.home-luxury-hero:before{display:none!important}
+.home-luxury-copy{max-width:52%!important}
+.home-eyebrow{
+  color:#c9b8a4!important;font-size:13px!important;letter-spacing:3px!important;
+  font-weight:500!important;margin-bottom:15px!important
+}
+.home-luxury-hero h1{
+  color:#fff!important;font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:400!important;font-size:48px!important;line-height:1.04!important;margin-bottom:14px!important
+}
+.home-luxury-hero p{
+  color:#cfc1b2!important;text-transform:uppercase;letter-spacing:2.4px;font-size:12px!important
+}
+.wardrobe-mark{display:none!important}
+.hero-add-btn{
+  margin-top:24px;border:0;border-radius:999px;padding:14px 26px;
+  background:linear-gradient(135deg,#dfc092,#c99f6c);color:#17130f;
+  font-size:16px;font-weight:800;cursor:pointer
+}
+.quick-actions{display:none!important}
+.home-section-heading{margin:30px 2px 14px!important;align-items:center!important}
+.home-section-title,.section-head h2,.shop-subhead h2,.modal-head h2,.page-intro h1{
+  color:#f4efe8!important;font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:400!important
+}
+.home-section-title{font-size:32px!important}
+.home-section-sub{display:none!important}
+.category-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important;
+  overflow-x:auto;padding:2px 1px 6px;scrollbar-width:none
+}
+.category-grid::-webkit-scrollbar{display:none}
+.category-card{
+  min-width:170px!important;min-height:245px!important;padding:0!important;overflow:hidden!important;
+  border-radius:22px!important;background:#181713!important;border:1px solid #514a42!important;
+  box-shadow:none!important;position:relative!important;display:block!important
+}
+.category-card:hover{transform:none!important;border-color:#8d765d!important}
+.category-cover{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#211f1b;
+}
+.category-cover-placeholder{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:64px;background:radial-gradient(circle at 50% 35%,#39332c,#1b1916 70%)
+}
+.category-overlay{
+  position:absolute;left:0;right:0;bottom:0;padding:44px 16px 15px;
+  background:linear-gradient(transparent,rgba(12,11,10,.94));text-align:left
+}
+.category-name{
+  color:#fff!important;font-family:Georgia,"Times New Roman",serif!important;
+  font-size:21px!important;font-weight:500!important
+}
+.category-card .muted{color:#d0c2b3!important;font-size:13px!important;margin-top:3px}
+.add-category-link{
+  border:0;background:transparent;color:#d2ad7b;font-size:15px;cursor:pointer;padding:8px 0
+}
+.ai-promo{
+  margin-top:26px!important;border-radius:28px!important;padding:28px!important;
+  background:
+    radial-gradient(circle at 82% 35%,rgba(150,110,70,.20),transparent 24%),
+    linear-gradient(135deg,#211d18,#121210)!important;
+  border:1px solid #51483f!important;box-shadow:none!important
+}
+.ai-promo h3{
+  color:#fff!important;font-family:Georgia,"Times New Roman",serif!important;
+  font-size:34px!important;font-weight:400!important;margin-bottom:8px!important
+}
+.ai-promo p{color:#c5b7a8!important;font-size:15px!important;max-width:650px}
+.ai-promo .secondary{
+  background:linear-gradient(135deg,#dfc092,#c99f6c)!important;color:#17130f!important;
+  border:0!important;border-radius:999px!important;padding:13px 22px!important;font-weight:800
+}
+.recent-section{margin-top:30px}
+.recent-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.recent-head h2{
+  margin:0;color:#f4efe8;font:400 32px Georgia,"Times New Roman",serif
+}
+.recent-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;overflow-x:auto;scrollbar-width:none}
+.recent-grid::-webkit-scrollbar{display:none}
+.recent-card{
+  min-width:150px;background:#181713;border:1px solid #514a42;border-radius:18px;overflow:hidden;
+}
+.recent-card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#24211d}
+.recent-placeholder{aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;font-size:44px;background:#24211d}
+.recent-body{padding:10px 11px}
+.recent-body strong{font-family:Georgia,"Times New Roman",serif;font-weight:500;color:#fff}
+.recent-body .muted{color:#a99d90!important}
+.category-card,.clothing-card,.look-card,.product-card,.shop-feature-card,.me-card,.laundry-column,.ai-outfit-card,.result-card,.credit-card,.modal-box{
+  background:#181713!important;border-color:#4b443c!important;color:#f2ece5!important;box-shadow:none!important
+}
+.clothing-info strong,.product-title,.ai-piece-name{color:#f4efe8!important}
+.muted,.product-source,.product-meta{color:#a99d90!important}
+.clothing-photo,.product-image,.ai-piece img,.look-picker-photo,.laundry-thumb{background:#24211d!important}
+.shop-feature-card{background:linear-gradient(145deg,#1c1a17,#121210)!important}
+.shop-feature-icon{background:#29241e!important;color:#d2ad7b!important}
+.notice,.item-analysis-card,.look-selected-summary,.photo-tools{
+  background:#211e1a!important;border-color:#4b443c!important;color:#bcae9f!important
+}
+.field input,.field select,.field textarea,.searchbox input,
+#customStoreName,#customStoreUrl,#uploadedCustomStoreName,#uploadedCustomStoreUrl{
+  background:#151412!important;color:#f2ece5!important;border-color:#4b443c!important
+}
+.field input:focus,.field select:focus,.field textarea:focus,.searchbox input:focus{
+  border-color:#b48b5d!important;box-shadow:0 0 0 3px rgba(180,139,93,.12)!important
+}
+.modal{background:rgba(0,0,0,.72)!important}
+.modal-box{background:#151412!important}
+.chip{background:#191815!important;border-color:#4b443c!important;color:#ddd3c8!important}
+.chip.active{background:#d2ad7b!important;color:#15120f!important;border-color:#d2ad7b!important}
+.bottom-nav{
+  background:rgba(13,14,13,.97)!important;border-top:1px solid #4b443c!important;
+  box-shadow:0 -8px 30px rgba(0,0,0,.25)!important;padding-top:10px!important
+}
+.nav-btn{color:#c7beb4!important}
+.nav-btn.active{color:#d2ad7b!important}
+.empty-state{background:#181713!important;border-color:#4b443c!important;color:#a99d90!important}
+.auth{background:#0d0e0d!important}
+.auth-box{background:#171613!important;border-color:#4b443c!important;color:#f3eee7!important}
+.tabs{background:#211f1b!important}.tabs button{color:#aaa095}.tabs button.active{background:#332d26!important;color:#fff!important}
+@media(max-width:700px){
+  .container{padding:16px 14px 105px}
+  .topbar-title{font-size:24px!important}
+  .credit-pill{font-size:10px;padding:7px 8px}
+  .home-luxury-hero{min-height:250px!important;padding:28px 22px!important;background-size:72% 100%!important}
+  .home-luxury-copy{max-width:67%!important}
+  .home-luxury-hero h1{font-size:38px!important}
+  .home-luxury-hero p{font-size:10px!important;letter-spacing:1.7px}
+  .category-grid{display:flex!important}
+  .category-card{flex:0 0 46%!important;min-width:150px!important;min-height:220px!important}
+  .home-section-title,.recent-head h2{font-size:28px!important}
+  .recent-grid{display:flex!important}
+  .recent-card{flex:0 0 42%!important}
+  .ai-promo{padding:22px!important}
+  .ai-promo h3{font-size:29px!important}
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -584,29 +776,34 @@ body{
     <section id="homePage">
       <div class="home-luxury-hero">
         <div class="home-luxury-copy">
-          <div class="home-eyebrow">Your personal closet</div>
+          <div class="home-eyebrow">Your style · Your story</div>
           <h1 id="welcomeText">My Wardrobe</h1>
-          <p>Everything you own, styled beautifully in one place.</p>
+          <p>Confidence looks good on you.</p>
+          <button class="hero-add-btn" onclick="openClothingModal()">＋ &nbsp; Add Item</button>
         </div>
-        <div class="wardrobe-mark" aria-hidden="true"><div>👔</div><div>👗</div><div class="wide">👟 &nbsp; 👜</div></div>
-      </div>
-
-      <div class="quick-actions">
-        <button class="quick-action" onclick="openClothingModal()"><span>＋</span>Add item</button>
-        <button class="quick-action" onclick="hideAllPages();clearNavActive();el('searchPage').classList.remove('hidden');performSearch()"><span>⌕</span>Search</button>
-        <button class="quick-action" onclick="openSaveLookModal()"><span>♡</span>Create look</button>
-        <button class="quick-action" onclick="showPage('shop')"><span>✦</span>AI Stylist</button>
+        <div class="wardrobe-mark" aria-hidden="true"></div>
       </div>
 
       <div class="home-section-heading">
-        <div><h2 class="home-section-title">My Wardrobe</h2><p class="home-section-sub">Browse your collection by category</p></div>
-        <button class="secondary" onclick="openCategoryModal()">+ Category</button>
+        <div><h2 class="home-section-title">My Categories</h2></div>
+        <button class="add-category-link" onclick="openCategoryModal()">+ Category</button>
       </div>
       <div id="categoryGrid" class="category-grid"></div>
 
       <div class="ai-promo">
-        <div><h3>✦ Style with AI</h3><p>Build an outfit for an occasion, match something you want to buy, or find pieces online.</p></div>
-        <button class="secondary" onclick="showPage('shop')">Open Shop AI →</button>
+        <div>
+          <h3>Shop AI</h3>
+          <p>Find new pieces, match with your wardrobe and get AI recommendations.</p>
+        </div>
+        <button class="secondary" onclick="showPage('shop')">Explore →</button>
+      </div>
+
+      <div class="recent-section">
+        <div class="recent-head">
+          <h2>Recent Items</h2>
+          <button class="add-category-link" onclick="hideAllPages();clearNavActive();el('searchPage').classList.remove('hidden');performSearch()">See all →</button>
+        </div>
+        <div id="recentItemsGrid" class="recent-grid"></div>
       </div>
     </section>
 
@@ -1128,7 +1325,7 @@ function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","sho
 function clearNavActive(){["navHome","navLooks","navShop","navLaundry","navMe"].forEach(id=>el(id)?.classList.remove("active"))}
 function showPage(page){
  hideAllPages();clearNavActive();
- if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories()}
+ if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
@@ -1138,10 +1335,48 @@ function goHome(){showPage("home")}
 
 function renderCategories(){
  const grid=el("categoryGrid");
- if(!categories.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1">No categories yet.<br><br>Tap <b>+ Category</b> to start your wardrobe.</div>';return}
- grid.innerHTML=categories.map(c=>`<button class="category-card" onclick="openCategory('${escapeJs(c.id)}')" style="text-align:left">
- <div class="category-icon">${escapeHtml(c.icon||"👕")}</div><div class="category-name">${escapeHtml(c.name)}</div>
- <div class="muted">${clothingItems.filter(i=>i.category_id===c.id).length} items</div></button>`).join("");
+ if(!categories.length){
+   grid.innerHTML='<div class="empty-state" style="grid-column:1/-1">No categories yet.<br><br>Tap <b>+ Category</b> to start your wardrobe.</div>';
+   renderRecentItems();
+   return;
+ }
+ grid.innerHTML=categories.map(c=>{
+   const items=clothingItems.filter(i=>i.category_id===c.id);
+   const cover=items.find(i=>i.displayPhoto)?.displayPhoto||"";
+   const visual=cover
+     ? `<img class="category-cover" src="${escapeHtml(cover)}" alt="">`
+     : `<div class="category-cover-placeholder">${escapeHtml(c.icon||"👕")}</div>`;
+   return `<button class="category-card" onclick="openCategory('${escapeJs(c.id)}')" style="text-align:left">
+     ${visual}
+     <div class="category-overlay">
+       <div class="category-name">${escapeHtml(c.name)}</div>
+       <div class="muted">${items.length} items</div>
+     </div>
+   </button>`;
+ }).join("");
+ renderRecentItems();
+}
+
+function renderRecentItems(){
+ const grid=el("recentItemsGrid");
+ if(!grid)return;
+ const items=clothingItems.slice(0,5);
+ if(!items.length){
+   grid.innerHTML='<div class="empty-state" style="grid-column:1/-1">Your recently added clothes will appear here.</div>';
+   return;
+ }
+ grid.innerHTML=items.map(item=>{
+   const photo=item.displayPhoto
+     ? `<img src="${escapeHtml(item.displayPhoto)}" alt="${escapeHtml(item.name||"Clothing item")}">`
+     : `<div class="recent-placeholder">👕</div>`;
+   return `<div class="recent-card" onclick="openClothingModal('${escapeJs(item.id)}')" style="cursor:pointer">
+     ${photo}
+     <div class="recent-body">
+       <strong>${escapeHtml(item.name||"Clothing item")}</strong>
+       <div class="muted">${escapeHtml(item.brand||item.color||"")}</div>
+     </div>
+   </div>`;
+ }).join("");
 }
 function openCategoryModal(id=null){
  editingCategoryId=id;el("categoryModalTitle").textContent=id?"Edit category":"Add category";
