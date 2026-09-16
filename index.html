@@ -860,6 +860,58 @@ body{
  .bulk-fields{grid-template-columns:1fr}
 }
 
+
+/* ===== ADAPTIVE HERO ANIMATION + LARGE ITEM VIEWER ===== */
+.home-luxury-hero{
+  position:relative!important;overflow:hidden!important;
+  background:
+    radial-gradient(circle at 79% 47%,rgba(190,143,88,.13),transparent 29%),
+    linear-gradient(105deg,#090a09 0%,#0b0b0a 49%,#17130f 100%)!important;
+}
+.home-luxury-copy{position:relative;z-index:5}
+.adaptive-hero-visual{position:absolute;right:1.5%;top:3%;bottom:3%;width:56%;z-index:2;pointer-events:none}
+.hero-rack{position:absolute;right:4%;top:13%;width:36%;height:76%;opacity:.72}
+.hero-rack span{position:absolute;left:0;right:0;top:0;height:3px;border-radius:5px;background:linear-gradient(90deg,#66523e,#c89d68,#66523e)}
+.hero-rack i,.hero-rack b{position:absolute;top:0;bottom:3%;width:3px;background:#695540}
+.hero-rack i{left:3%}.hero-rack b{right:3%}
+.hero-fashion-items{position:absolute;inset:0}
+.fashion-piece{position:absolute;opacity:0;filter:drop-shadow(0 15px 12px rgba(0,0,0,.36));animation:heroIn .8s cubic-bezier(.2,.8,.2,1) forwards,heroFloat 5s ease-in-out infinite}
+.fashion-piece svg{width:100%;height:100%}
+.hp1{left:4%;top:19%;width:25%;height:59%;animation-delay:.08s,1s}
+.hp2{left:29%;top:12%;width:21%;height:68%;animation-delay:.25s,1.2s}
+.hp3{left:51%;top:17%;width:24%;height:61%;animation-delay:.42s,1.4s}
+.hp4{left:69%;top:61%;width:21%;height:23%;animation-delay:.59s,1.6s}
+.hero-star{position:absolute;color:#e7bf88;font-style:normal;text-shadow:0 0 14px rgba(231,191,136,.7);animation:heroSpark 2.8s ease-in-out infinite}
+.hs1{left:25%;top:16%;font-size:22px}.hs2{left:62%;top:14%;font-size:19px;animation-delay:.8s}.hs3{left:58%;top:72%;font-size:24px;animation-delay:1.5s}
+.hero-glow{position:absolute;left:5%;right:1%;bottom:2%;height:15%;background:radial-gradient(ellipse,rgba(205,154,96,.16),transparent 67%);filter:blur(6px)}
+@keyframes heroIn{from{opacity:0;transform:translateY(-24px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes heroFloat{0%,100%{margin-top:0}50%{margin-top:-5px}}
+@keyframes heroSpark{0%,100%{opacity:.15;transform:scale(.75) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(20deg)}}
+
+.clothing-photo-clickable{cursor:zoom-in;transition:opacity .15s ease}
+.clothing-photo-clickable:hover{opacity:.88}
+.item-viewer-box{width:min(760px,96vw)!important;max-height:94vh!important;padding:18px!important}
+.viewer-photo-wrap{width:100%;height:min(64vh,620px);border-radius:18px;overflow:hidden;background:#0c0c0b;display:flex;align-items:center;justify-content:center;border:1px solid #4b443c}
+.viewer-photo-wrap img{width:100%;height:100%;object-fit:contain;display:block}
+.viewer-photo-placeholder{font-size:90px;color:#d2ad7b}
+.viewer-details{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.viewer-details>div{background:#211e1a;border:1px solid #4b443c;border-radius:13px;padding:11px 12px}
+.viewer-details span{display:block;color:#9f9386;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.viewer-details strong{color:#f4eee7;font-weight:600}
+.viewer-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.viewer-actions .small-btn{padding:11px 8px!important}
+@media(max-width:700px){
+  .adaptive-hero-visual{right:-8%;width:63%;opacity:.82}
+  .home-luxury-copy{max-width:68%!important}
+  .hp4{display:none}
+  .viewer-photo-wrap{height:55vh}
+  .viewer-details{grid-template-columns:1fr 1fr}
+  .viewer-actions{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .fashion-piece,.hero-star{animation:none!important;opacity:1!important}
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -911,7 +963,12 @@ body{
           <p>CONFIDENCE LOOKS GOOD ON YOU.</p>
           <button class="hero-add-btn" onclick="openClothingModal()">＋ &nbsp; Add Item</button>
         </div>
-        <div class="wardrobe-mark" aria-hidden="true"></div>
+        <div id="adaptiveHeroVisual" class="adaptive-hero-visual" aria-hidden="true">
+          <div class="hero-rack"><span></span><i></i><b></b></div>
+          <div id="heroFashionItems" class="hero-fashion-items"></div>
+          <em class="hero-star hs1">✦</em><em class="hero-star hs2">✧</em><em class="hero-star hs3">✦</em>
+          <div class="hero-glow"></div>
+        </div>
       </div>
 
       <div class="home-section-heading">
@@ -1192,6 +1249,28 @@ body{
 </div>
 
 
+
+<div id="itemViewerModal" class="modal hidden" onclick="if(event.target===this)closeItemViewer()">
+  <div class="modal-box item-viewer-box">
+    <div class="modal-head">
+      <h2 id="viewerItemName">Clothing Item</h2>
+      <button class="close" onclick="closeItemViewer()">×</button>
+    </div>
+    <div id="viewerPhotoWrap" class="viewer-photo-wrap"></div>
+    <div class="viewer-details">
+      <div><span>Brand</span><strong id="viewerBrand">—</strong></div>
+      <div><span>Colour</span><strong id="viewerColor">—</strong></div>
+      <div><span>Category</span><strong id="viewerCategory">—</strong></div>
+    </div>
+    <div class="viewer-actions">
+      <button class="small-btn" onclick="viewerEdit()">Edit</button>
+      <button class="small-btn" onclick="viewerLaundry()">🧺 Laundry</button>
+      <button class="small-btn" onclick="viewerMove()">↗ Move To</button>
+      <button class="small-btn danger" onclick="viewerDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
 <div id="moveItemModal" class="modal hidden">
  <div class="modal-box move-modal-box">
   <div class="modal-head"><h2>Move To</h2><button class="close" onclick="closeModal('moveItemModal')">×</button></div>
@@ -1385,6 +1464,55 @@ async function login(e){
 async function logout(){await supabaseClient.auth.signOut();currentUser=null;appStarted=false;el("appScreen").classList.add("hidden");el("authScreen").classList.remove("hidden");showLogin()}
 
 
+
+let viewingClothingId=null;
+
+function heroProfileGender(){
+ const g=String(userProfile?.gender||"").trim().toLowerCase();
+ if(g==="female"||g==="woman"||g==="f")return "female";
+ if(g==="male"||g==="man"||g==="m")return "male";
+ return "neutral";
+}
+function fashionSvg(type,fill){
+ const s='stroke="#5f4b38" stroke-width="2" stroke-linejoin="round"';
+ if(type==="shirt")return `<svg viewBox="0 0 120 150"><path d="M35 24 49 14h22l14 10 25 16-13 26-13-8v77H36V58l-13 8-13-26z" fill="${fill}" ${s}/><path d="m49 14 11 17 11-17M60 31v104" fill="none" ${s}/></svg>`;
+ if(type==="pants")return `<svg viewBox="0 0 110 160"><path d="M25 12h60l-5 136H58L55 69l-4 79H29z" fill="${fill}" ${s}/><path d="M26 31h58M55 12v57" fill="none" ${s}/></svg>`;
+ if(type==="blazer")return `<svg viewBox="0 0 120 150"><path d="M35 22 51 13h18l16 9 23 21-13 25-12-9v77H37V59l-12 9-13-25z" fill="${fill}" ${s}/><path d="m51 13 9 30 9-30M60 43v93" fill="none" ${s}/></svg>`;
+ if(type==="dress")return `<svg viewBox="0 0 120 160"><path d="M43 14h34l8 35 22 98H13l22-98z" fill="${fill}" ${s}/><path d="M43 14c3 15 31 15 34 0M35 49h50" fill="none" ${s}/></svg>`;
+ if(type==="skirt")return `<svg viewBox="0 0 110 150"><path d="M34 15h42l19 120H15z" fill="${fill}" ${s}/><path d="M32 31h46" fill="none" ${s}/></svg>`;
+ if(type==="top")return `<svg viewBox="0 0 120 145"><path d="M37 22 49 14h22l12 8 24 19-13 25-12-8v69H38V58l-12 8-13-25z" fill="${fill}" ${s}/></svg>`;
+ return `<svg viewBox="0 0 150 90"><path d="M18 56c17 0 32-21 44-36 14 22 25 28 58 34 13 3 17 13 9 20H22c-14 0-18-12-4-18z" fill="${fill}" ${s}/><path d="M51 39h31M43 48h43" fill="none" ${s}/></svg>`;
+}
+function renderAdaptiveHero(){
+ const holder=el("heroFashionItems");if(!holder)return;
+ const g=heroProfileGender();
+ const pieces=g==="female"
+  ? [["top","#eee4d7"],["skirt","#b89a76"],["dress","#715039"],["shoe","#e2d5c4"]]
+  : g==="male"
+  ? [["shirt","#eee5d9"],["pants","#b89d79"],["blazer","#76583e"],["shoe","#e1d4c2"]]
+  : [["shirt","#eee5d9"],["pants","#b89d79"],["top","#806247"],["shoe","#e1d4c2"]];
+ holder.innerHTML=pieces.map((p,i)=>`<div class="fashion-piece hp${i+1}">${fashionSvg(p[0],p[1])}</div>`).join("");
+}
+
+function openItemViewer(id){
+ const item=clothingItems.find(x=>x.id===id);if(!item)return;
+ viewingClothingId=id;
+ const cat=categories.find(c=>c.id===item.category_id);
+ el("viewerItemName").textContent=item.name||"Clothing Item";
+ el("viewerBrand").textContent=item.brand||"—";
+ el("viewerColor").textContent=item.color||"—";
+ el("viewerCategory").textContent=cat?.name||"—";
+ el("viewerPhotoWrap").innerHTML=item.displayPhoto
+   ? `<img src="${safeAttributeUrl(item.displayPhoto)}" alt="${escapeHtml(item.name||"Clothing item")}">`
+   : '<div class="viewer-photo-placeholder">👕</div>';
+ el("itemViewerModal").classList.remove("hidden");
+}
+function closeItemViewer(){viewingClothingId=null;closeModal("itemViewerModal")}
+function viewerEdit(){const id=viewingClothingId;closeItemViewer();if(id)openClothingModal(id)}
+function viewerLaundry(){const id=viewingClothingId;closeItemViewer();if(id)setLaundryStatus(id,"waiting")}
+function viewerMove(){const id=viewingClothingId;closeItemViewer();if(id)openMoveItemModal(id)}
+async function viewerDelete(){const id=viewingClothingId;closeItemViewer();if(id)await deleteClothing(id)}
+
 function updateHomeGreeting(){
   const hour=new Date().getHours();
   const greeting=hour<12?"Good morning,":hour<18?"Good afternoon,":"Good evening,";
@@ -1401,7 +1529,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();renderAdaptiveHero();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -1588,7 +1716,7 @@ function renderClothingForCategory(){
  el("clothingGrid").innerHTML=items.length?items.map(renderClothingCard).join(""):'<div class="empty-state" style="grid-column:1/-1">No clothing here yet.<br><br>Tap <b>+ Add clothing</b>.</div>';
 }
 function renderClothingCard(i){
- const photo=i.displayPhoto?`<img class="clothing-photo" src="${safeAttributeUrl(i.displayPhoto)}" alt="">`:`<div class="clothing-photo" style="display:flex;align-items:center;justify-content:center;font-size:45px">👕</div>`;
+ const photo=i.displayPhoto?`<img class="clothing-photo clothing-photo-clickable" src="${safeAttributeUrl(i.displayPhoto)}" alt="${escapeHtml(i.name||"Clothing item")}" onclick="openItemViewer('${escapeJs(i.id)}')">`:`<div class="clothing-photo clothing-photo-clickable" onclick="openItemViewer('${escapeJs(i.id)}')" style="display:flex;align-items:center;justify-content:center;font-size:45px">👕</div>`;
  return `<div class="clothing-card">${photo}<div class="clothing-info"><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.color||"")} ${i.brand?"• "+escapeHtml(i.brand):""}</div><div class="item-actions"><button class="small-btn" onclick="openClothingModal('${escapeJs(i.id)}')">Edit</button><button class="small-btn" onclick="setLaundryStatus('${escapeJs(i.id)}','waiting')">🧺 Laundry</button><button class="small-btn" onclick="openMoveItemModal('${escapeJs(i.id)}')">↗ Move To</button><button class="small-btn danger" onclick="deleteClothing('${escapeJs(i.id)}')">Delete</button></div></div></div>`;
 }
 
