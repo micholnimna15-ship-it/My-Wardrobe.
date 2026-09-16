@@ -1466,18 +1466,26 @@ function viewerLaundry(){const id=viewingClothingId;closeItemViewer();if(id)setL
 function viewerMove(){const id=viewingClothingId;closeItemViewer();if(id)openMoveItemModal(id)}
 async function viewerDelete(){const id=viewingClothingId;closeItemViewer();if(id)await deleteClothing(id)}
 
-function updateProfileHero(){
+function updateProfileHero(genderOverride){
   const hero=document.querySelector(".home-luxury-hero");
   if(!hero)return;
+
+  const g=String(
+    genderOverride !== undefined ? genderOverride : (userProfile?.gender||"")
+  ).trim().toLowerCase();
+
+  const isWoman=(g==="female"||g==="woman"||g==="f");
+  const image=isWoman ? "./hero-woman.png" : "./hero-man.png";
+
   hero.classList.remove("hero-man","hero-woman","hero-neutral");
-  const g=String(userProfile?.gender||"").trim().toLowerCase();
-  if(g==="female"||g==="woman"||g==="f"){
-    hero.classList.add("hero-woman");
-  }else if(g==="male"||g==="man"||g==="m"){
-    hero.classList.add("hero-man");
-  }else{
-    hero.classList.add("hero-neutral");
-  }
+  hero.classList.add(isWoman ? "hero-woman" : (g==="male"||g==="man"||g==="m" ? "hero-man" : "hero-neutral"));
+
+  // Force the correct image even if an older CSS rule or PWA cache is still active.
+  hero.style.setProperty(
+    "background-image",
+    `linear-gradient(90deg,#090a09 0%,rgba(9,10,9,.98) 34%,rgba(9,10,9,.72) 47%,rgba(9,10,9,.06) 68%), url("${image}?v=2")`,
+    "important"
+  );
 }
 
 function updateHomeGreeting(){
@@ -2198,12 +2206,19 @@ async function saveProfile(){
  };
  const {error}=await supabaseClient.from("profiles").upsert(payload,{onConflict:"user_id"});
  if(error)return alert(error.message);
+
+ // Update immediately from the value the user just selected.
+ userProfile={...(userProfile||{}),...payload};
+ updateHomeGreeting();
+ updateProfileHero(payload.gender);
+
+ // Then reload the saved database profile.
  await loadUserProfile();
  await createProfileSignedUrl();
  syncShoppingProfileFromUserProfile();
  updateMePage();
-  updateHomeGreeting();
-  updateProfileHero();
+ updateHomeGreeting();
+ updateProfileHero();
  closeModal("profileModal");
  alert("Profile saved.");
 }
