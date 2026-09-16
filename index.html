@@ -2202,6 +2202,8 @@ async function saveProfile(){
  await createProfileSignedUrl();
  syncShoppingProfileFromUserProfile();
  updateMePage();
+  updateHomeGreeting();
+  updateProfileHero();
  closeModal("profileModal");
  alert("Profile saved.");
 }
