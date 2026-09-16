@@ -1229,7 +1229,7 @@ body{
   <div class="field"><label>Clothing photo</label><input id="clothingPhoto" type="file" accept="image/*" onchange="previewPhoto(event)"></div>
   <div class="photo-tools">
     <strong>✨ AI Photo Cleaner</strong>
-    <div class="muted" style="margin-top:4px">Choose a photo, then let AI create a cleaner wardrobe-style image while keeping the real clothing design and colour.</div>
+    <div class="muted" style="margin-top:4px">Choose a photo and start AI cleaning. The item is saved first, then cleaning continues in the background even if you close the app.</div>
     <div class="photo-tools-grid">
       <div>
         <div class="muted" style="margin-bottom:5px">Original</div>
@@ -1282,7 +1282,7 @@ body{
 <div id="bulkUploadModal" class="modal hidden">
  <div class="modal-box bulk-modal-box">
   <div class="modal-head"><h2>Add Multiple Items</h2><button class="close" onclick="closeBulkUploadModal()">×</button></div>
-  <div class="notice">Select several clothing photos at once. You can clean only the photos you want, or use <b>Clean All with AI</b>, then review the details before adding everything to the category.</div>
+  <div class="notice">Select several clothing photos at once. <b>Clean</b> or <b>Clean All with AI</b> saves those items immediately and starts background cleaning, so you can close the app while AI continues.</div>
 
   <div class="field">
     <label>Category</label>
@@ -1395,7 +1395,7 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHA
 // Secure Supabase Edge Function that holds your private SerpApi key.
 const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
-const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing";
+const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing"; // legacy direct cleaner; background jobs now use ai_cleaning_jobs
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
@@ -1758,42 +1758,43 @@ function closeBulkUploadModal(){
 
 function handleBulkPhotos(e){
  const files=[...(e.target.files||[])].filter(f=>f.type.startsWith("image/"));
- bulkUploadItems.forEach(x=>{if(x.previewUrl)URL.revokeObjectURL(x.previewUrl);if(x.cleanedPreviewUrl)URL.revokeObjectURL(x.cleanedPreviewUrl)});
+ bulkUploadItems.forEach(x=>{if(x.previewUrl)URL.revokeObjectURL(x.previewUrl)});
  bulkUploadItems=files.map((file,index)=>({
    id:crypto.randomUUID(),
    file,
-   cleanedFile:null,
    previewUrl:URL.createObjectURL(file),
-   cleanedPreviewUrl:"",
-   name:file.name.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").trim()||`Item ${index+1}`,
+   name:file.name.replace(/\.[^.]+$/,"" ).replace(/[_-]+/g," ").trim()||`Item ${index+1}`,
    color:"",
    brand:"",
    cleaning:false,
+   saved:false,
+   clothingItemId:null,
+   jobId:null,
    status:""
  }));
  renderBulkItems();
 }
 
 function renderBulkItems(){
+ const remaining=bulkUploadItems.filter(x=>!x.saved).length;
  el("bulkCount").textContent=`${bulkUploadItems.length} item${bulkUploadItems.length===1?"":"s"} selected`;
  el("bulkToolbar").classList.toggle("hidden",!bulkUploadItems.length);
- el("bulkSaveAllBtn").classList.toggle("hidden",!bulkUploadItems.length);
- el("bulkSaveAllBtn").textContent=`Add All ${bulkUploadItems.length||""} to Wardrobe`;
+ el("bulkSaveAllBtn").classList.toggle("hidden",!bulkUploadItems.length||remaining===0);
+ el("bulkSaveAllBtn").textContent=remaining===bulkUploadItems.length?`Add All ${remaining} to Wardrobe`:`Add Remaining ${remaining} to Wardrobe`;
  el("bulkItemsList").innerHTML=bulkUploadItems.map((item,index)=>{
-   const preview=item.cleanedPreviewUrl||item.previewUrl;
    return `<div class="bulk-item">
      <div class="bulk-preview-wrap">
-       <img class="bulk-preview" src="${safeAttributeUrl(preview)}" alt="">
-       ${item.cleanedFile?'<span class="bulk-clean-badge">✨ AI cleaned</span>':""}
+       <img class="bulk-preview" src="${safeAttributeUrl(item.previewUrl)}" alt="">
+       ${item.saved&&item.jobId?'<span class="bulk-clean-badge">✨ Cleaning in background</span>':item.saved?'<span class="bulk-clean-badge">✓ Saved</span>':""}
      </div>
      <div class="bulk-fields">
-       <div class="field"><label>Name</label><input value="${escapeHtml(item.name)}" oninput="updateBulkField(${index},'name',this.value)" placeholder="Item name"></div>
-       <div class="field"><label>Colour</label><input value="${escapeHtml(item.color)}" oninput="updateBulkField(${index},'color',this.value)" placeholder="Colour"></div>
-       <div class="field"><label>Brand</label><input value="${escapeHtml(item.brand)}" oninput="updateBulkField(${index},'brand',this.value)" placeholder="Brand"></div>
+       <div class="field"><label>Name</label><input value="${escapeHtml(item.name)}" oninput="updateBulkField(${index},'name',this.value)" placeholder="Item name" ${item.saved?"disabled":""}></div>
+       <div class="field"><label>Colour</label><input value="${escapeHtml(item.color)}" oninput="updateBulkField(${index},'color',this.value)" placeholder="Colour" ${item.saved?"disabled":""}></div>
+       <div class="field"><label>Brand</label><input value="${escapeHtml(item.brand)}" oninput="updateBulkField(${index},'brand',this.value)" placeholder="Brand" ${item.saved?"disabled":""}></div>
      </div>
      <div class="bulk-item-actions">
-       <button class="small-btn" type="button" ${item.cleaning?"disabled":""} onclick="cleanBulkPhoto(${index})">${item.cleaning?"Cleaning…":"✨ Clean"}</button>
-       <button class="small-btn danger" type="button" onclick="removeBulkPhoto(${index})">Remove</button>
+       <button class="small-btn" type="button" ${item.cleaning||item.saved?"disabled":""} onclick="cleanBulkPhoto(${index})">${item.cleaning?"Starting…":item.saved?"Queued ✓":"✨ Clean"}</button>
+       <button class="small-btn danger" type="button" ${item.saved?"disabled":""} onclick="removeBulkPhoto(${index})">Remove</button>
      </div>
      <div class="bulk-item-status">${escapeHtml(item.status||"")}</div>
    </div>`;
@@ -1801,44 +1802,75 @@ function renderBulkItems(){
 }
 
 function updateBulkField(index,key,value){
- if(bulkUploadItems[index])bulkUploadItems[index][key]=value;
+ if(bulkUploadItems[index]&&!bulkUploadItems[index].saved)bulkUploadItems[index][key]=value;
 }
 
 function removeBulkPhoto(index){
  const item=bulkUploadItems[index];
+ if(item?.saved)return;
  if(item?.previewUrl)URL.revokeObjectURL(item.previewUrl);
- if(item?.cleanedPreviewUrl)URL.revokeObjectURL(item.cleanedPreviewUrl);
  bulkUploadItems.splice(index,1);
  renderBulkItems();
 }
 
-async function requestCleanedFile(file){
- const dataUrl=await fileToDataUrl(file);
- const {data:{session}}=await supabaseClient.auth.getSession();
- const headers={"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY};
- headers["Authorization"]="Bearer "+(session?.access_token||SUPABASE_PUBLISHABLE_KEY);
- const res=await fetch(CLEAN_API_URL,{
-   method:"POST",headers,
-   body:JSON.stringify({imageBase64:String(dataUrl).split(",")[1],mimeType:file.type||"image/jpeg"})
- });
- const data=await res.json().catch(()=>({}));
- if(!res.ok||!data.success||!data.imageBase64)throw new Error(data.error||"AI photo cleaning failed.");
- return base64ToFile(data.imageBase64,data.mimeType||"image/png","ai-cleaned.png");
+async function uploadOriginalPhoto(file){
+ if(!currentUser)throw new Error("Please log in again.");
+ const rawExt=(file?.name?.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+ const path=`${currentUser.id}/ai-originals/${crypto.randomUUID()}.${rawExt}`;
+ const upload=await supabaseClient.storage.from("wardrobe-photos").upload(path,file,{upsert:false,contentType:file.type||"image/jpeg"});
+ if(upload.error)throw new Error("Photo upload failed: "+upload.error.message);
+ return path;
+}
+
+async function createBackgroundCleaningJob({file,name,color,brand,category_id,clothingItemId=null}){
+ if(!file)throw new Error("Choose a clothing photo first.");
+ if(!name||!category_id)throw new Error("Enter a name and choose a category.");
+ const originalPath=await uploadOriginalPhoto(file);
+ let itemId=clothingItemId;
+ const payload={
+   user_id:currentUser.id,
+   category_id,
+   name:String(name||"").trim(),
+   color:String(color||"").trim(),
+   brand:String(brand||"").trim(),
+   photo_url:originalPath
+ };
+ if(itemId){
+   const {data,error}=await supabaseClient.from("clothing_items").update(payload).eq("id",itemId).eq("user_id",currentUser.id).select("id").single();
+   if(error)throw new Error("Could not update clothing item: "+error.message);
+   itemId=data.id;
+ }else{
+   const {data,error}=await supabaseClient.from("clothing_items").insert(payload).select("id").single();
+   if(error)throw new Error("Could not save clothing item: "+error.message);
+   itemId=data.id;
+ }
+ const {data:job,error:jobError}=await supabaseClient.from("ai_cleaning_jobs").insert({
+   user_id:currentUser.id,
+   original_photo_path:originalPath,
+   clothing_item_id:itemId,
+   item_name:String(name||"").trim(),
+   status:"pending"
+ }).select("id,status").single();
+ if(jobError)throw new Error("Item was saved, but background cleaning could not start: "+jobError.message);
+ return {itemId,jobId:job.id,originalPath};
 }
 
 async function cleanBulkPhoto(index,quiet=false){
  const item=bulkUploadItems[index];
- if(!item||item.cleaning)return false;
- item.cleaning=true;item.status="AI is cleaning this photo…";renderBulkItems();
+ if(!item||item.cleaning||item.saved)return false;
+ const category_id=el("bulkCategory").value;
+ if(!category_id){if(!quiet)alert("Choose a category.");return false}
+ if(!String(item.name||"").trim()){if(!quiet)alert("Give this item a name first.");return false}
+ item.cleaning=true;item.status="Uploading and starting background AI cleaning…";renderBulkItems();
  try{
-   const cleaned=await requestCleanedFile(item.file);
-   if(item.cleanedPreviewUrl)URL.revokeObjectURL(item.cleanedPreviewUrl);
-   item.cleanedFile=cleaned;
-   item.cleanedPreviewUrl=URL.createObjectURL(cleaned);
-   item.status="Cleaned and ready to save.";
+   const result=await createBackgroundCleaningJob({
+     file:item.file,name:item.name,color:item.color,brand:item.brand,category_id
+   });
+   item.saved=true;item.clothingItemId=result.itemId;item.jobId=result.jobId;
+   item.status="Saved. AI cleaning is running in the background — you can close the app.";
    return true;
  }catch(err){
-   item.status="Could not clean: "+err.message;
+   item.status="Could not start cleaning: "+err.message;
    if(!quiet)console.error(err);
    return false;
  }finally{
@@ -1848,66 +1880,52 @@ async function cleanBulkPhoto(index,quiet=false){
 
 async function cleanAllBulkPhotos(){
  if(!bulkUploadItems.length)return;
+ const category_id=el("bulkCategory").value;
+ if(!category_id)return alert("Choose a category.");
+ const missing=bulkUploadItems.find(x=>!x.saved&&!String(x.name||"").trim());
+ if(missing)return alert("Please give every item a name.");
  const btn=el("bulkCleanAllBtn");
- btn.disabled=true;btn.textContent="✨ Cleaning All…";
- el("bulkStatus").textContent="Cleaning the selected photos one by one…";
- let done=0;
+ btn.disabled=true;btn.textContent="✨ Starting…";
+ const targets=bulkUploadItems.filter(x=>!x.saved).length;
+ el("bulkStatus").textContent=`Starting ${targets} background cleaning job${targets===1?"":"s"}…`;
+ let queued=0;
  for(let i=0;i<bulkUploadItems.length;i++){
-   if(bulkUploadItems[i].cleanedFile){done++;continue}
+   if(bulkUploadItems[i].saved)continue;
    const ok=await cleanBulkPhoto(i,true);
-   if(ok)done++;
-   el("bulkStatus").textContent=`Cleaned ${done} of ${bulkUploadItems.length}.`;
+   if(ok)queued++;
+   el("bulkStatus").textContent=`Queued ${queued} of ${targets}.`;
  }
  btn.disabled=false;btn.textContent="✨ Clean All with AI";
- el("bulkStatus").textContent=`Finished. ${done} of ${bulkUploadItems.length} photos are AI cleaned. Review them, then add all.`;
+ el("bulkStatus").textContent=`${queued} item${queued===1?"":"s"} saved and sent for background AI cleaning. You can close the app now.`;
+ await loadAllData();renderCategories();renderRecentItems();
 }
 
 async function saveAllBulkItems(){
  if(!bulkUploadItems.length)return;
  const category_id=el("bulkCategory").value;
  if(!category_id)return alert("Choose a category.");
- const missing=bulkUploadItems.find(x=>!String(x.name||"").trim());
+ const remaining=bulkUploadItems.filter(x=>!x.saved);
+ if(!remaining.length){closeBulkUploadModal();await loadAllData();renderCategories();return}
+ const missing=remaining.find(x=>!String(x.name||"").trim());
  if(missing)return alert("Please give every item a name.");
  const btn=el("bulkSaveAllBtn");
  btn.disabled=true;btn.textContent="Adding items…";
- el("bulkStatus").textContent=`Uploading 0 of ${bulkUploadItems.length}…`;
+ el("bulkStatus").textContent=`Uploading 0 of ${remaining.length}…`;
  let saved=0;
  try{
-   for(const item of bulkUploadItems){
-     const file=item.cleanedFile||item.file;
-     let photo_url=null;
-     if(file){
-       const ext=(file.name.split(".").pop()||"png").toLowerCase().replace(/[^a-z0-9]/g,"")||"png";
-       const path=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
-       const upload=await supabaseClient.storage.from("wardrobe-photos").upload(path,file,{upsert:false});
-       if(upload.error)throw new Error(`Photo upload failed for ${item.name}: ${upload.error.message}`);
-       photo_url=path;
-     }
-     const payload={
-       user_id:currentUser.id,
-       category_id,
-       name:String(item.name||"").trim(),
-       color:String(item.color||"").trim(),
-       brand:String(item.brand||"").trim(),
-       photo_url
-     };
-     const {error}=await supabaseClient.from("clothing_items").insert(payload);
+   for(const item of remaining){
+     const path=await uploadOriginalPhoto(item.file);
+     const payload={user_id:currentUser.id,category_id,name:String(item.name||"").trim(),color:String(item.color||"").trim(),brand:String(item.brand||"").trim(),photo_url:path};
+     const {data,error}=await supabaseClient.from("clothing_items").insert(payload).select("id").single();
      if(error)throw new Error(`Could not save ${item.name}: ${error.message}`);
-     saved++;
-     el("bulkStatus").textContent=`Added ${saved} of ${bulkUploadItems.length}…`;
+     item.saved=true;item.clothingItemId=data.id;item.status="Saved without AI cleaning.";
+     saved++;el("bulkStatus").textContent=`Added ${saved} of ${remaining.length}…`;
    }
    closeBulkUploadModal();
-   await loadAllData();
-   renderCategories();
-   if(currentCategoryId)renderClothingForCategory();
+   await loadAllData();renderCategories();if(currentCategoryId)renderClothingForCategory();renderRecentItems();
    alert(`${saved} item${saved===1?"":"s"} added to your wardrobe.`);
- }catch(err){
-   el("bulkStatus").textContent=err.message;
-   alert(err.message);
- }finally{
-   btn.disabled=false;
-   btn.textContent=`Add All ${bulkUploadItems.length||""} to Wardrobe`;
- }
+ }catch(err){el("bulkStatus").textContent=err.message;alert(err.message)}
+ finally{btn.disabled=false;renderBulkItems()}
 }
 
 function confirmDeleteCategory(){if(confirm("Delete this category and its clothing items?"))deleteCurrentCategory()}
@@ -1959,31 +1977,31 @@ function base64ToFile(base64,mimeType="image/png",name="ai-cleaned.png"){
 
 async function cleanClothingPhoto(){
  if(!selectedClothingFile)return alert("Choose a clothing photo first.");
+ const name=el("clothingName").value.trim();
+ const category_id=el("clothingCategory").value;
+ if(!name||!category_id)return alert("Enter a name and choose a category first.");
  const btn=el("cleanPhotoButton");
- btn.disabled=true;btn.textContent="✨ Cleaning…";
- el("cleanPhotoStatus").textContent="AI is removing distractions and preparing a clean wardrobe-style image. This can take a little while.";
+ btn.disabled=true;btn.textContent="✨ Starting…";
+ el("cleanPhotoStatus").textContent="Uploading your item and starting background AI cleaning…";
  try{
-  const dataUrl=await fileToDataUrl(selectedClothingFile);
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  const headers={"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY};
-  headers["Authorization"]="Bearer "+(session?.access_token||SUPABASE_PUBLISHABLE_KEY);
-  const res=await fetch(CLEAN_API_URL,{
-   method:"POST",headers,
-   body:JSON.stringify({
-    imageBase64:String(dataUrl).split(",")[1],
-    mimeType:selectedClothingFile.type||"image/jpeg"
-   })
-  });
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok||!data.success||!data.imageBase64)throw new Error(data.error||"AI photo cleaning failed.");
-  cleanedClothingFile=base64ToFile(data.imageBase64,data.mimeType||"image/png");
-  el("cleanedPhotoFrame").innerHTML=`<img src="data:${data.mimeType||"image/png"};base64,${data.imageBase64}" alt="AI cleaned clothing photo">`;
-  el("cleanPhotoStatus").textContent="Done — the cleaned version will be saved to your wardrobe.";
+   const result=await createBackgroundCleaningJob({
+     file:selectedClothingFile,
+     name,
+     color:el("clothingColor").value.trim(),
+     brand:el("clothingBrand").value.trim(),
+     category_id,
+     clothingItemId:editingClothingId||null
+   });
+   el("cleanedPhotoFrame").innerHTML='<div style="padding:20px;text-align:center">✨<br><br>Cleaning in background</div>';
+   el("cleanPhotoStatus").textContent="Saved. AI cleaning is now running in the background. You can close the app.";
+   selectedClothingFile=null;cleanedClothingFile=null;
+   await loadAllData();renderCategories();renderRecentItems();if(currentCategoryId)renderClothingForCategory();
+   setTimeout(()=>closeModal("clothingModal"),900);
  }catch(err){
-  console.error(err);
-  el("cleanPhotoStatus").textContent="Could not clean this image: "+err.message;
+   console.error(err);
+   el("cleanPhotoStatus").textContent="Could not start background cleaning: "+err.message;
  }finally{
-  btn.disabled=false;btn.textContent="✨ Clean with AI";
+   btn.disabled=false;btn.textContent="✨ Clean with AI";
  }
 }
 
