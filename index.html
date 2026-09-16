@@ -746,7 +746,16 @@ body{
 .brand-block{display:flex;flex-direction:column;gap:3px}
 .brand-tagline{font-size:9px;letter-spacing:3px;color:#d4b789;font-weight:700}
 .topbar-actions{display:flex;align-items:center;gap:14px}
-.bell-icon{font-size:25px;color:#eee6dc;transform:rotate(180deg);opacity:.9}
+.bell-icon{
+  width:38px;height:38px;padding:0;border:0;background:transparent;
+  color:#eee6dc;opacity:.92;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border-radius:50%;transform:none;
+}
+.bell-icon svg{
+  width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.bell-icon:hover{background:rgba(210,173,123,.08);color:#d9b37f}
 .profile-circle-btn{
   width:44px;height:44px;border-radius:50%;overflow:hidden;border:1px solid #806b52;
   background:#a88a67;color:#fff;font:400 18px Georgia,"Times New Roman",serif;
@@ -802,7 +811,7 @@ body{
 @media(max-width:700px){
   .luxury-topbar{min-height:72px!important;padding:12px 14px!important}
   .brand-tagline{font-size:7px;letter-spacing:2px}
-  .bell-icon{display:none}
+  .bell-icon{width:34px;height:34px}.bell-icon svg{width:21px;height:21px}
   .credit-pill{font-size:9px!important}
   .profile-circle-btn{width:38px;height:38px}
   .container{padding:14px 13px 105px!important}
@@ -939,7 +948,12 @@ body{
       <div class="brand-tagline">YOUR STYLE. YOUR STORY.</div>
     </div>
     <div class="topbar-actions">
-      <div class="bell-icon" aria-hidden="true">♧</div>
+      <button class="bell-icon" type="button" aria-label="Notifications" title="Notifications">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+    <path d="M10 21h4"></path>
+  </svg>
+</button>
       <div id="creditPill" class="credit-pill">✦ <span id="creditBalanceTop">—</span> AI Credits</div>
       <button class="profile-circle-btn" onclick="showPage('me')" aria-label="My profile"><span id="topAvatarSlot">M</span></button>
     </div>
