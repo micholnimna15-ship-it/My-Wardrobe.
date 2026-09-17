@@ -1052,6 +1052,28 @@ body{
   font-size:12px;line-height:1.45
 }
 
+
+/* ===== VISUAL TRAVEL PACKING LIST ===== */
+.travel-group{margin:14px 0;border:1px solid #3a342d;border-radius:16px;padding:12px;background:#151412}
+.travel-group-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.travel-group-head strong{font-family:Georgia,serif;color:#f2e7d8;font-size:17px}
+.travel-pack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:10px}
+.travel-pack-item{position:relative;border:1px solid #3a342d;border-radius:14px;overflow:hidden;background:#1c1a17;cursor:pointer}
+.travel-pack-item.packed{opacity:.72}
+.travel-pack-photo{height:118px;background:#24211d;display:flex;align-items:center;justify-content:center}
+.travel-pack-photo img{width:100%;height:100%;object-fit:cover}
+.travel-pack-photo .placeholder{font-size:34px}
+.travel-pack-check{position:absolute;top:8px;left:8px;width:27px;height:27px;border-radius:8px;border:1px solid #d5c09e;background:#111;display:grid;place-items:center;color:#111;font-weight:900;z-index:2}
+.travel-pack-item.packed .travel-pack-check{background:#d2ad7b;color:#111}
+.travel-pack-copy{padding:9px}
+.travel-pack-name{font-size:12px;font-weight:800;color:#f4ede4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.travel-pack-status{margin-top:6px;font-size:10px;display:inline-block;border-radius:999px;padding:4px 7px;background:#29251f;color:#cfc5b8}
+.travel-pack-status.done{background:#263229;color:#bfe0c5}
+.travel-pack-status.laundry{background:#38251f;color:#e7b5a2;border:1px solid #674033}
+.travel-progress-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}
+.travel-progress-track{height:7px;flex:1;background:#29251f;border-radius:999px;overflow:hidden}
+.travel-progress-fill{height:100%;background:#d2ad7b;border-radius:999px}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1791,7 +1813,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await checkPlannerLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await checkPlannerLaundryReminders();await checkTravelLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -2424,35 +2446,96 @@ function deleteTrip(id){
 }
 function renderTravelTrips(){
  const wrap=el("travelTripsList");if(!wrap)return;
- if(!travelTrips.length){wrap.innerHTML='<div class="planner-empty">No trips yet.<br><br>Create a trip and choose what you want to pack.</div>';return}
+ if(!travelTrips.length){
+   wrap.innerHTML='<div class="planner-empty">No trips yet.<br><br>Create a trip and choose what you want to pack.</div>';
+   return;
+ }
  const sorted=[...travelTrips].sort((a,b)=>String(a.departure).localeCompare(String(b.departure)));
  wrap.innerHTML=sorted.map(t=>{
    const items=(t.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id)).filter(Boolean);
    const packed=t.packedIds||[];
-   const rows=items.map(i=>{
-     const done=packed.includes(i.id);
-     const laundry=String(i.laundry_status||"").toLowerCase()==="laundry";
-     return `<label style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #332e28">
-       <input type="checkbox" ${done?"checked":""} onchange="togglePacked('${t.id}','${escapeJs(i.id)}')">
-       <span style="flex:1;color:${done?"#8f867d":"#eee7de"};${done?"text-decoration:line-through":""}">${escapeHtml(i.name||"Item")}</span>
-       ${laundry?'<span style="font-size:10px;color:#e6c99e">🧺 Laundry</span>':""}
-     </label>`;
+   const packedCount=items.filter(i=>packed.includes(i.id)).length;
+   const pct=items.length?Math.round((packedCount/items.length)*100):0;
+
+   const grouped={};
+   items.forEach(i=>{
+     const cat=categories.find(c=>c.id===i.category_id);
+     const key=cat?.name||"Other";
+     if(!grouped[key])grouped[key]={icon:cat?.icon||"👕",items:[]};
+     grouped[key].items.push(i);
+   });
+
+   const groups=Object.entries(grouped).map(([name,g])=>{
+     const cards=g.items.map(i=>{
+       const done=packed.includes(i.id);
+       const laundry=String(i.laundry_status||"").toLowerCase()==="laundry";
+       const photo=i.displayPhoto||i.photo_url||"";
+       return `<div class="travel-pack-item ${done?"packed":""}" onclick="togglePacked('${t.id}','${escapeJs(i.id)}')">
+         <div class="travel-pack-check">${done?"✓":""}</div>
+         <div class="travel-pack-photo">${photo?`<img src="${escapeHtml(photo)}" alt="${escapeHtml(i.name||"Clothing item")}">`:'<div class="placeholder">👕</div>'}</div>
+         <div class="travel-pack-copy">
+           <div class="travel-pack-name">${escapeHtml(i.name||"Clothing item")}</div>
+           ${laundry
+             ? '<span class="travel-pack-status laundry">🧺 In Laundry</span>'
+             : `<span class="travel-pack-status ${done?"done":""}">${done?"✓ Packed":"Not packed"}</span>`}
+         </div>
+       </div>`;
+     }).join("");
+     return `<div class="travel-group">
+       <div class="travel-group-head"><strong>${escapeHtml(g.icon)} ${escapeHtml(name)}</strong><span class="muted">${g.items.length} item${g.items.length===1?"":"s"}</span></div>
+       <div class="travel-pack-grid">${cards}</div>
+     </div>`;
    }).join("");
-   const pct=items.length?Math.round((packed.filter(id=>(t.itemIds||[]).includes(id)).length/items.length)*100):0;
+
    return `<div class="planned-outfit">
-     <div class="planned-outfit-top"><div>
-       <div class="planned-date">🧳 ${escapeHtml(plannerPrettyDate(t.departure))}</div>
-       <div class="planned-title">${escapeHtml(t.name)}</div>
-       <div class="planned-meta">${escapeHtml(t.destination||"")}${t.type?" · "+escapeHtml(t.type):""}</div>
-     </div><span class="planner-date-badge">${pct}% packed</span></div>
-     <div style="height:6px;background:#29251f;border-radius:999px;overflow:hidden;margin:12px 0"><div style="height:100%;width:${pct}%;background:#d2ad7b"></div></div>
-     <div>${rows||'<div class="muted">No items found.</div>'}</div>
+     <div class="planned-outfit-top">
+       <div>
+         <div class="planned-date">🧳 ${escapeHtml(plannerPrettyDate(t.departure))}</div>
+         <div class="planned-title">${escapeHtml(t.name)}</div>
+         <div class="planned-meta">${escapeHtml(t.destination||"")}${t.type?" · "+escapeHtml(t.type):""}</div>
+       </div>
+       <span class="planner-date-badge">${packedCount} / ${items.length} packed</span>
+     </div>
+     <div class="travel-progress-row">
+       <div class="travel-progress-track"><div class="travel-progress-fill" style="width:${pct}%"></div></div>
+       <strong style="color:#d2ad7b">${pct}%</strong>
+     </div>
+     ${groups||'<div class="muted" style="margin-top:12px">No items found.</div>'}
      <div class="planned-actions">
-       <button class="small-btn" onclick="alert('AI Outfit Suggestions will be kept separate and added as an optional feature.')">✨ AI Suggestions</button>
-       <button class="small-btn danger" onclick="deleteTrip('${t.id}')">Delete Trip</button>
+       <button class="small-btn" onclick="event.stopPropagation();alert('AI Outfit Suggestions stay optional and separate from your packing list.')">✨ AI Suggestions</button>
+       <button class="small-btn danger" onclick="event.stopPropagation();deleteTrip('${t.id}')">Delete Trip</button>
      </div>
    </div>`;
  }).join("");
+}
+
+
+async function checkTravelLaundryReminders(){
+ if(!currentUser)return;
+ loadTravelTrips();
+ const today=new Date(); today.setHours(0,0,0,0);
+ const tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+ const key=[tomorrow.getFullYear(),String(tomorrow.getMonth()+1).padStart(2,"0"),String(tomorrow.getDate()).padStart(2,"0")].join("-");
+
+ for(const trip of travelTrips.filter(t=>t.departure===key)){
+   const laundry=(trip.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id))
+     .filter(i=>i&&String(i.laundry_status||"").toLowerCase()==="laundry");
+   if(!laundry.length)continue;
+   const storageKey=`travel-laundry:${currentUser.id}:${trip.id}:${key}`;
+   if(localStorage.getItem(storageKey))continue;
+   const names=laundry.map(i=>i.name||"Clothing item");
+   const message=names.length===1
+     ? `${names[0]} for ${trip.name} tomorrow is still in Laundry. Make sure it is ready before you leave.`
+     : `${names.join(", ")} for ${trip.name} tomorrow are still in Laundry. Make sure they are ready before you leave.`;
+   const {error}=await supabaseClient.from("notifications").insert({
+     user_id:currentUser.id,
+     type:"travel_laundry_reminder",
+     title:"🧺 Packing Reminder",
+     message
+   });
+   if(!error)localStorage.setItem(storageKey,"1");
+ }
+ await loadNotifications();
 }
 
 function renderCategories(){
