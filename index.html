@@ -1074,6 +1074,17 @@ body{
 .travel-progress-track{height:7px;flex:1;background:#29251f;border-radius:999px;overflow:hidden}
 .travel-progress-fill{height:100%;background:#d2ad7b;border-radius:999px}
 
+
+/* ===== EDIT EXISTING TRIP ITEMS ===== */
+.trip-edit-items{
+  margin-top:12px;padding:12px;border:1px solid #3a342d;border-radius:14px;background:#12110f
+}
+.trip-edit-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.trip-remove-btn{
+  position:absolute;right:7px;top:7px;z-index:3;width:27px;height:27px;border-radius:50%;
+  border:1px solid #7a5147;background:rgba(35,17,14,.94);color:#efb3a7;font-weight:900;cursor:pointer
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2444,6 +2455,81 @@ function deleteTrip(id){
  if(!confirm("Delete this trip and packing list?"))return;
  travelTrips=travelTrips.filter(t=>t.id!==id);persistTravelTrips();renderTravelTrips();
 }
+
+let editingTripItemsId=null;
+let tripEditCategoryId=null;
+
+function editTripItems(tripId){
+ editingTripItemsId=tripId;
+ tripEditCategoryId=null;
+ renderTravelTrips();
+}
+function cancelTripItemEdit(){
+ editingTripItemsId=null;
+ tripEditCategoryId=null;
+ renderTravelTrips();
+}
+function removeItemFromTrip(tripId,itemId){
+ const trip=travelTrips.find(t=>t.id===tripId);if(!trip)return;
+ trip.itemIds=(trip.itemIds||[]).filter(id=>id!==itemId);
+ trip.packedIds=(trip.packedIds||[]).filter(id=>id!==itemId);
+ persistTravelTrips();
+ renderTravelTrips();
+}
+function openTripEditCategory(tripId,categoryId){
+ editingTripItemsId=tripId;
+ tripEditCategoryId=categoryId;
+ renderTravelTrips();
+}
+function backTripEditCategories(){
+ tripEditCategoryId=null;
+ renderTravelTrips();
+}
+function addItemToExistingTrip(tripId,itemId){
+ const trip=travelTrips.find(t=>t.id===tripId);if(!trip)return;
+ trip.itemIds=trip.itemIds||[];
+ if(!trip.itemIds.includes(itemId))trip.itemIds.push(itemId);
+ persistTravelTrips();
+ renderTravelTrips();
+}
+function renderTripItemEditor(trip){
+ if(editingTripItemsId!==trip.id)return "";
+ if(tripEditCategoryId){
+   const cat=categories.find(c=>c.id===tripEditCategoryId);
+   const items=clothingItems.filter(i=>i.category_id===tripEditCategoryId);
+   return `<div class="trip-edit-items">
+     <div class="planner-back-row">
+       <button type="button" class="secondary" onclick="backTripEditCategories()">← Categories</button>
+       <strong>${escapeHtml(cat?.name||"Category")}</strong>
+     </div>
+     <div class="planner-items">${items.map(i=>{
+       const already=(trip.itemIds||[]).includes(i.id);
+       const laundry=String(i.laundry_status||"").toLowerCase()==="laundry";
+       const photo=i.displayPhoto||i.photo_url||"";
+       return `<div class="planner-item ${already?"selected":""}" ${already?"":`onclick="addItemToExistingTrip('${trip.id}','${escapeJs(i.id)}')"`}>
+         ${photo?`<img src="${escapeHtml(photo)}" alt="">`:'<div class="planner-item-placeholder">👕</div>'}
+         ${laundry?'<div class="planner-laundry-badge">🧺 In Laundry</div>':""}
+         <div class="planner-check">${already?"✓":""}</div>
+         <div class="planner-item-copy">${escapeHtml(i.name||"Clothing item")}${already?" · Added":""}</div>
+       </div>`;
+     }).join("")}</div>
+     <div class="trip-edit-actions"><button class="primary" onclick="cancelTripItemEdit()">Done</button></div>
+   </div>`;
+ }
+ const usable=categories.filter(c=>clothingItems.some(i=>i.category_id===c.id));
+ return `<div class="trip-edit-items">
+   <strong style="color:#f2e7d8">Add items from your wardrobe</strong>
+   <div class="muted" style="margin:5px 0 10px">Choose a category. Your trip details will stay unchanged.</div>
+   <div class="planner-category-grid">${usable.map(c=>{
+     const available=clothingItems.filter(i=>i.category_id===c.id && !(trip.itemIds||[]).includes(i.id)).length;
+     return `<button type="button" class="planner-category-btn" onclick="openTripEditCategory('${trip.id}','${escapeJs(c.id)}')">
+       <span class="planner-category-icon">${escapeHtml(c.icon||"👕")}</span>
+       <span class="planner-category-name">${escapeHtml(c.name||"Category")} · ${available} available</span>
+     </button>`;
+   }).join("")}</div>
+   <div class="trip-edit-actions"><button class="secondary" onclick="cancelTripItemEdit()">Close</button></div>
+ </div>`;
+}
 function renderTravelTrips(){
  const wrap=el("travelTripsList");if(!wrap)return;
  if(!travelTrips.length){
@@ -2472,6 +2558,7 @@ function renderTravelTrips(){
        const photo=i.displayPhoto||i.photo_url||"";
        return `<div class="travel-pack-item ${done?"packed":""}" onclick="togglePacked('${t.id}','${escapeJs(i.id)}')">
          <div class="travel-pack-check">${done?"✓":""}</div>
+         ${editingTripItemsId===t.id?`<button class="trip-remove-btn" title="Remove from trip" onclick="event.stopPropagation();removeItemFromTrip('${t.id}','${escapeJs(i.id)}')">×</button>`:""}
          <div class="travel-pack-photo">${photo?`<img src="${escapeHtml(photo)}" alt="${escapeHtml(i.name||"Clothing item")}">`:'<div class="placeholder">👕</div>'}</div>
          <div class="travel-pack-copy">
            <div class="travel-pack-name">${escapeHtml(i.name||"Clothing item")}</div>
@@ -2501,7 +2588,9 @@ function renderTravelTrips(){
        <strong style="color:#d2ad7b">${pct}%</strong>
      </div>
      ${groups||'<div class="muted" style="margin-top:12px">No items found.</div>'}
+     ${renderTripItemEditor(t)}
      <div class="planned-actions">
+       <button class="small-btn" onclick="event.stopPropagation();editTripItems('${t.id}')">✏️ Edit Packing Items</button>
        <button class="small-btn" onclick="event.stopPropagation();alert('AI Outfit Suggestions stay optional and separate from your packing list.')">✨ AI Suggestions</button>
        <button class="small-btn danger" onclick="event.stopPropagation();deleteTrip('${t.id}')">Delete Trip</button>
      </div>
