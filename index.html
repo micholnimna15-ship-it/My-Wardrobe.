@@ -2957,9 +2957,7 @@ async function startBodyCamera(){
     updateBodyScanStepUI();
   }catch(err){
     console.error("Body camera error:",err);
-    alert("Camera could not be opened. Allow camera access for My Wardrobe in your browser settings, then try again.
-
-"+(err?.message||""));
+    alert("Camera could not be opened. Allow camera access for My Wardrobe in your browser settings, then try again.\n\n"+(err?.message||""));
     if(status) status.textContent="Camera permission is required to scan your body.";
   }
 }
