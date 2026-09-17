@@ -2979,7 +2979,7 @@ function updateBodyScanStepUI(){
   if(el("scanCameraStatus")) el("scanCameraStatus").textContent=`${view} view ready. Hold still before capturing.`;
   if(el("captureBodyScanBtn")) el("captureBodyScanBtn").textContent=`Capture ${view}`;
 }
-function captureBodyScanView(){
+async function captureBodyScanView(){
   const video=el("bodyScanVideo"),canvas=el("bodyScanCanvas");
   if(!video||!canvas||!video.videoWidth){alert("Camera is not ready yet. Please wait a moment.");return;}
   canvas.width=video.videoWidth; canvas.height=video.videoHeight;
@@ -2992,9 +2992,56 @@ function captureBodyScanView(){
   stopBodyScanStream();
   el("scanCameraPanel")?.classList.add("hidden");
   el("scanIntro")?.classList.remove("hidden");
+  await saveBodyScanToSupabase();
+}
+
+function dataUrlToBlob(dataUrl){
+  const parts=dataUrl.split(",");
+  const mime=(parts[0].match(/:(.*?);/)||[])[1]||"image/jpeg";
+  const binary=atob(parts[1]);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:mime});
+}
+
+async function saveBodyScanToSupabase(){
   const intro=el("scanIntro");
-  if(intro) intro.innerHTML=`<div class="success-box"><strong>Body capture complete ✓</strong><br>Front, side and back views were captured successfully.</div><div class="notice">The camera capture is now working. The next stage will securely process these views into the user's personalised 3D body model. The captures are not uploaded by this Stage 2 code.</div><button type="button" class="primary" onclick="closeBodyScanModal();openAvatarViewer()">Continue to Avatar Preview</button><button type="button" class="secondary" style="width:100%;margin-top:9px" onclick="resetBodyScanUI()">Scan Again</button>`;
-  if(el("avatar3dStatus")) el("avatar3dStatus").textContent="Body views captured. 3D reconstruction is the next stage.";
+  if(intro) intro.innerHTML=`<div class="loading-box"><strong>Saving your body scan…</strong><br><span class="muted">Keep this page open until the three private images finish uploading.</span></div>`;
+  try{
+    if(!currentUser?.id) throw new Error("Please sign in again before saving your body scan.");
+    if(bodyScanCaptures.length!==3) throw new Error("Front, side and back captures are required.");
+
+    await supabaseClient.from("user_avatars").update({is_current:false,updated_at:new Date().toISOString()}).eq("user_id",currentUser.id).eq("is_current",true);
+
+    const {data:avatar,error:avatarError}=await supabaseClient.from("user_avatars").insert({
+      user_id:currentUser.id, status:"pending", source:"body_scan", is_current:true,
+      measurements:{scan_paths:{}}
+    }).select("id").single();
+    if(avatarError) throw avatarError;
+
+    const scanPaths={};
+    for(const capture of bodyScanCaptures){
+      const key=String(capture.view||"").toLowerCase();
+      const path=`${currentUser.id}/${avatar.id}/${key}.jpg`;
+      const blob=dataUrlToBlob(capture.dataUrl);
+      const {error:uploadError}=await supabaseClient.storage.from("user-avatars").upload(path,blob,{contentType:"image/jpeg",upsert:true});
+      if(uploadError) throw uploadError;
+      scanPaths[key]=path;
+    }
+
+    const {error:updateError}=await supabaseClient.from("user_avatars").update({
+      status:"processing",
+      measurements:{scan_paths:scanPaths},
+      updated_at:new Date().toISOString()
+    }).eq("id",avatar.id).eq("user_id",currentUser.id);
+    if(updateError) throw updateError;
+
+    if(intro) intro.innerHTML=`<div class="success-box"><strong>Body scan saved securely ✓</strong><br>Your front, side and back captures are stored privately in your account.</div><div class="notice">Your scan is now ready for the future 3D reconstruction service. It is not yet a generated 3D body model.</div><button type="button" class="primary" onclick="closeBodyScanModal();openAvatarViewer()">Continue to Avatar</button><button type="button" class="secondary" style="width:100%;margin-top:9px" onclick="openBodyScanModal()">Rescan / Replace</button>`;
+    if(el("avatar3dStatus")) el("avatar3dStatus").textContent="Body scan saved privately. Waiting for 3D reconstruction.";
+  }catch(err){
+    console.error("Save body scan error:",err);
+    if(intro) intro.innerHTML=`<div class="notice"><strong>Could not save the body scan.</strong><br>${String(err?.message||err)}</div><button type="button" class="primary" onclick="openBodyScanModal()">Try Again</button>`;
+  }
 }
 function stopBodyScanStream(){
   if(bodyScanStream){bodyScanStream.getTracks().forEach(t=>t.stop());bodyScanStream=null;}
