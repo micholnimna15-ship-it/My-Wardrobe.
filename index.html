@@ -912,40 +912,59 @@ body{
 @media(max-width:700px){.viewer-details,.viewer-actions{grid-template-columns:1fr 1fr}.viewer-photo-wrap{height:55vh}}
 
 
-/* ===== MY 3D AVATAR — STAGE 1 ===== */
-.avatar3d-card{position:relative;overflow:hidden}
-.avatar3d-card:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;right:-45px;top:-55px;background:rgba(210,173,123,.08);pointer-events:none}
-.avatar3d-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
-.avatar3d-actions .secondary,.avatar3d-actions .primary{width:auto;min-width:145px}
-.avatar3d-stage{min-height:300px;border:1px solid #4b443c;border-radius:18px;background:radial-gradient(circle at 50% 34%,#302b25,#151412 68%);display:flex;align-items:center;justify-content:center;margin:14px 0;position:relative;overflow:hidden}
-.avatar3d-person{font-size:132px;filter:grayscale(.2);user-select:none;transition:transform .25s ease}
-.avatar3d-badge{position:absolute;left:12px;top:12px;background:#1b1916;border:1px solid #51483f;color:#d7b88f;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800}
-.avatar3d-scan-steps{display:grid;gap:9px;margin:14px 0}
-.avatar3d-step{display:flex;gap:11px;align-items:flex-start;padding:11px;border:1px solid #4b443c;border-radius:12px;background:#191815}
-.avatar3d-step-num{flex:0 0 28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#d2ad7b;color:#17120e;font-weight:900}
-@media(max-width:480px){.avatar3d-actions{display:grid;grid-template-columns:1fr}.avatar3d-actions .secondary,.avatar3d-actions .primary{width:100%}.avatar3d-stage{min-height:260px}}
 
+/* ===== NOTIFICATION CENTRE ===== */
+.bell-wrap{position:relative}
+.notification-badge{
+  position:absolute;top:-3px;right:-5px;min-width:18px;height:18px;padding:0 5px;
+  border-radius:999px;background:#d2ad7b;color:#15120f;border:2px solid #0d0e0d;
+  font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;
+}
+.notification-panel{
+  position:fixed;top:82px;right:18px;z-index:90;width:min(410px,calc(100vw - 24px));
+  max-height:min(650px,calc(100vh - 110px));display:flex;flex-direction:column;
+  background:#151412;border:1px solid #4b443c;border-radius:20px;
+  box-shadow:0 24px 70px rgba(0,0,0,.48);overflow:hidden;
+}
+.notification-panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:17px 18px;border-bottom:1px solid #3d3832;
+}
+.notification-panel-head h2{margin:0;color:#f4efe8;font:400 23px Georgia,"Times New Roman",serif}
+.notification-head-actions{display:flex;align-items:center;gap:8px}
+.notification-text-btn{border:0;background:transparent;color:#d2ad7b;font-size:12px;cursor:pointer;padding:7px}
+.notification-list{overflow:auto;padding:8px}
+.notification-row{
+  position:relative;display:flex;gap:12px;padding:14px 12px;border-radius:14px;
+  border-bottom:1px solid rgba(75,68,60,.45);cursor:pointer;
+}
+.notification-row:hover{background:#1d1b18}
+.notification-row.unread{background:#201d19}
+.notification-row.unread:before{
+  content:"";position:absolute;left:4px;top:20px;width:6px;height:6px;border-radius:50%;background:#d2ad7b;
+}
+.notification-icon{
+  flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:#29241e;
+  display:flex;align-items:center;justify-content:center;font-size:18px
+}
+.notification-copy{min-width:0;flex:1}
+.notification-title{color:#f4efe8;font-weight:800;font-size:14px;margin-bottom:4px}
+.notification-message{color:#b7aa9c;font-size:13px;line-height:1.4}
+.notification-time{color:#82776b;font-size:11px;margin-top:6px}
+.notification-delete{
+  border:0;background:transparent;color:#8f8377;font-size:18px;cursor:pointer;
+  align-self:flex-start;padding:2px 5px
+}
+.notification-delete:hover{color:#d46a65}
+.notification-empty{padding:38px 22px;text-align:center;color:#9e9387}
+.notification-empty-icon{font-size:34px;margin-bottom:10px}
+@media(max-width:700px){
+  .notification-panel{top:70px;right:10px;width:calc(100vw - 20px);max-height:calc(100vh - 95px)}
+}
 
-/* ===== MY 3D AVATAR — STAGE 2 CAMERA SCAN ===== */
-.body-scan-camera{position:relative;border:1px solid #4b443c;border-radius:18px;overflow:hidden;background:#090909;aspect-ratio:3/4;max-height:62vh;margin:12px auto;width:min(430px,100%)}
-.body-scan-camera video,.body-scan-camera canvas{width:100%;height:100%;object-fit:cover;display:block}
-.body-scan-guide{position:absolute;inset:7% 17% 5%;border:2px dashed rgba(217,179,127,.92);border-radius:48% 48% 34% 34%/22% 22% 16% 16%;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.16)}
-.body-scan-guide:before{content:"";position:absolute;left:50%;top:3%;transform:translateX(-50%);width:28%;aspect-ratio:1;border:2px solid rgba(217,179,127,.92);border-radius:50%}
-.scan-instruction{position:absolute;left:12px;right:12px;bottom:12px;padding:10px 12px;border-radius:12px;background:rgba(10,10,9,.82);color:#f4eee7;text-align:center;font-size:13px;backdrop-filter:blur(8px)}
-.scan-progress{display:flex;gap:7px;justify-content:center;margin:10px 0 2px}.scan-dot{width:9px;height:9px;border-radius:50%;background:#51483f}.scan-dot.done{background:#d2ad7b}
-.scan-camera-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.scan-camera-actions button{flex:1;min-width:130px}
-.scan-privacy{font-size:11px;color:#a99d90;line-height:1.45;margin-top:10px}
-
-
-/* Stage 3 interactive 3D avatar viewer */
-.avatar-model-viewer{width:100%;height:460px;background:radial-gradient(circle at 50% 35%,#2b2b27 0%,#151513 55%,#0b0b0a 100%);border-radius:22px;overflow:hidden}
-.avatar-upload-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.avatar-upload-row button{flex:1;min-width:150px}
-.avatar-viewer-empty{min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:#d8d0c2}.avatar-viewer-empty .icon{font-size:72px;margin-bottom:14px}
-@media(max-width:640px){.avatar-model-viewer{height:400px}}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </head>
 
 <body>
@@ -980,16 +999,33 @@ body{
       <div class="brand-tagline">YOUR STYLE. YOUR STORY.</div>
     </div>
     <div class="topbar-actions">
-      <button class="bell-icon" type="button" aria-label="Notifications" title="Notifications">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
-    <path d="M10 21h4"></path>
-  </svg>
-</button>
+      <div class="bell-wrap">
+  <button class="bell-icon" type="button" aria-label="Notifications" title="Notifications" onclick="toggleNotificationPanel(event)">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+      <path d="M10 21h4"></path>
+    </svg>
+  </button>
+  <span id="notificationBadge" class="notification-badge hidden">0</span>
+</div>
       <div id="creditPill" class="credit-pill">✦ <span id="creditBalanceTop">—</span> AI Credits</div>
       <button class="profile-circle-btn" onclick="showPage('me')" aria-label="My profile"><span id="topAvatarSlot">M</span></button>
     </div>
   </header>
+
+  <aside id="notificationPanel" class="notification-panel hidden" aria-label="Notifications">
+    <div class="notification-panel-head">
+      <h2>Notifications</h2>
+      <div class="notification-head-actions">
+        <button class="notification-text-btn" type="button" onclick="markAllNotificationsRead()">Mark all read</button>
+        <button class="close" type="button" onclick="closeNotificationPanel()" aria-label="Close notifications">×</button>
+      </div>
+    </div>
+    <div id="notificationList" class="notification-list">
+      <div class="notification-empty"><div class="notification-empty-icon">🔔</div>No notifications yet.</div>
+    </div>
+  </aside>
+
 
   <main class="container">
     <section id="homePage">
@@ -1228,7 +1264,6 @@ body{
         <button type="button" class="secondary" onclick="openProfileModal()">👤 Edit Profile</button>
       </div>
       <div class="me-card"><h3 style="margin-top:0">📏 My Fit</h3><p class="muted">Measurements, sizes and preferred fit for better recommendations.</p><button type="button" class="secondary" onclick="openFitModal()">View / Edit My Fit</button></div>
-      <div class="me-card avatar3d-card"><h3 style="margin-top:0">🧍 My 3D Avatar</h3><p class="muted">Create a personalised body avatar for your future Virtual Fitting Room.</p><div class="avatar3d-actions"><button type="button" class="primary" onclick="openBodyScanModal()">Scan My Body</button><button type="button" class="secondary" onclick="openAvatarViewer()">View My Avatar</button></div></div>
       <div class="credit-card"><div class="muted">AI Credits</div><div class="credit-balance">✨ <span id="creditBalanceMe">—</span></div><div class="muted">1 credit is used after a successful AI outfit generation.</div><button type="button" class="buy-credits-btn" onclick="openBuyCreditsModal()">💳 Buy AI Credits</button><div id="paymentReturnMessage"></div></div>
        <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button id="installAppBtn" class="secondary" onclick="handleInstallApp()">📲 Install App</button><button class="secondary danger" style="margin-top:8px" onclick="logout()">Log out</button></div>
     </section>
@@ -1412,44 +1447,6 @@ body{
 </div>
 
 
-<div id="bodyScanModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-head"><h2>🧍 Scan My Body</h2><button class="close" onclick="closeBodyScanModal()">×</button></div>
-    <div id="scanIntro">
-      <div class="notice">Use your phone camera for a guided body capture. Place the phone upright where your full body can be seen, wear fitted clothing, and use a well-lit private space.</div>
-      <div class="avatar3d-scan-steps">
-        <div class="avatar3d-step"><div class="avatar3d-step-num">1</div><div><strong>Front</strong><div class="muted">Stand naturally with your arms slightly away from your body.</div></div></div>
-        <div class="avatar3d-step"><div class="avatar3d-step-num">2</div><div><strong>Side</strong><div class="muted">Turn 90° when the app asks you.</div></div></div>
-        <div class="avatar3d-step"><div class="avatar3d-step-num">3</div><div><strong>Back</strong><div class="muted">Turn once more for the final body-shape capture.</div></div></div>
-      </div>
-      <button type="button" class="primary" onclick="startBodyCamera()">Open Camera & Start</button>
-      <div class="scan-privacy">Camera permission is requested only when you start the scan. Stage 2 captures the three guided views in this app; 3D reconstruction will be connected in the next stage.</div>
-    </div>
-    <div id="scanCameraPanel" class="hidden">
-      <div class="body-scan-camera">
-        <video id="bodyScanVideo" autoplay playsinline muted></video>
-        <canvas id="bodyScanCanvas" class="hidden"></canvas>
-        <div class="body-scan-guide"></div>
-        <div id="scanInstruction" class="scan-instruction">FRONT — fit your full body inside the guide.</div>
-      </div>
-      <div class="scan-progress"><span id="scanDot0" class="scan-dot"></span><span id="scanDot1" class="scan-dot"></span><span id="scanDot2" class="scan-dot"></span></div>
-      <div id="scanCameraStatus" class="notice">Front view ready. Keep your whole body visible.</div>
-      <div class="scan-camera-actions">
-        <button type="button" class="secondary" onclick="cancelBodyCamera()">Cancel</button>
-        <button id="captureBodyScanBtn" type="button" class="primary" onclick="captureBodyScanView()">Capture Front</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="avatarViewerModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-head"><h2>My 3D Avatar</h2><button class="close" onclick="closeModal('avatarViewerModal')">×</button></div>
-    <div class="avatar3d-stage" style="padding:0;overflow:hidden"><div class="avatar3d-badge">3D VIEW</div><div id="avatarViewerEmpty" class="avatar-viewer-empty"><div class="icon">🧍</div><strong>No generated 3D avatar yet</strong><span class="muted" style="margin-top:8px">Your body scan is ready for reconstruction. You can also load a GLB model to test the real 360° viewer.</span></div><model-viewer id="avatarModelViewer" class="avatar-model-viewer hidden" camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1" environment-image="neutral" interaction-prompt="auto" alt="Your 3D wardrobe avatar"></model-viewer></div>
-    <div id="avatar3dStatus" class="notice">No body scan has been created yet. This preview confirms the avatar section is working.</div>
-    <div class="avatar3d-actions"><button type="button" class="primary" onclick="closeModal('avatarViewerModal');openBodyScanModal()">Rescan / Replace Avatar</button></div><div class="avatar-upload-row"><input id="avatarGlbInput" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" class="hidden" onchange="loadAvatarModelFile(event)"><button type="button" class="secondary" onclick="el('avatarGlbInput')?.click()">Test a GLB Avatar</button><button id="removeAvatarModelBtn" type="button" class="secondary hidden" onclick="clearAvatarModelPreview()">Remove Test Model</button></div>
-  </div>
-</div>
 
 <div id="buyCreditsModal" class="modal hidden"><div class="modal-box">
 <div class="modal-head"><h2>✨ Buy AI Credits</h2><button class="close" onclick="closeModal('buyCreditsModal')">×</button></div>
@@ -1474,6 +1471,7 @@ const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
+let notifications=[];
 let selectedClothingFile=null,cleanedClothingFile=null;
 let movingClothingId=null;
 let bulkUploadItems=[];
@@ -1583,7 +1581,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -1668,6 +1666,154 @@ async function handlePaymentReturn(){
  if(box)box.innerHTML='<div class="payment-message success">Payment successful. Your AI credit balance has been refreshed.</div>';
 }
 
+
+
+function notificationIcon(type){
+ const t=String(type||"system").toLowerCase();
+ if(t.includes("clean"))return "✨";
+ if(t.includes("laundry"))return "🧺";
+ if(t.includes("shop")||t.includes("outfit"))return "🤖";
+ if(t.includes("credit")||t.includes("payment"))return "✦";
+ if(t.includes("wardrobe")||t.includes("item"))return "👕";
+ if(t.includes("error")||t.includes("fail"))return "⚠️";
+ return "🔔";
+}
+
+function notificationTime(value){
+ if(!value)return "";
+ const d=new Date(value);
+ const diff=Math.max(0,Date.now()-d.getTime());
+ const mins=Math.floor(diff/60000);
+ if(mins<1)return "Just now";
+ if(mins<60)return mins+" min"+(mins===1?"":"s")+" ago";
+ const hrs=Math.floor(mins/60);
+ if(hrs<24)return hrs+" hr"+(hrs===1?"":"s")+" ago";
+ const days=Math.floor(hrs/24);
+ if(days<7)return days+" day"+(days===1?"":"s")+" ago";
+ return d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:d.getFullYear()!==new Date().getFullYear()?"numeric":undefined});
+}
+
+async function loadNotifications(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient
+  .from("notifications")
+  .select("*")
+  .eq("user_id",currentUser.id)
+  .order("created_at",{ascending:false})
+  .limit(100);
+ if(error){
+  console.warn("Could not load notifications:",error.message);
+  notifications=[];
+ }else{
+  notifications=data||[];
+ }
+ renderNotifications();
+}
+
+function renderNotifications(){
+ const list=el("notificationList");
+ const badge=el("notificationBadge");
+ const unread=notifications.filter(n=>!n.is_read).length;
+
+ if(badge){
+  badge.textContent=unread>99?"99+":String(unread);
+  badge.classList.toggle("hidden",unread===0);
+ }
+
+ if(!list)return;
+ if(!notifications.length){
+  list.innerHTML='<div class="notification-empty"><div class="notification-empty-icon">🔔</div>No notifications yet.</div>';
+  return;
+ }
+
+ list.innerHTML=notifications.map(n=>`
+  <div class="notification-row ${n.is_read?"":"unread"}" onclick="openNotification('${n.id}')">
+    <div class="notification-icon">${notificationIcon(n.type)}</div>
+    <div class="notification-copy">
+      <div class="notification-title">${escapeHtml(n.title||"Notification")}</div>
+      <div class="notification-message">${escapeHtml(n.message||"")}</div>
+      <div class="notification-time">${escapeHtml(notificationTime(n.created_at))}</div>
+    </div>
+    <button class="notification-delete" type="button" title="Delete" aria-label="Delete notification"
+      onclick="event.stopPropagation();deleteNotification('${n.id}')">×</button>
+  </div>
+ `).join("");
+}
+
+async function toggleNotificationPanel(event){
+ event?.stopPropagation();
+ const panel=el("notificationPanel");
+ if(!panel)return;
+ const opening=panel.classList.contains("hidden");
+ panel.classList.toggle("hidden");
+ if(opening)await loadNotifications();
+}
+
+function closeNotificationPanel(){
+ el("notificationPanel")?.classList.add("hidden");
+}
+
+async function openNotification(id){
+ const n=notifications.find(x=>x.id===id);
+ if(!n)return;
+
+ if(!n.is_read){
+  const {error}=await supabaseClient.from("notifications")
+   .update({is_read:true})
+   .eq("id",id)
+   .eq("user_id",currentUser.id);
+  if(!error){
+   n.is_read=true;
+   renderNotifications();
+  }
+ }
+
+ closeNotificationPanel();
+
+ if(n.clothing_item_id){
+  const item=clothingItems.find(x=>x.id===n.clothing_item_id);
+  if(item && typeof openItemViewer==="function"){
+   openItemViewer(item.id);
+   return;
+  }
+ }
+
+ const type=String(n.type||"").toLowerCase();
+ if(type.includes("laundry"))showPage("laundry");
+ else if(type.includes("shop")||type.includes("outfit"))showPage("shop");
+ else if(type.includes("credit")||type.includes("payment"))showPage("me");
+}
+
+async function markAllNotificationsRead(){
+ if(!currentUser)return;
+ const unreadIds=notifications.filter(n=>!n.is_read).map(n=>n.id);
+ if(!unreadIds.length)return;
+ const {error}=await supabaseClient.from("notifications")
+  .update({is_read:true})
+  .eq("user_id",currentUser.id)
+  .in("id",unreadIds);
+ if(error)return alert("Could not mark notifications as read.");
+ notifications.forEach(n=>n.is_read=true);
+ renderNotifications();
+}
+
+async function deleteNotification(id){
+ if(!currentUser)return;
+ const {error}=await supabaseClient.from("notifications")
+  .delete()
+  .eq("id",id)
+  .eq("user_id",currentUser.id);
+ if(error)return alert("Could not delete this notification.");
+ notifications=notifications.filter(n=>n.id!==id);
+ renderNotifications();
+}
+
+document.addEventListener("click",event=>{
+ const panel=el("notificationPanel");
+ if(!panel||panel.classList.contains("hidden"))return;
+ if(panel.contains(event.target)||event.target.closest?.(".bell-wrap"))return;
+ closeNotificationPanel();
+});
 
 async function loadAllData(){
  const results=await Promise.all([
@@ -2929,140 +3075,6 @@ if("serviceWorker" in navigator){
 }
 
 
-/* ===== MY 3D AVATAR — STAGE 2 CAMERA SCAN ===== */
-let avatarPreviewRotation=0;
-let bodyScanStream=null;
-let bodyScanStep=0;
-let bodyScanCaptures=[];
-const bodyScanViews=["Front","Side","Back"];
-
-function openBodyScanModal(){
-  resetBodyScanUI();
-  el("bodyScanModal")?.classList.remove("hidden");
-}
-function closeBodyScanModal(){
-  stopBodyScanStream();
-  el("bodyScanModal")?.classList.add("hidden");
-}
-function resetBodyScanUI(){
-  bodyScanStep=0; bodyScanCaptures=[];
-  el("scanIntro")?.classList.remove("hidden");
-  el("scanCameraPanel")?.classList.add("hidden");
-  for(let i=0;i<3;i++) el(`scanDot${i}`)?.classList.remove("done");
-}
-async function startBodyCamera(){
-  const status=el("scanCameraStatus");
-  try{
-    if(!navigator.mediaDevices?.getUserMedia) throw new Error("Camera access is not supported in this browser.");
-    stopBodyScanStream();
-    bodyScanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1080},height:{ideal:1440}},audio:false});
-    const video=el("bodyScanVideo");
-    video.srcObject=bodyScanStream;
-    await video.play();
-    el("scanIntro")?.classList.add("hidden");
-    el("scanCameraPanel")?.classList.remove("hidden");
-    updateBodyScanStepUI();
-  }catch(err){
-    console.error("Body camera error:",err);
-    alert("Camera could not be opened. Allow camera access for My Wardrobe in your browser settings, then try again.\n\n"+(err?.message||""));
-    if(status) status.textContent="Camera permission is required to scan your body.";
-  }
-}
-function updateBodyScanStepUI(){
-  const view=bodyScanViews[bodyScanStep]||"Complete";
-  const instructions=[
-    "FRONT — face the camera and fit your full body inside the guide.",
-    "SIDE — turn 90° and keep your full body inside the guide.",
-    "BACK — face away from the camera and stay inside the guide."
-  ];
-  if(el("scanInstruction")) el("scanInstruction").textContent=instructions[bodyScanStep]||"Capture complete.";
-  if(el("scanCameraStatus")) el("scanCameraStatus").textContent=`${view} view ready. Hold still before capturing.`;
-  if(el("captureBodyScanBtn")) el("captureBodyScanBtn").textContent=`Capture ${view}`;
-}
-async function captureBodyScanView(){
-  const video=el("bodyScanVideo"),canvas=el("bodyScanCanvas");
-  if(!video||!canvas||!video.videoWidth){alert("Camera is not ready yet. Please wait a moment.");return;}
-  canvas.width=video.videoWidth; canvas.height=video.videoHeight;
-  const ctx=canvas.getContext("2d");
-  ctx.drawImage(video,0,0,canvas.width,canvas.height);
-  bodyScanCaptures.push({view:bodyScanViews[bodyScanStep],dataUrl:canvas.toDataURL("image/jpeg",0.88)});
-  el(`scanDot${bodyScanStep}`)?.classList.add("done");
-  bodyScanStep++;
-  if(bodyScanStep<3){ updateBodyScanStepUI(); return; }
-  stopBodyScanStream();
-  el("scanCameraPanel")?.classList.add("hidden");
-  el("scanIntro")?.classList.remove("hidden");
-  await saveBodyScanToSupabase();
-}
-
-function dataUrlToBlob(dataUrl){
-  const parts=dataUrl.split(",");
-  const mime=(parts[0].match(/:(.*?);/)||[])[1]||"image/jpeg";
-  const binary=atob(parts[1]);
-  const bytes=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
-  return new Blob([bytes],{type:mime});
-}
-
-async function saveBodyScanToSupabase(){
-  const intro=el("scanIntro");
-  if(intro) intro.innerHTML=`<div class="loading-box"><strong>Saving your body scan…</strong><br><span class="muted">Keep this page open until the three private images finish uploading.</span></div>`;
-  try{
-    if(!currentUser?.id) throw new Error("Please sign in again before saving your body scan.");
-    if(bodyScanCaptures.length!==3) throw new Error("Front, side and back captures are required.");
-
-    await supabaseClient.from("user_avatars").update({is_current:false,updated_at:new Date().toISOString()}).eq("user_id",currentUser.id).eq("is_current",true);
-
-    const {data:avatar,error:avatarError}=await supabaseClient.from("user_avatars").insert({
-      user_id:currentUser.id, status:"pending", source:"body_scan", is_current:true,
-      measurements:{scan_paths:{}}
-    }).select("id").single();
-    if(avatarError) throw avatarError;
-
-    const scanPaths={};
-    for(const capture of bodyScanCaptures){
-      const key=String(capture.view||"").toLowerCase();
-      const path=`${currentUser.id}/${avatar.id}/${key}.jpg`;
-      const blob=dataUrlToBlob(capture.dataUrl);
-      const {error:uploadError}=await supabaseClient.storage.from("user-avatars").upload(path,blob,{contentType:"image/jpeg",upsert:true});
-      if(uploadError) throw uploadError;
-      scanPaths[key]=path;
-    }
-
-    const {error:updateError}=await supabaseClient.from("user_avatars").update({
-      status:"processing",
-      measurements:{scan_paths:scanPaths},
-      updated_at:new Date().toISOString()
-    }).eq("id",avatar.id).eq("user_id",currentUser.id);
-    if(updateError) throw updateError;
-
-    if(intro) intro.innerHTML=`<div class="success-box"><strong>Body scan saved securely ✓</strong><br>Your front, side and back captures are stored privately in your account.</div><div class="notice">Your scan is now ready for the future 3D reconstruction service. It is not yet a generated 3D body model.</div><button type="button" class="primary" onclick="closeBodyScanModal();openAvatarViewer()">Continue to Avatar</button><button type="button" class="secondary" style="width:100%;margin-top:9px" onclick="openBodyScanModal()">Rescan / Replace</button>`;
-    if(el("avatar3dStatus")) el("avatar3dStatus").textContent="Body scan saved privately. Waiting for 3D reconstruction.";
-  }catch(err){
-    console.error("Save body scan error:",err);
-    if(intro) intro.innerHTML=`<div class="notice"><strong>Could not save the body scan.</strong><br>${String(err?.message||err)}</div><button type="button" class="primary" onclick="openBodyScanModal()">Try Again</button>`;
-  }
-}
-function stopBodyScanStream(){
-  if(bodyScanStream){bodyScanStream.getTracks().forEach(t=>t.stop());bodyScanStream=null;}
-  const video=el("bodyScanVideo"); if(video) video.srcObject=null;
-}
-function cancelBodyCamera(){ stopBodyScanStream(); resetBodyScanUI(); }
-let avatarObjectUrl=null;
-function openAvatarViewer(){ el("avatarViewerModal")?.classList.remove("hidden"); }
-function loadAvatarModelFile(event){
-  const file=event?.target?.files?.[0]; if(!file)return;
-  const lower=file.name.toLowerCase();
-  if(!lower.endsWith(".glb")&&!lower.endsWith(".gltf")){alert("Please choose a GLB or glTF 3D model.");event.target.value="";return;}
-  if(avatarObjectUrl)URL.revokeObjectURL(avatarObjectUrl); avatarObjectUrl=URL.createObjectURL(file);
-  const viewer=el("avatarModelViewer"); if(!viewer)return; viewer.src=avatarObjectUrl; viewer.classList.remove("hidden");
-  el("avatarViewerEmpty")?.classList.add("hidden"); el("removeAvatarModelBtn")?.classList.remove("hidden");
-}
-function clearAvatarModelPreview(){
-  const viewer=el("avatarModelViewer"); if(viewer){viewer.removeAttribute("src");viewer.classList.add("hidden");}
-  if(avatarObjectUrl){URL.revokeObjectURL(avatarObjectUrl);avatarObjectUrl=null;}
-  const input=el("avatarGlbInput");if(input)input.value="";el("avatarViewerEmpty")?.classList.remove("hidden");el("removeAvatarModelBtn")?.classList.add("hidden");
-}
 
 async function checkSession(){
  const {data}=await supabaseClient.auth.getSession();
