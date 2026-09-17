@@ -1911,13 +1911,38 @@ async function handlePaymentReturn(){
 
 
 
+
+async function createAppNotification({
+ type="system", title="Notification", message="", clothingItemId=null,
+ actionPage=null, actionId=null, eventKey=null, priority="normal", metadata={}
+}={}){
+ if(!currentUser)return false;
+ const payload={
+   user_id:currentUser.id,type,title,message,
+   clothing_item_id:clothingItemId||null,
+   action_page:actionPage||null,
+   action_id:actionId||null,
+   event_key:eventKey||null,
+   priority,
+   metadata:metadata||{}
+ };
+ const {error}=await supabaseClient.from("notifications").insert(payload);
+ if(error){
+   if(String(error.code)!=="23505")console.warn("Notification could not be created:",error.message);
+   return false;
+ }
+ await loadNotifications();
+ return true;
+}
+
 function notificationIcon(type){
  const t=String(type||"system").toLowerCase();
  if(t.includes("clean"))return "✨";
  if(t.includes("laundry"))return "🧺";
  if(t.includes("shop")||t.includes("outfit"))return "🤖";
  if(t.includes("credit")||t.includes("payment"))return "✦";
- if(t.includes("wardrobe")||t.includes("item"))return "👕";
+ if(t.includes("delete"))return "🗑️";
+ if(t.includes("add")||t.includes("wardrobe")||t.includes("item"))return "👕";
  if(t.includes("error")||t.includes("fail"))return "⚠️";
  return "🔔";
 }
@@ -2021,9 +2046,21 @@ async function openNotification(id){
   }
  }
 
+ const actionPage=String(n.action_page||"").toLowerCase();
+ if(actionPage){
+   if(actionPage==="home")showPage("home");
+   else if(actionPage==="laundry")showPage("laundry");
+   else if(actionPage==="planner")showPage("planner");
+   else if(actionPage==="travel")showPage("travel");
+   else if(actionPage==="shop")showPage("shop");
+   else if(actionPage==="looks")showPage("looks");
+   else if(actionPage==="me")showPage("me");
+   return;
+ }
  const type=String(n.type||"").toLowerCase();
- if(type.includes("planner")||type.includes("planned")||type.includes("reminder"))showPage("planner");
+ if(type.includes("travel")||type.includes("packing"))showPage("travel");
  else if(type.includes("laundry"))showPage("laundry");
+ else if(type.includes("planner")||type.includes("planned")||type.includes("reminder"))showPage("planner");
  else if(type.includes("shop")||type.includes("outfit"))showPage("shop");
  else if(type.includes("credit")||type.includes("payment"))showPage("me");
 }
@@ -3007,6 +3044,8 @@ async function cleanClothingPhoto(){
 async function saveClothing(){
  const name=el("clothingName").value.trim();const category_id=el("clothingCategory").value;
  if(!name||!category_id)return alert("Enter a name and choose a category.");
+ const wasEditing=!!editingClothingId;
+ const existingItem=wasEditing?clothingItems.find(x=>x.id===editingClothingId):null;
  let photo_url=null;
  const file=cleanedClothingFile||selectedClothingFile||el("clothingPhoto").files?.[0];
  if(file){
@@ -3018,19 +3057,46 @@ async function saveClothing(){
  }
  let r;
  const payload={name,color:el("clothingColor").value.trim(),brand:el("clothingBrand").value.trim(),category_id,user_id:currentUser.id};
- if(editingClothingId){
+ if(wasEditing){
   if(photo_url)payload.photo_url=photo_url;
   r=await supabaseClient.from("clothing_items").update(payload).eq("id",editingClothingId);
- }else{payload.photo_url=photo_url;r=await supabaseClient.from("clothing_items").insert(payload)}
+ }else{
+  payload.photo_url=photo_url;
+  r=await supabaseClient.from("clothing_items").insert(payload).select("id").single();
+ }
  if(r.error)return alert(r.error.message);
+
+ const savedId=wasEditing?editingClothingId:r.data?.id;
+ const category=categories.find(c=>c.id===category_id);
+ await createAppNotification({
+   type:wasEditing?"wardrobe_item_updated":"wardrobe_item_added",
+   title:wasEditing?"✏️ Wardrobe Item Updated":"👕 Added to Wardrobe",
+   message:wasEditing
+     ? `${name} was updated.`
+     : `${name} was added${category?.name?` to ${category.name}`:" to your wardrobe"}.`,
+   clothingItemId:savedId||null,
+   actionPage:"home",
+   actionId:savedId||null,
+   metadata:{category_id,previous_name:existingItem?.name||null}
+ });
+
  selectedClothingFile=null;cleanedClothingFile=null;
  closeModal("clothingModal");await loadAllData();renderCategories();renderClothingForCategory();
 }
 
 async function deleteClothing(id){
  if(!confirm("Delete this clothing item?"))return;
- const r=await supabaseClient.from("clothing_items").delete().eq("id",id);
+ const item=clothingItems.find(x=>x.id===id);
+ const itemName=item?.name||"Clothing item";
+ const r=await supabaseClient.from("clothing_items").delete().eq("id",id).eq("user_id",currentUser.id);
  if(r.error)return alert(r.error.message);
+ await createAppNotification({
+   type:"wardrobe_item_deleted",
+   title:"🗑️ Item Deleted",
+   message:`${itemName} was deleted from your wardrobe.`,
+   actionPage:"home",
+   metadata:{deleted_clothing_item_id:id,item_name:itemName}
+ });
  await loadAllData();renderCategories();renderClothingForCategory();performSearch();
 }
 
@@ -3135,7 +3201,36 @@ async function renameLook(id){const look=savedLooks.find(x=>x.id===id);if(!look)
 async function deleteLook(id){if(!confirm("Delete this look? This will not delete clothing from your wardrobe."))return;let r=await supabaseClient.from("look_items").delete().eq("look_id",id);if(r.error)return alert(r.error.message);r=await supabaseClient.from("saved_looks").delete().eq("id",id);if(r.error)return alert(r.error.message);await loadAllData();renderLooks()}
 
 const LAUNDRY_STAGES=[{id:"waiting",title:"🧺 Waiting to wash"},{id:"washing",title:"🫧 Washing"},{id:"drying",title:"🌬️ Drying"},{id:"ready",title:"✨ Ready"}];
-async function setLaundryStatus(id,status){const {error}=await supabaseClient.from("clothing_items").update({laundry_status:status}).eq("id",id);if(error)return alert("Could not update laundry: "+error.message);const item=clothingItems.find(x=>x.id===id);if(item)item.laundry_status=status;renderLaundry();if(currentCategoryId)renderClothingForCategory()}
+async function setLaundryStatus(id,status){
+ const item=clothingItems.find(x=>x.id===id);
+ const oldStatus=item?.laundry_status||null;
+ const {error}=await supabaseClient.from("clothing_items")
+   .update({laundry_status:status}).eq("id",id).eq("user_id",currentUser.id);
+ if(error)return alert("Could not update laundry: "+error.message);
+ if(item)item.laundry_status=status;
+
+ const labels={waiting:"Waiting to wash",washing:"Washing",drying:"Drying",ready:"Ready"};
+ if(status===null){
+   await createAppNotification({
+     type:"laundry_returned",
+     title:"👕 Back in Wardrobe",
+     message:`${item?.name||"Clothing item"} is clean and back in your wardrobe.`,
+     clothingItemId:id,actionPage:"home",actionId:id,
+     metadata:{from_status:oldStatus}
+   });
+ }else if(oldStatus!==status){
+   await createAppNotification({
+     type:"laundry_status_changed",
+     title:status==="waiting"?"🧺 Moved to Laundry":"🧺 Laundry Updated",
+     message:status==="waiting"
+       ? `${item?.name||"Clothing item"} was moved to Laundry.`
+       : `${item?.name||"Clothing item"} is now ${labels[status]||status}.`,
+     clothingItemId:id,actionPage:"laundry",actionId:id,
+     metadata:{from_status:oldStatus,to_status:status}
+   });
+ }
+ renderLaundry();if(currentCategoryId)renderClothingForCategory();
+}
 async function returnToWardrobe(id){await setLaundryStatus(id,null)}
 function renderLaundry(){const board=el("laundryBoard");if(!board)return;board.innerHTML=LAUNDRY_STAGES.map(stage=>{const items=clothingItems.filter(i=>i.laundry_status===stage.id);return `<div class="laundry-column"><h3>${stage.title}</h3><div class="laundry-list">${items.length?items.map(i=>`<div class="laundry-item">${i.displayPhoto?`<img class="laundry-thumb" src="${safeAttributeUrl(i.displayPhoto)}">`:`<div class="laundry-thumb" style="display:flex;align-items:center;justify-content:center">👕</div>`}<div style="flex:1"><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.brand||i.color||"")}</div></div><select class="small-btn" onchange="this.value==='wardrobe'?returnToWardrobe('${escapeJs(i.id)}'):setLaundryStatus('${escapeJs(i.id)}',this.value)"><option value="${stage.id}">${stage.title.replace(/^.. /,'')}</option>${LAUNDRY_STAGES.filter(x=>x.id!==stage.id).map(x=>`<option value="${x.id}">${x.title}</option>`).join("")}<option value="wardrobe">👕 Back to wardrobe</option></select></div>`).join(""):`<div class="muted">Nothing here</div>`}</div></div>`}).join("")}
 function renderMePage(){const name=el("meDisplayName"),wrap=el("meAvatarWrap");if(name)name.textContent=userProfile?.display_name||"My Profile";if(wrap)wrap.innerHTML=userProfile?.displayPhoto?`<img class="profile-avatar" src="${safeAttributeUrl(userProfile.displayPhoto)}" alt="Profile photo">`:'<div class="avatar-fallback">👤</div>'}
