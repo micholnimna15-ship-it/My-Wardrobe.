@@ -1824,7 +1824,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await checkPlannerLaundryReminders();await checkTravelLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await loadPlannedOutfits();await checkPlannerLaundryReminders();await checkTravelLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -2134,17 +2134,77 @@ function goHome(){showPage("home")}
 let plannerSelectedItemIds=[];
 let plannerActiveCategoryId=null;
 let plannedOutfits=[];
+let editingPlannerId=null;
 
 function plannerStorageKey(){
  return "myWardrobeOutfitPlanner:"+(currentUser?.id||"guest");
 }
-function loadPlannedOutfits(){
- try{plannedOutfits=JSON.parse(localStorage.getItem(plannerStorageKey())||"[]")||[]}
- catch(e){plannedOutfits=[]}
+
+async function loadPlannedOutfits(){
+ if(!currentUser){plannedOutfits=[];return}
+
+ const {data:plans,error}=await supabaseClient
+   .from("outfit_plans")
+   .select("*")
+   .eq("user_id",currentUser.id)
+   .order("plan_date",{ascending:true});
+
+ if(error){
+   console.warn("Could not load Planner from Supabase:",error.message);
+   plannedOutfits=[];
+   return;
+ }
+
+ const ids=(plans||[]).map(p=>p.id);
+ let itemRows=[];
+ if(ids.length){
+   const itemResult=await supabaseClient
+     .from("outfit_plan_items")
+     .select("plan_id,clothing_item_id")
+     .in("plan_id",ids);
+   if(itemResult.error)console.warn("Could not load Planner items:",itemResult.error.message);
+   else itemRows=itemResult.data||[];
+ }
+
+ plannedOutfits=(plans||[]).map(p=>({
+   id:p.id,
+   date:p.plan_date,
+   occasion:p.occasion||"Casual",
+   name:p.plan_name||p.occasion||"Planned outfit",
+   notes:p.notes||"",
+   itemIds:itemRows.filter(x=>x.plan_id===p.id).map(x=>x.clothing_item_id),
+   createdAt:p.created_at
+ }));
+
+ // One-time migration of old browser-only plans, so existing plans are not lost.
+ const migrationKey="plannerSupabaseMigrated:"+currentUser.id;
+ if(!localStorage.getItem(migrationKey)){
+   let oldPlans=[];
+   try{oldPlans=JSON.parse(localStorage.getItem(plannerStorageKey())||"[]")||[]}catch(e){}
+   if(oldPlans.length && !plannedOutfits.length){
+     for(const old of oldPlans){
+       const {data:newPlan,error:planError}=await supabaseClient.from("outfit_plans").insert({
+         user_id:currentUser.id,
+         plan_name:old.name||old.occasion||"Planned outfit",
+         plan_date:old.date,
+         occasion:old.occasion||"Casual",
+         notes:old.notes||""
+       }).select("id").single();
+       if(planError){console.warn("Planner migration:",planError.message);continue}
+       const validIds=(old.itemIds||[]).filter(id=>clothingItems.some(i=>i.id===id));
+       if(validIds.length){
+         const rows=validIds.map(id=>({plan_id:newPlan.id,clothing_item_id:id}));
+         const {error:itemError}=await supabaseClient.from("outfit_plan_items").insert(rows);
+         if(itemError)console.warn("Planner item migration:",itemError.message);
+       }
+     }
+     localStorage.setItem(migrationKey,"1");
+     return loadPlannedOutfits();
+   }
+   localStorage.setItem(migrationKey,"1");
+ }
 }
-function persistPlannedOutfits(){
- localStorage.setItem(plannerStorageKey(),JSON.stringify(plannedOutfits));
-}
+
 function setPlannerDefaultDate(){
  const input=el("plannerDate");
  if(input&&!input.value){
@@ -2153,12 +2213,13 @@ function setPlannerDefaultDate(){
    input.value=d.toISOString().slice(0,10);
  }
 }
+
 function renderOutfitPlanner(){
- loadPlannedOutfits();
  setPlannerDefaultDate();
  renderPlannerWardrobeItems();
  renderPlannedOutfits();
 }
+
 function renderPlannerWardrobeItems(){
  renderPlannerCategories();
  if(plannerActiveCategoryId)renderPlannerCategoryItems(plannerActiveCategoryId);
@@ -2208,7 +2269,7 @@ function renderPlannerCategoryItems(categoryId){
  }
  wrap.innerHTML=available.map(i=>{
    const selected=plannerSelectedItemIds.includes(i.id);
-   const inLaundry=String(i.laundry_status||"").toLowerCase()==="laundry";
+   const inLaundry=!!i.laundry_status;
    const visual=i.displayPhoto
     ? `<img src="${escapeHtml(i.displayPhoto)}" alt="">`
     : `<div class="planner-item-placeholder">👕</div>`;
@@ -2226,7 +2287,7 @@ function updatePlannerSelectedCount(){
  if(!warning)return;
  const laundryItems=plannerSelectedItemIds
    .map(id=>clothingItems.find(i=>i.id===id))
-   .filter(i=>i && String(i.laundry_status||"").toLowerCase()==="laundry");
+   .filter(i=>i && !!i.laundry_status);
  if(laundryItems.length){
    warning.textContent="🧺 "+laundryItems.map(i=>i.name||"Clothing item").join(", ")+" "+(laundryItems.length===1?"is":"are")+" currently in Laundry. You can still plan "+(laundryItems.length===1?"it":"them")+".";
    warning.classList.remove("hidden");
@@ -2248,32 +2309,60 @@ function clearPlannerSelection(){
  else renderPlannerCategories();
  updatePlannerSelectedCount();
 }
-function savePlannedOutfit(){
+
+async function savePlannedOutfit(){
  const date=el("plannerDate")?.value||"";
  const occasion=el("plannerOccasion")?.value||"Casual";
- const name=(el("plannerName")?.value||"").trim();
+ const name=(el("plannerName")?.value||"").trim()||occasion+" outfit";
  const notes=(el("plannerNotes")?.value||"").trim();
  if(!date)return alert("Choose a date for this outfit.");
  if(!plannerSelectedItemIds.length)return alert("Choose at least one clothing item.");
+ if(!currentUser)return alert("Please sign in again.");
 
- const entry={
-   id:(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()),
-   date,occasion,name:name||occasion+" outfit",notes,
-   itemIds:[...plannerSelectedItemIds],
-   createdAt:new Date().toISOString()
- };
- plannedOutfits.push(entry);
- persistPlannedOutfits();
+ let planId=editingPlannerId;
+ if(planId){
+   const {error}=await supabaseClient.from("outfit_plans").update({
+     plan_name:name,plan_date:date,occasion,notes,updated_at:new Date().toISOString()
+   }).eq("id",planId).eq("user_id",currentUser.id);
+   if(error)return alert("Could not update outfit: "+error.message);
+
+   const del=await supabaseClient.from("outfit_plan_items").delete().eq("plan_id",planId);
+   if(del.error)return alert("Could not update outfit items: "+del.error.message);
+ }else{
+   const {data,error}=await supabaseClient.from("outfit_plans").insert({
+     user_id:currentUser.id,plan_name:name,plan_date:date,occasion,notes
+   }).select("id").single();
+   if(error)return alert("Could not save outfit: "+error.message);
+   planId=data.id;
+ }
+
+ const rows=plannerSelectedItemIds.map(id=>({plan_id:planId,clothing_item_id:id}));
+ const itemInsert=await supabaseClient.from("outfit_plan_items").insert(rows);
+ if(itemInsert.error)return alert("Outfit saved, but clothing items could not be attached: "+itemInsert.error.message);
+
+ await createAppNotification({
+   type:editingPlannerId?"planner_updated":"planner_created",
+   title:editingPlannerId?"📅 Outfit Plan Updated":"📅 Outfit Planned",
+   message:editingPlannerId
+     ? `${name} was updated for ${plannerPrettyDate(date)}.`
+     : `${name} is planned for ${plannerPrettyDate(date)}.`,
+   actionPage:"planner",actionId:planId,
+   eventKey:`planner-${editingPlannerId?"updated":"created"}-${planId}-${Date.now()}`
+ });
+
+ editingPlannerId=null;
  plannerSelectedItemIds=[];
  plannerActiveCategoryId=null;
  el("plannerCategoryItems")?.classList.add("hidden");
  el("plannerCategoryChooser")?.classList.remove("hidden");
  if(el("plannerName"))el("plannerName").value="";
  if(el("plannerNotes"))el("plannerNotes").value="";
+ await loadPlannedOutfits();
  renderPlannerWardrobeItems();
  renderPlannedOutfits();
  alert("Outfit planned ✓");
 }
+
 function plannerPrettyDate(value){
  if(!value)return "";
  const d=new Date(value+"T12:00:00");
@@ -2309,8 +2398,10 @@ function renderPlannedOutfits(){
    </div>`;
  }).join("");
 }
+
 function editPlannedOutfit(id){
- const p=plannedOutfits.find(x=>x.id===id); if(!p)return;
+ const p=plannedOutfits.find(x=>x.id===id);if(!p)return;
+ editingPlannerId=id;
  el("plannerDate").value=p.date||"";
  el("plannerOccasion").value=p.occasion||"Casual";
  el("plannerName").value=p.name||"";
@@ -2319,23 +2410,32 @@ function editPlannedOutfit(id){
  plannerActiveCategoryId=null;
  el("plannerCategoryItems")?.classList.add("hidden");
  el("plannerCategoryChooser")?.classList.remove("hidden");
- plannedOutfits=plannedOutfits.filter(x=>x.id!==id);
- persistPlannedOutfits();
  renderPlannerWardrobeItems();
- renderPlannedOutfits();
  window.scrollTo({top:0,behavior:"smooth"});
 }
-function deletePlannedOutfit(id){
+
+async function deletePlannedOutfit(id){
  if(!confirm("Delete this planned outfit?"))return;
- plannedOutfits=plannedOutfits.filter(x=>x.id!==id);
- persistPlannedOutfits();
+ const p=plannedOutfits.find(x=>x.id===id);
+ const {error}=await supabaseClient.from("outfit_plans")
+   .delete().eq("id",id).eq("user_id",currentUser.id);
+ if(error)return alert("Could not delete plan: "+error.message);
+
+ await createAppNotification({
+   type:"planner_deleted",
+   title:"🗑️ Plan Deleted",
+   message:`${p?.name||"Planned outfit"} was removed from your Planner.`,
+   actionPage:"planner",
+   metadata:{deleted_plan_id:id,plan_date:p?.date||null}
+ });
+ if(editingPlannerId===id)editingPlannerId=null;
+ await loadPlannedOutfits();
  renderPlannedOutfits();
 }
-
 
 async function checkPlannerLaundryReminders(){
  if(!currentUser)return;
- loadPlannedOutfits();
+ await loadPlannedOutfits();
 
  const now=new Date();
  now.setHours(0,0,0,0);
@@ -2353,34 +2453,26 @@ async function checkPlannerLaundryReminders(){
  for(const plan of tomorrowPlans){
    const laundryItems=(plan.itemIds||[])
      .map(id=>clothingItems.find(i=>i.id===id))
-     .filter(i=>i && String(i.laundry_status||"").toLowerCase()==="laundry");
-
+     .filter(i=>i && !!i.laundry_status);
    if(!laundryItems.length)continue;
-
-   const reminderKey="planner-laundry:"+currentUser.id+":"+plan.id+":"+tomorrowKey;
-   if(localStorage.getItem(reminderKey))continue;
 
    const names=laundryItems.map(i=>i.name||"Clothing item");
    const message=names.length===1
      ? `${names[0]} planned for tomorrow is still in Laundry. Make sure it is ready for your outfit.`
      : `${names.join(", ")} planned for tomorrow are still in Laundry. Make sure they are ready for your outfit.`;
 
-   const {error}=await supabaseClient.from("notifications").insert({
-     user_id:currentUser.id,
+   await createAppNotification({
      type:"planner_laundry_reminder",
      title:"🧺 Outfit Laundry Reminder",
-     message
+     message,
+     actionPage:"planner",
+     actionId:plan.id,
+     eventKey:`planner-laundry-${plan.id}-${tomorrowKey}`,
+     priority:"high",
+     metadata:{plan_id:plan.id,plan_date:tomorrowKey,item_ids:laundryItems.map(i=>i.id)}
    });
-
-   if(!error){
-     localStorage.setItem(reminderKey,"1");
-   }else{
-     console.warn("Planner laundry reminder:",error.message);
-   }
  }
- await loadNotifications();
 }
-
 
 let travelSelectedItemIds=[];
 let travelActiveCategoryId=null;
