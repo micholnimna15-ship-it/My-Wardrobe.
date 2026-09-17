@@ -299,7 +299,7 @@ body{
 @media(min-width:700px){.look-picker-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 /* ===== 2026 UX UPDATE: Laundry, Me, Looks delete, reorder ===== */
-.bottom-nav{grid-template-columns:repeat(5,1fr)}
+.bottom-nav{grid-template-columns:repeat(6,1fr)}
 .me-card,.laundry-column{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
 .me-card{margin-bottom:12px}.me-card button{width:100%;text-align:left}
 .me-profile-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
@@ -997,6 +997,34 @@ body{
   color:#f7f1e9 !important;
 }
 
+
+/* ===== OUTFIT PLANNER ===== */
+.planner-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
+.planner-card{background:#181713;border:1px solid #4b443c;border-radius:20px;padding:18px}
+.planner-card h2,.planner-card h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:#f4efe8}
+.planner-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.planner-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-height:430px;overflow:auto;padding:2px}
+.planner-item{position:relative;border:1px solid #4b443c;border-radius:14px;overflow:hidden;background:#151412;cursor:pointer}
+.planner-item.selected{border:2px solid #d2ad7b;box-shadow:0 0 0 2px rgba(210,173,123,.12)}
+.planner-item img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#24211d;display:block}
+.planner-item-placeholder{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:#24211d;font-size:34px}
+.planner-item-copy{padding:8px;color:#f3eee7;font-size:12px;font-weight:700}
+.planner-check{position:absolute;top:7px;right:7px;width:24px;height:24px;border-radius:50%;background:#151412;border:1px solid #756858;display:flex;align-items:center;justify-content:center;color:transparent}
+.planner-item.selected .planner-check{background:#d2ad7b;color:#17130f;border-color:#d2ad7b}
+.planner-list{display:grid;gap:11px}
+.planned-outfit{background:#151412;border:1px solid #4b443c;border-radius:17px;padding:14px}
+.planned-outfit-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.planned-date{color:#d2ad7b;font-size:12px;font-weight:800;letter-spacing:.4px}
+.planned-title{font:400 20px Georgia,"Times New Roman",serif;color:#f4efe8;margin:4px 0}
+.planned-meta{color:#a99d90;font-size:12px}
+.planned-thumbs{display:flex;gap:7px;overflow:auto;margin-top:11px}
+.planned-thumbs img,.planned-thumb-placeholder{width:52px;height:62px;flex:0 0 52px;border-radius:9px;object-fit:cover;background:#24211d}
+.planned-thumb-placeholder{display:flex;align-items:center;justify-content:center;font-size:22px}
+.planned-actions{display:flex;gap:7px;margin-top:12px}
+.planner-empty{color:#a99d90;text-align:center;padding:28px 12px}
+.planner-date-badge{display:inline-flex;align-items:center;gap:7px;background:#211e1a;border:1px solid #4b443c;border-radius:999px;padding:7px 10px;color:#c9b8a4;font-size:12px}
+@media(max-width:800px){.planner-grid{grid-template-columns:1fr}.planner-form-grid{grid-template-columns:1fr}.planner-items{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1287,6 +1315,51 @@ body{
 
     </section>
 
+
+    <section id="plannerPage" class="hidden">
+      <div class="page-intro">
+        <h1>Outfit Planner</h1>
+        <p>Plan what you want to wear for upcoming days and occasions.</p>
+      </div>
+
+      <div class="planner-grid">
+        <div class="planner-card">
+          <h2 style="margin-top:0">Plan an outfit</h2>
+          <div class="planner-form-grid">
+            <div class="field"><label>Date</label><input id="plannerDate" type="date"></div>
+            <div class="field"><label>Occasion</label>
+              <select id="plannerOccasion">
+                <option>Casual</option><option>University</option><option>Work</option>
+                <option>Date</option><option>Party</option><option>Formal</option>
+                <option>Wedding</option><option>Travel</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>Plan name</label><input id="plannerName" placeholder="e.g. Saturday dinner"></div>
+          <div class="field"><label>Notes (optional)</label><textarea id="plannerNotes" rows="2" placeholder="Dress code, location, anything to remember..."></textarea></div>
+
+          <div class="section-head" style="margin-top:18px">
+            <h2>Choose from my wardrobe</h2>
+            <button type="button" class="secondary" onclick="clearPlannerSelection()">Clear</button>
+          </div>
+          <div id="plannerItems" class="planner-items"></div>
+          <div id="plannerSelectedCount" class="muted" style="margin-top:10px">0 items selected</div>
+
+          <button id="savePlannedOutfitBtn" class="primary" style="margin-top:16px" onclick="savePlannedOutfit()">📅 Save planned outfit</button>
+        </div>
+
+        <div class="planner-card">
+          <div class="section-head" style="margin-top:0">
+            <div>
+              <h2 style="margin:0">Upcoming outfits</h2>
+              <div class="muted">Your next planned looks</div>
+            </div>
+          </div>
+          <div id="plannedOutfitsList" class="planner-list"></div>
+        </div>
+      </div>
+    </section>
+
     <section id="laundryPage" class="hidden">
       <div class="hero"><h1>🧺 Laundry</h1><p>Keep track of what is waiting, washing, drying and ready to wear.</p></div>
       <div class="laundry-board" id="laundryBoard"></div>
@@ -1307,6 +1380,7 @@ body{
   <nav class="bottom-nav">
     <button id="navHome" class="nav-btn active" onclick="showPage('home')"><span>👕</span>Wardrobe</button>
     <button id="navLooks" class="nav-btn" onclick="showPage('looks')"><span>❤️</span>Looks</button>
+    <button id="navPlanner" class="nav-btn" onclick="showPage('planner')"><span>📅</span>Planner</button>
     <button id="navShop" class="nav-btn" onclick="showPage('shop')"><span>✨</span>Shop AI</button>
     <button id="navLaundry" class="nav-btn" onclick="showPage('laundry')"><span>🧺</span>Laundry</button>
     <button id="navMe" class="nav-btn" onclick="showPage('me')"><span>👤</span>Me</button>
@@ -1814,7 +1888,8 @@ async function openNotification(id){
  }
 
  const type=String(n.type||"").toLowerCase();
- if(type.includes("laundry"))showPage("laundry");
+ if(type.includes("planner")||type.includes("planned")||type.includes("reminder"))showPage("planner");
+ else if(type.includes("laundry"))showPage("laundry");
  else if(type.includes("shop")||type.includes("outfit"))showPage("shop");
  else if(type.includes("credit")||type.includes("payment"))showPage("me");
 }
@@ -1870,17 +1945,154 @@ async function createSignedPhotoUrls(){
  }
 }
 
-function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","shopPage","laundryPage","mePage"].forEach(id=>el(id).classList.add("hidden"))}
-function clearNavActive(){["navHome","navLooks","navShop","navLaundry","navMe"].forEach(id=>el(id)?.classList.remove("active"))}
+function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","plannerPage","shopPage","laundryPage","mePage"].forEach(id=>el(id).classList.add("hidden"))}
+function clearNavActive(){["navHome","navLooks","navPlanner","navShop","navLaundry","navMe"].forEach(id=>el(id)?.classList.remove("active"))}
 function showPage(page){
  hideAllPages();clearNavActive();
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
+ if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");renderOutfitPlanner()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
  if(page==="me"){el("mePage").classList.remove("hidden");el("navMe").classList.add("active");renderMePage()}
 }
 function goHome(){showPage("home")}
+
+
+let plannerSelectedItemIds=[];
+let plannedOutfits=[];
+
+function plannerStorageKey(){
+ return "myWardrobeOutfitPlanner:"+(currentUser?.id||"guest");
+}
+function loadPlannedOutfits(){
+ try{plannedOutfits=JSON.parse(localStorage.getItem(plannerStorageKey())||"[]")||[]}
+ catch(e){plannedOutfits=[]}
+}
+function persistPlannedOutfits(){
+ localStorage.setItem(plannerStorageKey(),JSON.stringify(plannedOutfits));
+}
+function setPlannerDefaultDate(){
+ const input=el("plannerDate");
+ if(input&&!input.value){
+   const d=new Date();
+   d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+   input.value=d.toISOString().slice(0,10);
+ }
+}
+function renderOutfitPlanner(){
+ loadPlannedOutfits();
+ setPlannerDefaultDate();
+ renderPlannerWardrobeItems();
+ renderPlannedOutfits();
+}
+function renderPlannerWardrobeItems(){
+ const wrap=el("plannerItems");
+ if(!wrap)return;
+ const available=clothingItems.filter(i=>String(i.laundry_status||"").toLowerCase()!=="laundry");
+ if(!available.length){
+   wrap.innerHTML='<div class="planner-empty" style="grid-column:1/-1">Add clothing to your wardrobe first.</div>';
+   return;
+ }
+ wrap.innerHTML=available.map(i=>{
+   const selected=plannerSelectedItemIds.includes(i.id);
+   const visual=i.displayPhoto
+    ? `<img src="${escapeHtml(i.displayPhoto)}" alt="">`
+    : `<div class="planner-item-placeholder">👕</div>`;
+   return `<div class="planner-item ${selected?"selected":""}" onclick="togglePlannerItem('${escapeJs(i.id)}')">
+     ${visual}<div class="planner-check">✓</div>
+     <div class="planner-item-copy">${escapeHtml(i.name||"Clothing item")}</div>
+   </div>`;
+ }).join("");
+ const count=el("plannerSelectedCount");
+ if(count)count.textContent=plannerSelectedItemIds.length+" item"+(plannerSelectedItemIds.length===1?"":"s")+" selected";
+}
+function togglePlannerItem(id){
+ const pos=plannerSelectedItemIds.indexOf(id);
+ if(pos>=0)plannerSelectedItemIds.splice(pos,1);else plannerSelectedItemIds.push(id);
+ renderPlannerWardrobeItems();
+}
+function clearPlannerSelection(){
+ plannerSelectedItemIds=[];
+ renderPlannerWardrobeItems();
+}
+function savePlannedOutfit(){
+ const date=el("plannerDate")?.value||"";
+ const occasion=el("plannerOccasion")?.value||"Casual";
+ const name=(el("plannerName")?.value||"").trim();
+ const notes=(el("plannerNotes")?.value||"").trim();
+ if(!date)return alert("Choose a date for this outfit.");
+ if(!plannerSelectedItemIds.length)return alert("Choose at least one clothing item.");
+
+ const entry={
+   id:(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()),
+   date,occasion,name:name||occasion+" outfit",notes,
+   itemIds:[...plannerSelectedItemIds],
+   createdAt:new Date().toISOString()
+ };
+ plannedOutfits.push(entry);
+ persistPlannedOutfits();
+ plannerSelectedItemIds=[];
+ if(el("plannerName"))el("plannerName").value="";
+ if(el("plannerNotes"))el("plannerNotes").value="";
+ renderPlannerWardrobeItems();
+ renderPlannedOutfits();
+ alert("Outfit planned ✓");
+}
+function plannerPrettyDate(value){
+ if(!value)return "";
+ const d=new Date(value+"T12:00:00");
+ return d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+}
+function renderPlannedOutfits(){
+ const wrap=el("plannedOutfitsList");
+ if(!wrap)return;
+ const sorted=[...plannedOutfits].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+ if(!sorted.length){
+   wrap.innerHTML='<div class="planner-empty">No outfits planned yet.<br><br>Choose a date and some clothes to create your first plan.</div>';
+   return;
+ }
+ wrap.innerHTML=sorted.map(p=>{
+   const items=(p.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id)).filter(Boolean);
+   const thumbs=items.map(i=>i.displayPhoto
+     ? `<img src="${escapeHtml(i.displayPhoto)}" title="${escapeHtml(i.name||"Item")}" alt="">`
+     : `<div class="planned-thumb-placeholder">👕</div>`).join("");
+   return `<div class="planned-outfit">
+     <div class="planned-outfit-top">
+       <div>
+         <div class="planned-date">📅 ${escapeHtml(plannerPrettyDate(p.date))}</div>
+         <div class="planned-title">${escapeHtml(p.name||p.occasion||"Planned outfit")}</div>
+         <div class="planned-meta">${escapeHtml(p.occasion||"")}${p.notes?" · "+escapeHtml(p.notes):""}</div>
+       </div>
+       <span class="planner-date-badge">${items.length} item${items.length===1?"":"s"}</span>
+     </div>
+     <div class="planned-thumbs">${thumbs||'<span class="muted">Items no longer in wardrobe</span>'}</div>
+     <div class="planned-actions">
+       <button class="small-btn" onclick="editPlannedOutfit('${p.id}')">Edit</button>
+       <button class="small-btn danger" onclick="deletePlannedOutfit('${p.id}')">Delete</button>
+     </div>
+   </div>`;
+ }).join("");
+}
+function editPlannedOutfit(id){
+ const p=plannedOutfits.find(x=>x.id===id); if(!p)return;
+ el("plannerDate").value=p.date||"";
+ el("plannerOccasion").value=p.occasion||"Casual";
+ el("plannerName").value=p.name||"";
+ el("plannerNotes").value=p.notes||"";
+ plannerSelectedItemIds=[...(p.itemIds||[])];
+ plannedOutfits=plannedOutfits.filter(x=>x.id!==id);
+ persistPlannedOutfits();
+ renderPlannerWardrobeItems();
+ renderPlannedOutfits();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function deletePlannedOutfit(id){
+ if(!confirm("Delete this planned outfit?"))return;
+ plannedOutfits=plannedOutfits.filter(x=>x.id!==id);
+ persistPlannedOutfits();
+ renderPlannedOutfits();
+}
 
 function renderCategories(){
  const grid=el("categoryGrid");
