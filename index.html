@@ -936,9 +936,16 @@ body{
 .scan-camera-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.scan-camera-actions button{flex:1;min-width:130px}
 .scan-privacy{font-size:11px;color:#a99d90;line-height:1.45;margin-top:10px}
 
+
+/* Stage 3 interactive 3D avatar viewer */
+.avatar-model-viewer{width:100%;height:460px;background:radial-gradient(circle at 50% 35%,#2b2b27 0%,#151513 55%,#0b0b0a 100%);border-radius:22px;overflow:hidden}
+.avatar-upload-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.avatar-upload-row button{flex:1;min-width:150px}
+.avatar-viewer-empty{min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:#d8d0c2}.avatar-viewer-empty .icon{font-size:72px;margin-bottom:14px}
+@media(max-width:640px){.avatar-model-viewer{height:400px}}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </head>
 
 <body>
@@ -1438,9 +1445,9 @@ body{
 <div id="avatarViewerModal" class="modal hidden">
   <div class="modal-box">
     <div class="modal-head"><h2>My 3D Avatar</h2><button class="close" onclick="closeModal('avatarViewerModal')">×</button></div>
-    <div class="avatar3d-stage"><div class="avatar3d-badge">PREVIEW</div><div id="avatar3dPerson" class="avatar3d-person">🧍</div></div>
+    <div class="avatar3d-stage" style="padding:0;overflow:hidden"><div class="avatar3d-badge">3D VIEW</div><div id="avatarViewerEmpty" class="avatar-viewer-empty"><div class="icon">🧍</div><strong>No generated 3D avatar yet</strong><span class="muted" style="margin-top:8px">Your body scan is ready for reconstruction. You can also load a GLB model to test the real 360° viewer.</span></div><model-viewer id="avatarModelViewer" class="avatar-model-viewer hidden" camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1" environment-image="neutral" interaction-prompt="auto" alt="Your 3D wardrobe avatar"></model-viewer></div>
     <div id="avatar3dStatus" class="notice">No body scan has been created yet. This preview confirms the avatar section is working.</div>
-    <div class="avatar3d-actions"><button type="button" class="secondary" onclick="rotateAvatarPreview(-1)">↶ Rotate Left</button><button type="button" class="secondary" onclick="rotateAvatarPreview(1)">Rotate Right ↷</button><button type="button" class="primary" onclick="closeModal('avatarViewerModal');openBodyScanModal()">Rescan / Replace Avatar</button></div>
+    <div class="avatar3d-actions"><button type="button" class="primary" onclick="closeModal('avatarViewerModal');openBodyScanModal()">Rescan / Replace Avatar</button></div><div class="avatar-upload-row"><input id="avatarGlbInput" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" class="hidden" onchange="loadAvatarModelFile(event)"><button type="button" class="secondary" onclick="el('avatarGlbInput')?.click()">Test a GLB Avatar</button><button id="removeAvatarModelBtn" type="button" class="secondary hidden" onclick="clearAvatarModelPreview()">Remove Test Model</button></div>
   </div>
 </div>
 
@@ -2994,16 +3001,20 @@ function stopBodyScanStream(){
   const video=el("bodyScanVideo"); if(video) video.srcObject=null;
 }
 function cancelBodyCamera(){ stopBodyScanStream(); resetBodyScanUI(); }
-function openAvatarViewer(){
-  avatarPreviewRotation=0;
-  const person=el("avatar3dPerson");
-  if(person) person.style.transform="rotateY(0deg)";
-  el("avatarViewerModal")?.classList.remove("hidden");
+let avatarObjectUrl=null;
+function openAvatarViewer(){ el("avatarViewerModal")?.classList.remove("hidden"); }
+function loadAvatarModelFile(event){
+  const file=event?.target?.files?.[0]; if(!file)return;
+  const lower=file.name.toLowerCase();
+  if(!lower.endsWith(".glb")&&!lower.endsWith(".gltf")){alert("Please choose a GLB or glTF 3D model.");event.target.value="";return;}
+  if(avatarObjectUrl)URL.revokeObjectURL(avatarObjectUrl); avatarObjectUrl=URL.createObjectURL(file);
+  const viewer=el("avatarModelViewer"); if(!viewer)return; viewer.src=avatarObjectUrl; viewer.classList.remove("hidden");
+  el("avatarViewerEmpty")?.classList.add("hidden"); el("removeAvatarModelBtn")?.classList.remove("hidden");
 }
-function rotateAvatarPreview(direction){
-  avatarPreviewRotation += Number(direction||1)*30;
-  const person=el("avatar3dPerson");
-  if(person) person.style.transform=`rotateY(${avatarPreviewRotation}deg)`;
+function clearAvatarModelPreview(){
+  const viewer=el("avatarModelViewer"); if(viewer){viewer.removeAttribute("src");viewer.classList.add("hidden");}
+  if(avatarObjectUrl){URL.revokeObjectURL(avatarObjectUrl);avatarObjectUrl=null;}
+  const input=el("avatarGlbInput");if(input)input.value="";el("avatarViewerEmpty")?.classList.remove("hidden");el("removeAvatarModelBtn")?.classList.add("hidden");
 }
 
 async function checkSession(){
