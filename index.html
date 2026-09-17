@@ -1025,6 +1025,33 @@ body{
 .planner-date-badge{display:inline-flex;align-items:center;gap:7px;background:#211e1a;border:1px solid #4b443c;border-radius:999px;padding:7px 10px;color:#c9b8a4;font-size:12px}
 @media(max-width:800px){.planner-grid{grid-template-columns:1fr}.planner-form-grid{grid-template-columns:1fr}.planner-items{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+/* ===== OUTFIT PLANNER CATEGORY PICKER ===== */
+.planner-category-grid{display:flex;gap:9px;overflow-x:auto;padding:2px 1px 12px;scrollbar-width:none}
+.planner-category-grid::-webkit-scrollbar{display:none}
+.planner-category-btn{
+  flex:0 0 auto;min-width:105px;border:1px solid #4b443c;background:#191815;color:#ddd3c8;
+  border-radius:13px;padding:11px 13px;text-align:left;cursor:pointer
+}
+.planner-category-btn.active{background:#d2ad7b;color:#17130f;border-color:#d2ad7b}
+.planner-category-icon{display:block;font-size:20px;margin-bottom:5px}
+.planner-category-name{font-size:12px;font-weight:800}
+.planner-back-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 11px}
+
+
+/* ===== PLANNER LAUNDRY AWARENESS ===== */
+.planner-item.in-laundry{border-color:#806b52}
+.planner-laundry-badge{
+  position:absolute;left:7px;top:7px;z-index:2;
+  background:rgba(20,18,15,.94);border:1px solid #9a7d5b;color:#e6c99e;
+  border-radius:999px;padding:5px 7px;font-size:10px;font-weight:800
+}
+.planner-laundry-warning{
+  margin-top:11px;padding:11px 12px;border-radius:12px;
+  background:#29231d;border:1px solid #6b5947;color:#e1c8a7;
+  font-size:12px;line-height:1.45
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1342,8 +1369,22 @@ body{
             <h2>Choose from my wardrobe</h2>
             <button type="button" class="secondary" onclick="clearPlannerSelection()">Clear</button>
           </div>
-          <div id="plannerItems" class="planner-items"></div>
+
+          <div id="plannerCategoryChooser">
+            <div class="muted" style="margin-bottom:9px">Choose a category first</div>
+            <div id="plannerCategories" class="planner-category-grid"></div>
+          </div>
+
+          <div id="plannerCategoryItems" class="hidden">
+            <div class="planner-back-row">
+              <button type="button" class="secondary" onclick="backToPlannerCategories()">← Categories</button>
+              <strong id="plannerCategoryTitle"></strong>
+            </div>
+            <div id="plannerItems" class="planner-items"></div>
+          </div>
+
           <div id="plannerSelectedCount" class="muted" style="margin-top:10px">0 items selected</div>
+          <div id="plannerLaundryWarning" class="planner-laundry-warning hidden"></div>
 
           <button id="savePlannedOutfitBtn" class="primary" style="margin-top:16px" onclick="savePlannedOutfit()">📅 Save planned outfit</button>
         </div>
@@ -1365,6 +1406,66 @@ body{
       <div class="laundry-board" id="laundryBoard"></div>
     </section>
 
+
+    <section id="travelPage" class="hidden">
+      <div class="page-intro">
+        <h1>Travel Packing</h1>
+        <p>Plan your trip, choose what to take, and keep track of what is packed.</p>
+      </div>
+
+      <div class="planner-grid">
+        <div class="planner-card">
+          <h2 style="margin-top:0">New Trip</h2>
+          <div class="planner-form-grid">
+            <div class="field"><label>Trip name</label><input id="tripName" placeholder="e.g. Sydney Weekend"></div>
+            <div class="field"><label>Destination</label><input id="tripDestination" placeholder="e.g. Sydney"></div>
+            <div class="field"><label>Departure</label><input id="tripDeparture" type="date"></div>
+            <div class="field"><label>Return</label><input id="tripReturn" type="date"></div>
+          </div>
+          <div class="field">
+            <label>Trip type</label>
+            <select id="tripType">
+              <option>Holiday</option><option>Weekend</option><option>Business</option>
+              <option>Beach</option><option>Wedding</option><option>Family</option>
+              <option>Adventure</option><option>Other</option>
+            </select>
+          </div>
+
+          <div class="section-head" style="margin-top:18px">
+            <h2>Choose from my wardrobe</h2>
+            <button type="button" class="secondary" onclick="clearTravelSelection()">Clear</button>
+          </div>
+
+          <div id="travelCategoryChooser">
+            <div class="muted" style="margin-bottom:9px">Choose a category first</div>
+            <div id="travelCategories" class="planner-category-grid"></div>
+          </div>
+
+          <div id="travelCategoryItems" class="hidden">
+            <div class="planner-back-row">
+              <button type="button" class="secondary" onclick="backToTravelCategories()">← Categories</button>
+              <strong id="travelCategoryTitle"></strong>
+            </div>
+            <div id="travelItems" class="planner-items"></div>
+          </div>
+
+          <div id="travelSelectedCount" class="muted" style="margin-top:10px">0 items selected</div>
+          <div id="travelLaundryWarning" class="planner-laundry-warning hidden"></div>
+          <button class="primary" style="margin-top:16px" onclick="saveTrip()">🧳 Create Packing List</button>
+        </div>
+
+        <div class="planner-card">
+          <div class="section-head" style="margin-top:0">
+            <div>
+              <h2 style="margin:0">My Trips</h2>
+              <div class="muted">Packing lists and progress</div>
+            </div>
+          </div>
+          <div id="travelTripsList" class="planner-list"></div>
+        </div>
+      </div>
+    </section>
+
     <section id="mePage" class="hidden">
       <div class="hero"><h1>Me</h1><p>Your profile, fit and app settings in one place.</p></div>
       <div class="me-card">
@@ -1383,7 +1484,7 @@ body{
     <button id="navPlanner" class="nav-btn" onclick="showPage('planner')"><span>📅</span>Planner</button>
     <button id="navShop" class="nav-btn" onclick="showPage('shop')"><span>✨</span>Shop AI</button>
     <button id="navLaundry" class="nav-btn" onclick="showPage('laundry')"><span>🧺</span>Laundry</button>
-    <button id="navMe" class="nav-btn" onclick="showPage('me')"><span>👤</span>Me</button>
+    <button id="navTravel" class="nav-btn" onclick="showPage('travel')"><span>🧳</span>Travel</button>
   </nav>
 </div>
 
@@ -1690,7 +1791,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await checkPlannerLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -1945,8 +2046,8 @@ async function createSignedPhotoUrls(){
  }
 }
 
-function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","plannerPage","shopPage","laundryPage","mePage"].forEach(id=>el(id).classList.add("hidden"))}
-function clearNavActive(){["navHome","navLooks","navPlanner","navShop","navLaundry","navMe"].forEach(id=>el(id)?.classList.remove("active"))}
+function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","plannerPage","shopPage","laundryPage","travelPage","mePage"].forEach(id=>el(id).classList.add("hidden"))}
+function clearNavActive(){["navHome","navLooks","navPlanner","navShop","navLaundry","navTravel"].forEach(id=>el(id)?.classList.remove("active"))}
 function showPage(page){
  hideAllPages();clearNavActive();
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems()}
@@ -1954,12 +2055,14 @@ function showPage(page){
  if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");renderOutfitPlanner()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
- if(page==="me"){el("mePage").classList.remove("hidden");el("navMe").classList.add("active");renderMePage()}
+ if(page==="travel"){el("travelPage").classList.remove("hidden");el("navTravel").classList.add("active");renderTravelPacking()}
+ if(page==="me"){el("mePage").classList.remove("hidden");renderMePage()}
 }
 function goHome(){showPage("home")}
 
 
 let plannerSelectedItemIds=[];
+let plannerActiveCategoryId=null;
 let plannedOutfits=[];
 
 function plannerStorageKey(){
@@ -1987,34 +2090,93 @@ function renderOutfitPlanner(){
  renderPlannedOutfits();
 }
 function renderPlannerWardrobeItems(){
+ renderPlannerCategories();
+ if(plannerActiveCategoryId)renderPlannerCategoryItems(plannerActiveCategoryId);
+ updatePlannerSelectedCount();
+}
+function renderPlannerCategories(){
+ const wrap=el("plannerCategories");
+ if(!wrap)return;
+ const usable=categories.filter(c=>clothingItems.some(i=>i.category_id===c.id));
+ if(!usable.length){
+   wrap.innerHTML='<div class="planner-empty">No wardrobe categories with clothing yet.</div>';
+   return;
+ }
+ wrap.innerHTML=usable.map(c=>{
+   const count=clothingItems.filter(i=>i.category_id===c.id).length;
+   return `<button type="button" class="planner-category-btn ${plannerActiveCategoryId===c.id?"active":""}"
+      onclick="openPlannerCategory('${escapeJs(c.id)}')">
+      <span class="planner-category-icon">${escapeHtml(c.icon||"👕")}</span>
+      <span class="planner-category-name">${escapeHtml(c.name||"Category")} · ${count}</span>
+   </button>`;
+ }).join("");
+}
+function openPlannerCategory(categoryId){
+ plannerActiveCategoryId=categoryId;
+ el("plannerCategoryChooser")?.classList.add("hidden");
+ el("plannerCategoryItems")?.classList.remove("hidden");
+ renderPlannerCategoryItems(categoryId);
+}
+function backToPlannerCategories(){
+ plannerActiveCategoryId=null;
+ el("plannerCategoryItems")?.classList.add("hidden");
+ el("plannerCategoryChooser")?.classList.remove("hidden");
+ renderPlannerCategories();
+ updatePlannerSelectedCount();
+}
+function renderPlannerCategoryItems(categoryId){
  const wrap=el("plannerItems");
  if(!wrap)return;
- const available=clothingItems.filter(i=>String(i.laundry_status||"").toLowerCase()!=="laundry");
+ const cat=categories.find(c=>c.id===categoryId);
+ if(el("plannerCategoryTitle"))el("plannerCategoryTitle").textContent=cat?.name||"Category";
+
+ const available=clothingItems.filter(i=>i.category_id===categoryId);
  if(!available.length){
-   wrap.innerHTML='<div class="planner-empty" style="grid-column:1/-1">Add clothing to your wardrobe first.</div>';
+   wrap.innerHTML='<div class="planner-empty" style="grid-column:1/-1">No available clothes in this category.</div>';
+   updatePlannerSelectedCount();
    return;
  }
  wrap.innerHTML=available.map(i=>{
    const selected=plannerSelectedItemIds.includes(i.id);
+   const inLaundry=String(i.laundry_status||"").toLowerCase()==="laundry";
    const visual=i.displayPhoto
     ? `<img src="${escapeHtml(i.displayPhoto)}" alt="">`
     : `<div class="planner-item-placeholder">👕</div>`;
-   return `<div class="planner-item ${selected?"selected":""}" onclick="togglePlannerItem('${escapeJs(i.id)}')">
-     ${visual}<div class="planner-check">✓</div>
+   return `<div class="planner-item ${selected?"selected":""} ${inLaundry?"in-laundry":""}" onclick="togglePlannerItem('${escapeJs(i.id)}')">
+     ${visual}${inLaundry?'<div class="planner-laundry-badge">🧺 In Laundry</div>':""}<div class="planner-check">✓</div>
      <div class="planner-item-copy">${escapeHtml(i.name||"Clothing item")}</div>
    </div>`;
  }).join("");
+ updatePlannerSelectedCount();
+}
+function updatePlannerSelectedCount(){
  const count=el("plannerSelectedCount");
  if(count)count.textContent=plannerSelectedItemIds.length+" item"+(plannerSelectedItemIds.length===1?"":"s")+" selected";
+ const warning=el("plannerLaundryWarning");
+ if(!warning)return;
+ const laundryItems=plannerSelectedItemIds
+   .map(id=>clothingItems.find(i=>i.id===id))
+   .filter(i=>i && String(i.laundry_status||"").toLowerCase()==="laundry");
+ if(laundryItems.length){
+   warning.textContent="🧺 "+laundryItems.map(i=>i.name||"Clothing item").join(", ")+" "+(laundryItems.length===1?"is":"are")+" currently in Laundry. You can still plan "+(laundryItems.length===1?"it":"them")+".";
+   warning.classList.remove("hidden");
+ }else{
+   warning.classList.add("hidden");
+   warning.textContent="";
+ }
 }
 function togglePlannerItem(id){
  const pos=plannerSelectedItemIds.indexOf(id);
  if(pos>=0)plannerSelectedItemIds.splice(pos,1);else plannerSelectedItemIds.push(id);
- renderPlannerWardrobeItems();
+ if(plannerActiveCategoryId)renderPlannerCategoryItems(plannerActiveCategoryId);
+ else renderPlannerCategories();
+ updatePlannerSelectedCount();
 }
 function clearPlannerSelection(){
  plannerSelectedItemIds=[];
- renderPlannerWardrobeItems();
+ if(plannerActiveCategoryId)renderPlannerCategoryItems(plannerActiveCategoryId);
+ else renderPlannerCategories();
+ updatePlannerSelectedCount();
 }
 function savePlannedOutfit(){
  const date=el("plannerDate")?.value||"";
@@ -2033,6 +2195,9 @@ function savePlannedOutfit(){
  plannedOutfits.push(entry);
  persistPlannedOutfits();
  plannerSelectedItemIds=[];
+ plannerActiveCategoryId=null;
+ el("plannerCategoryItems")?.classList.add("hidden");
+ el("plannerCategoryChooser")?.classList.remove("hidden");
  if(el("plannerName"))el("plannerName").value="";
  if(el("plannerNotes"))el("plannerNotes").value="";
  renderPlannerWardrobeItems();
@@ -2081,6 +2246,9 @@ function editPlannedOutfit(id){
  el("plannerName").value=p.name||"";
  el("plannerNotes").value=p.notes||"";
  plannerSelectedItemIds=[...(p.itemIds||[])];
+ plannerActiveCategoryId=null;
+ el("plannerCategoryItems")?.classList.add("hidden");
+ el("plannerCategoryChooser")?.classList.remove("hidden");
  plannedOutfits=plannedOutfits.filter(x=>x.id!==id);
  persistPlannedOutfits();
  renderPlannerWardrobeItems();
@@ -2092,6 +2260,199 @@ function deletePlannedOutfit(id){
  plannedOutfits=plannedOutfits.filter(x=>x.id!==id);
  persistPlannedOutfits();
  renderPlannedOutfits();
+}
+
+
+async function checkPlannerLaundryReminders(){
+ if(!currentUser)return;
+ loadPlannedOutfits();
+
+ const now=new Date();
+ now.setHours(0,0,0,0);
+ const tomorrow=new Date(now);
+ tomorrow.setDate(tomorrow.getDate()+1);
+ const tomorrowKey=[
+   tomorrow.getFullYear(),
+   String(tomorrow.getMonth()+1).padStart(2,"0"),
+   String(tomorrow.getDate()).padStart(2,"0")
+ ].join("-");
+
+ const tomorrowPlans=plannedOutfits.filter(p=>p.date===tomorrowKey);
+ if(!tomorrowPlans.length)return;
+
+ for(const plan of tomorrowPlans){
+   const laundryItems=(plan.itemIds||[])
+     .map(id=>clothingItems.find(i=>i.id===id))
+     .filter(i=>i && String(i.laundry_status||"").toLowerCase()==="laundry");
+
+   if(!laundryItems.length)continue;
+
+   const reminderKey="planner-laundry:"+currentUser.id+":"+plan.id+":"+tomorrowKey;
+   if(localStorage.getItem(reminderKey))continue;
+
+   const names=laundryItems.map(i=>i.name||"Clothing item");
+   const message=names.length===1
+     ? `${names[0]} planned for tomorrow is still in Laundry. Make sure it is ready for your outfit.`
+     : `${names.join(", ")} planned for tomorrow are still in Laundry. Make sure they are ready for your outfit.`;
+
+   const {error}=await supabaseClient.from("notifications").insert({
+     user_id:currentUser.id,
+     type:"planner_laundry_reminder",
+     title:"🧺 Outfit Laundry Reminder",
+     message
+   });
+
+   if(!error){
+     localStorage.setItem(reminderKey,"1");
+   }else{
+     console.warn("Planner laundry reminder:",error.message);
+   }
+ }
+ await loadNotifications();
+}
+
+
+let travelSelectedItemIds=[];
+let travelActiveCategoryId=null;
+let travelTrips=[];
+
+function travelStorageKey(){return "myWardrobeTravel:"+ (currentUser?.id||"guest")}
+function loadTravelTrips(){
+ try{travelTrips=JSON.parse(localStorage.getItem(travelStorageKey())||"[]")||[]}
+ catch(e){travelTrips=[]}
+}
+function persistTravelTrips(){localStorage.setItem(travelStorageKey(),JSON.stringify(travelTrips))}
+function renderTravelPacking(){
+ loadTravelTrips();
+ renderTravelCategories();
+ renderTravelTrips();
+ updateTravelSelectedCount();
+}
+function renderTravelCategories(){
+ const wrap=el("travelCategories"); if(!wrap)return;
+ const usable=categories.filter(c=>clothingItems.some(i=>i.category_id===c.id));
+ if(!usable.length){wrap.innerHTML='<div class="planner-empty">No wardrobe categories with clothing yet.</div>';return}
+ wrap.innerHTML=usable.map(c=>{
+   const count=clothingItems.filter(i=>i.category_id===c.id).length;
+   return `<button type="button" class="planner-category-btn" onclick="openTravelCategory('${escapeJs(c.id)}')">
+    <span class="planner-category-icon">${escapeHtml(c.icon||"👕")}</span>
+    <span class="planner-category-name">${escapeHtml(c.name||"Category")} · ${count}</span>
+   </button>`;
+ }).join("");
+}
+function openTravelCategory(categoryId){
+ travelActiveCategoryId=categoryId;
+ el("travelCategoryChooser")?.classList.add("hidden");
+ el("travelCategoryItems")?.classList.remove("hidden");
+ renderTravelCategoryItems(categoryId);
+}
+function backToTravelCategories(){
+ travelActiveCategoryId=null;
+ el("travelCategoryItems")?.classList.add("hidden");
+ el("travelCategoryChooser")?.classList.remove("hidden");
+ renderTravelCategories();
+ updateTravelSelectedCount();
+}
+function renderTravelCategoryItems(categoryId){
+ const wrap=el("travelItems"); if(!wrap)return;
+ const cat=categories.find(c=>c.id===categoryId);
+ if(el("travelCategoryTitle"))el("travelCategoryTitle").textContent=cat?.name||"Category";
+ const items=clothingItems.filter(i=>i.category_id===categoryId);
+ if(!items.length){wrap.innerHTML='<div class="planner-empty" style="grid-column:1/-1">No clothes in this category.</div>';return}
+ wrap.innerHTML=items.map(i=>{
+   const selected=travelSelectedItemIds.includes(i.id);
+   const inLaundry=String(i.laundry_status||"").toLowerCase()==="laundry";
+   const visual=i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:`<div class="planner-item-placeholder">👕</div>`;
+   return `<div class="planner-item ${selected?"selected":""} ${inLaundry?"in-laundry":""}" onclick="toggleTravelItem('${escapeJs(i.id)}')">
+     ${visual}${inLaundry?'<div class="planner-laundry-badge">🧺 In Laundry</div>':""}<div class="planner-check">✓</div>
+     <div class="planner-item-copy">${escapeHtml(i.name||"Clothing item")}</div>
+   </div>`;
+ }).join("");
+ updateTravelSelectedCount();
+}
+function toggleTravelItem(id){
+ const p=travelSelectedItemIds.indexOf(id);
+ if(p>=0)travelSelectedItemIds.splice(p,1);else travelSelectedItemIds.push(id);
+ if(travelActiveCategoryId)renderTravelCategoryItems(travelActiveCategoryId);
+ updateTravelSelectedCount();
+}
+function clearTravelSelection(){
+ travelSelectedItemIds=[];
+ if(travelActiveCategoryId)renderTravelCategoryItems(travelActiveCategoryId);
+ updateTravelSelectedCount();
+}
+function updateTravelSelectedCount(){
+ const c=el("travelSelectedCount");
+ if(c)c.textContent=travelSelectedItemIds.length+" item"+(travelSelectedItemIds.length===1?"":"s")+" selected";
+ const w=el("travelLaundryWarning"); if(!w)return;
+ const laundry=travelSelectedItemIds.map(id=>clothingItems.find(i=>i.id===id))
+   .filter(i=>i&&String(i.laundry_status||"").toLowerCase()==="laundry");
+ if(laundry.length){
+   w.textContent="🧺 "+laundry.map(i=>i.name||"Clothing item").join(", ")+" "+(laundry.length===1?"is":"are")+" currently in Laundry.";
+   w.classList.remove("hidden");
+ }else{w.classList.add("hidden");w.textContent=""}
+}
+function saveTrip(){
+ const name=(el("tripName")?.value||"").trim();
+ const destination=(el("tripDestination")?.value||"").trim();
+ const departure=el("tripDeparture")?.value||"";
+ const returnDate=el("tripReturn")?.value||"";
+ const type=el("tripType")?.value||"Holiday";
+ if(!name)return alert("Enter a trip name.");
+ if(!departure)return alert("Choose your departure date.");
+ if(!travelSelectedItemIds.length)return alert("Choose at least one item to pack.");
+ travelTrips.push({
+   id:crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random(),
+   name,destination,departure,returnDate,type,itemIds:[...travelSelectedItemIds],packedIds:[],createdAt:new Date().toISOString()
+ });
+ persistTravelTrips();
+ travelSelectedItemIds=[];travelActiveCategoryId=null;
+ ["tripName","tripDestination"].forEach(id=>{if(el(id))el(id).value=""});
+ el("travelCategoryItems")?.classList.add("hidden");el("travelCategoryChooser")?.classList.remove("hidden");
+ renderTravelPacking();
+}
+function togglePacked(tripId,itemId){
+ const trip=travelTrips.find(t=>t.id===tripId);if(!trip)return;
+ trip.packedIds=trip.packedIds||[];
+ const p=trip.packedIds.indexOf(itemId);
+ if(p>=0)trip.packedIds.splice(p,1);else trip.packedIds.push(itemId);
+ persistTravelTrips();renderTravelTrips();
+}
+function deleteTrip(id){
+ if(!confirm("Delete this trip and packing list?"))return;
+ travelTrips=travelTrips.filter(t=>t.id!==id);persistTravelTrips();renderTravelTrips();
+}
+function renderTravelTrips(){
+ const wrap=el("travelTripsList");if(!wrap)return;
+ if(!travelTrips.length){wrap.innerHTML='<div class="planner-empty">No trips yet.<br><br>Create a trip and choose what you want to pack.</div>';return}
+ const sorted=[...travelTrips].sort((a,b)=>String(a.departure).localeCompare(String(b.departure)));
+ wrap.innerHTML=sorted.map(t=>{
+   const items=(t.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id)).filter(Boolean);
+   const packed=t.packedIds||[];
+   const rows=items.map(i=>{
+     const done=packed.includes(i.id);
+     const laundry=String(i.laundry_status||"").toLowerCase()==="laundry";
+     return `<label style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #332e28">
+       <input type="checkbox" ${done?"checked":""} onchange="togglePacked('${t.id}','${escapeJs(i.id)}')">
+       <span style="flex:1;color:${done?"#8f867d":"#eee7de"};${done?"text-decoration:line-through":""}">${escapeHtml(i.name||"Item")}</span>
+       ${laundry?'<span style="font-size:10px;color:#e6c99e">🧺 Laundry</span>':""}
+     </label>`;
+   }).join("");
+   const pct=items.length?Math.round((packed.filter(id=>(t.itemIds||[]).includes(id)).length/items.length)*100):0;
+   return `<div class="planned-outfit">
+     <div class="planned-outfit-top"><div>
+       <div class="planned-date">🧳 ${escapeHtml(plannerPrettyDate(t.departure))}</div>
+       <div class="planned-title">${escapeHtml(t.name)}</div>
+       <div class="planned-meta">${escapeHtml(t.destination||"")}${t.type?" · "+escapeHtml(t.type):""}</div>
+     </div><span class="planner-date-badge">${pct}% packed</span></div>
+     <div style="height:6px;background:#29251f;border-radius:999px;overflow:hidden;margin:12px 0"><div style="height:100%;width:${pct}%;background:#d2ad7b"></div></div>
+     <div>${rows||'<div class="muted">No items found.</div>'}</div>
+     <div class="planned-actions">
+       <button class="small-btn" onclick="alert('AI Outfit Suggestions will be kept separate and added as an optional feature.')">✨ AI Suggestions</button>
+       <button class="small-btn danger" onclick="deleteTrip('${t.id}')">Delete Trip</button>
+     </div>
+   </div>`;
+ }).join("");
 }
 
 function renderCategories(){
