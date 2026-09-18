@@ -1085,6 +1085,23 @@ body{
   border:1px solid #7a5147;background:rgba(35,17,14,.94);color:#efb3a7;font-weight:900;cursor:pointer
 }
 
+
+/* ===== WEATHER-AWARE DRYING — INTEGRATED INTO LAUNDRY ===== */
+.drying-methods{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.drying-method-btn{border:1px solid #4b443c;background:#191815;color:#ddd3c8;border-radius:999px;padding:7px 9px;font-size:11px;cursor:pointer}
+.drying-method-btn.active{background:#d2ad7b;color:#17130f;border-color:#d2ad7b}
+.outdoor-drying-box{margin-top:9px;padding:10px;border:1px solid #66533f;border-radius:12px;background:#211e1a}
+.outdoor-drying-box strong{color:#f4efe8}
+.outdoor-drying-meta{margin-top:4px;color:#c7b7a5;font-size:11px;line-height:1.45}
+.weather-monitor-pill{display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:5px 8px;border-radius:999px;background:#263229;color:#bfe0c5;border:1px solid #405647;font-size:10px;font-weight:800}
+.drying-location-row{display:flex;gap:8px;align-items:end}
+.drying-location-row .field{flex:1}
+.saved-location-card{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #4b443c;background:#191815;border-radius:12px;padding:10px;margin:8px 0}
+.saved-location-copy strong{display:block;color:#f4eee7}
+.saved-location-copy span{display:block;color:#a99d90;font-size:11px;margin-top:3px}
+.drying-setup-note{padding:10px;border-radius:11px;background:#211e1a;border:1px solid #4b443c;color:#bcae9f;font-size:12px;line-height:1.5;margin:10px 0}
+@media(max-width:700px){.laundry-item{align-items:flex-start;flex-wrap:wrap}.laundry-item>select{margin-left:auto}.drying-methods{width:100%;padding-left:58px}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1511,6 +1528,44 @@ body{
     </section>
   </main>
 
+
+  <div id="dryingLocationModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2>☀️ Drying Outside</h2>
+        <button class="close" onclick="closeDryingLocationModal()">×</button>
+      </div>
+
+      <div id="dryingItemName" class="drying-setup-note"></div>
+
+      <div class="field">
+        <label>Choose drying location</label>
+        <select id="dryingLocationSelect"></select>
+      </div>
+
+      <button class="primary" onclick="startOutdoorDrying()">☀️ Start Outdoor Drying</button>
+
+      <div class="section-head" style="margin-top:22px">
+        <h2>Saved drying locations</h2>
+      </div>
+      <div id="savedDryingLocations"></div>
+
+      <div class="drying-setup-note">
+        Add the address where the clothes are physically drying. Later, weather monitoring will keep checking this location even if you leave home.
+      </div>
+
+      <div class="field">
+        <label>Location name</label>
+        <input id="dryingLocationName" placeholder="Home">
+      </div>
+      <div class="field">
+        <label>Drying address</label>
+        <input id="dryingLocationAddress" placeholder="Enter the address where the clothes will dry">
+      </div>
+      <button class="secondary" style="width:100%" onclick="saveDryingLocation()">+ Save drying location</button>
+    </div>
+  </div>
+
   <nav class="bottom-nav">
     <button id="navHome" class="nav-btn active" onclick="showPage('home')"><span>👕</span>Wardrobe</button>
     <button id="navLooks" class="nav-btn" onclick="showPage('looks')"><span>❤️</span>Looks</button>
@@ -1824,7 +1879,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await loadPlannedOutfits();await checkPlannerLaundryReminders();await checkTravelLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await loadDryingData();await loadPlannedOutfits();await checkPlannerLaundryReminders();await checkTravelLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -3292,10 +3347,182 @@ function renderLooks(){
 async function renameLook(id){const look=savedLooks.find(x=>x.id===id);if(!look)return;const name=prompt("Rename this look:",look.name||"");if(name===null||!name.trim())return;const {error}=await supabaseClient.from("saved_looks").update({name:name.trim()}).eq("id",id);if(error)return alert(error.message);await loadAllData();renderLooks()}
 async function deleteLook(id){if(!confirm("Delete this look? This will not delete clothing from your wardrobe."))return;let r=await supabaseClient.from("look_items").delete().eq("look_id",id);if(r.error)return alert(r.error.message);r=await supabaseClient.from("saved_looks").delete().eq("id",id);if(r.error)return alert(r.error.message);await loadAllData();renderLooks()}
 
+
+let dryingLocations=[];
+let outdoorDryingSessions=[];
+let dryingSetupItemId=null;
+const DRYING_METHOD_KEY_PREFIX="myWardrobeDryingMethod:";
+
+function dryingMethodKey(itemId){
+ return DRYING_METHOD_KEY_PREFIX+(currentUser?.id||"guest")+":"+itemId;
+}
+function getDryingMethod(itemId){
+ return localStorage.getItem(dryingMethodKey(itemId))||"";
+}
+function setLocalDryingMethod(itemId,method){
+ if(method)localStorage.setItem(dryingMethodKey(itemId),method);
+ else localStorage.removeItem(dryingMethodKey(itemId));
+}
+
+async function loadDryingData(){
+ if(!currentUser){dryingLocations=[];outdoorDryingSessions=[];return}
+ const [locRes,sessionRes]=await Promise.all([
+   supabaseClient.from("drying_locations").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:true}),
+   supabaseClient.from("outdoor_drying_sessions").select("*").eq("user_id",currentUser.id).eq("status","active")
+ ]);
+ if(locRes.error)console.warn("Could not load drying locations:",locRes.error.message);
+ else dryingLocations=locRes.data||[];
+ if(sessionRes.error)console.warn("Could not load outdoor drying sessions:",sessionRes.error.message);
+ else outdoorDryingSessions=sessionRes.data||[];
+}
+
+function activeOutdoorSession(itemId){
+ return outdoorDryingSessions.find(x=>String(x.clothing_item_id)===String(itemId)&&x.status==="active")||null;
+}
+function dryingLocationById(id){
+ return dryingLocations.find(x=>String(x.id)===String(id))||null;
+}
+
+async function chooseDryingMethod(itemId,method){
+ if(method==="outside"){
+   dryingSetupItemId=itemId;
+   await loadDryingData();
+   renderDryingLocationModal();
+   el("dryingLocationModal").classList.remove("hidden");
+   return;
+ }
+ const active=activeOutdoorSession(itemId);
+ if(active)await finishOutdoorDryingSession(itemId,false);
+ setLocalDryingMethod(itemId,method);
+ await createAppNotification({
+   type:"laundry_drying_method",
+   title:method==="inside"?"🏠 Drying Inside":"♨️ Using Dryer",
+   message:`${clothingItems.find(i=>i.id===itemId)?.name||"Clothing item"} is ${method==="inside"?"drying inside":"being dried in the dryer"}.`,
+   clothingItemId:itemId,actionPage:"laundry",actionId:itemId,
+   eventKey:`drying-method-${itemId}-${method}-${Date.now()}`
+ });
+ renderLaundry();
+}
+
+function renderDryingLocationModal(){
+ const item=clothingItems.find(i=>i.id===dryingSetupItemId);
+ if(el("dryingItemName"))el("dryingItemName").innerHTML=`<strong>${escapeHtml(item?.name||"Clothing item")}</strong><br>Choose the fixed location where this item is drying outside.`;
+ const select=el("dryingLocationSelect");
+ if(select){
+   if(!dryingLocations.length)select.innerHTML='<option value="">Save a drying location below first</option>';
+   else select.innerHTML=dryingLocations.map(x=>`<option value="${escapeHtml(x.id)}" ${x.is_default?"selected":""}>${escapeHtml(x.name)} — ${escapeHtml(x.address)}</option>`).join("");
+ }
+ const wrap=el("savedDryingLocations");
+ if(wrap){
+   wrap.innerHTML=dryingLocations.length?dryingLocations.map(x=>`
+     <div class="saved-location-card">
+       <div class="saved-location-copy"><strong>📍 ${escapeHtml(x.name)}</strong><span>${escapeHtml(x.address)}</span></div>
+       <button class="small-btn danger" onclick="deleteDryingLocation('${escapeJs(x.id)}')">Delete</button>
+     </div>`).join(""):'<div class="muted">No saved drying locations yet.</div>';
+ }
+}
+
+async function saveDryingLocation(){
+ const name=(el("dryingLocationName")?.value||"").trim()||"Home";
+ const address=(el("dryingLocationAddress")?.value||"").trim();
+ if(!address)return alert("Enter the drying address.");
+ const {error}=await supabaseClient.from("drying_locations").insert({
+   user_id:currentUser.id,name,address,is_default:dryingLocations.length===0
+ });
+ if(error)return alert("Could not save location: "+error.message);
+ if(el("dryingLocationName"))el("dryingLocationName").value="";
+ if(el("dryingLocationAddress"))el("dryingLocationAddress").value="";
+ await loadDryingData();
+ renderDryingLocationModal();
+}
+
+async function deleteDryingLocation(id){
+ if(outdoorDryingSessions.some(x=>String(x.drying_location_id)===String(id)))
+   return alert("This location is being used by clothes currently drying outside.");
+ if(!confirm("Delete this saved drying location?"))return;
+ const {error}=await supabaseClient.from("drying_locations").delete().eq("id",id).eq("user_id",currentUser.id);
+ if(error)return alert("Could not delete location: "+error.message);
+ await loadDryingData();
+ renderDryingLocationModal();
+}
+
+function closeDryingLocationModal(){
+ el("dryingLocationModal")?.classList.add("hidden");
+ dryingSetupItemId=null;
+}
+
+async function startOutdoorDrying(){
+ const itemId=dryingSetupItemId;
+ const locationId=el("dryingLocationSelect")?.value||"";
+ if(!itemId)return;
+ if(!locationId)return alert("Save and choose a drying location first.");
+
+ const existing=activeOutdoorSession(itemId);
+ if(existing){
+   await supabaseClient.from("outdoor_drying_sessions").update({
+     status:"finished",finished_at:new Date().toISOString()
+   }).eq("id",existing.id).eq("user_id",currentUser.id);
+ }
+
+ const {error}=await supabaseClient.from("outdoor_drying_sessions").insert({
+   user_id:currentUser.id,clothing_item_id:itemId,drying_location_id:locationId,status:"active"
+ });
+ if(error)return alert("Could not start outdoor drying: "+error.message);
+
+ setLocalDryingMethod(itemId,"outside");
+ const loc=dryingLocationById(locationId);
+ await createAppNotification({
+   type:"outdoor_drying_started",
+   title:"☀️ Drying Outside",
+   message:`${clothingItems.find(i=>i.id===itemId)?.name||"Clothing item"} is drying outside at ${loc?.name||"your saved location"}.`,
+   clothingItemId:itemId,actionPage:"laundry",actionId:itemId,
+   eventKey:`outdoor-drying-${itemId}-${Date.now()}`,
+   metadata:{drying_location_id:locationId}
+ });
+ await loadDryingData();
+ closeDryingLocationModal();
+ renderLaundry();
+}
+
+async function finishOutdoorDryingSession(itemId,notify=true){
+ const session=activeOutdoorSession(itemId);
+ if(session){
+   const {error}=await supabaseClient.from("outdoor_drying_sessions").update({
+     status:"finished",finished_at:new Date().toISOString()
+   }).eq("id",session.id).eq("user_id",currentUser.id);
+   if(error)console.warn("Could not finish outdoor drying session:",error.message);
+ }
+ setLocalDryingMethod(itemId,"");
+ await loadDryingData();
+ if(notify)renderLaundry();
+}
+
+function dryingMethodControls(item){
+ if(item.laundry_status!=="drying")return "";
+ const method=getDryingMethod(item.id);
+ const session=activeOutdoorSession(item.id);
+ const loc=session?dryingLocationById(session.drying_location_id):null;
+ return `
+   <div class="drying-methods">
+     <button class="drying-method-btn ${method==="outside"?"active":""}" onclick="chooseDryingMethod('${escapeJs(item.id)}','outside')">☀️ Outside</button>
+     <button class="drying-method-btn ${method==="inside"?"active":""}" onclick="chooseDryingMethod('${escapeJs(item.id)}','inside')">🏠 Inside</button>
+     <button class="drying-method-btn ${method==="dryer"?"active":""}" onclick="chooseDryingMethod('${escapeJs(item.id)}','dryer')">♨️ Dryer</button>
+   </div>
+   ${session?`<div class="outdoor-drying-box">
+      <strong>☀️ Drying Outside</strong>
+      <div class="outdoor-drying-meta">📍 ${escapeHtml(loc?.name||"Saved location")}<br>${escapeHtml(loc?.address||"")}</div>
+      <div class="weather-monitor-pill">🌦 Weather monitoring ready</div>
+   </div>`:""}`;
+}
+
 const LAUNDRY_STAGES=[{id:"waiting",title:"🧺 Waiting to wash"},{id:"washing",title:"🫧 Washing"},{id:"drying",title:"🌬️ Drying"},{id:"ready",title:"✨ Ready"}];
 async function setLaundryStatus(id,status){
  const item=clothingItems.find(x=>x.id===id);
  const oldStatus=item?.laundry_status||null;
+ if(oldStatus==="drying" && status!=="drying"){
+   await finishOutdoorDryingSession(id,false);
+   setLocalDryingMethod(id,"");
+ }
  const {error}=await supabaseClient.from("clothing_items")
    .update({laundry_status:status}).eq("id",id).eq("user_id",currentUser.id);
  if(error)return alert("Could not update laundry: "+error.message);
@@ -3324,7 +3551,29 @@ async function setLaundryStatus(id,status){
  renderLaundry();if(currentCategoryId)renderClothingForCategory();
 }
 async function returnToWardrobe(id){await setLaundryStatus(id,null)}
-function renderLaundry(){const board=el("laundryBoard");if(!board)return;board.innerHTML=LAUNDRY_STAGES.map(stage=>{const items=clothingItems.filter(i=>i.laundry_status===stage.id);return `<div class="laundry-column"><h3>${stage.title}</h3><div class="laundry-list">${items.length?items.map(i=>`<div class="laundry-item">${i.displayPhoto?`<img class="laundry-thumb" src="${safeAttributeUrl(i.displayPhoto)}">`:`<div class="laundry-thumb" style="display:flex;align-items:center;justify-content:center">👕</div>`}<div style="flex:1"><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.brand||i.color||"")}</div></div><select class="small-btn" onchange="this.value==='wardrobe'?returnToWardrobe('${escapeJs(i.id)}'):setLaundryStatus('${escapeJs(i.id)}',this.value)"><option value="${stage.id}">${stage.title.replace(/^.. /,'')}</option>${LAUNDRY_STAGES.filter(x=>x.id!==stage.id).map(x=>`<option value="${x.id}">${x.title}</option>`).join("")}<option value="wardrobe">👕 Back to wardrobe</option></select></div>`).join(""):`<div class="muted">Nothing here</div>`}</div></div>`}).join("")}
+function renderLaundry(){
+ const board=el("laundryBoard");if(!board)return;
+ board.innerHTML=LAUNDRY_STAGES.map(stage=>{
+   const items=clothingItems.filter(i=>i.laundry_status===stage.id);
+   return `<div class="laundry-column"><h3>${stage.title}</h3><div class="laundry-list">${
+     items.length?items.map(i=>`
+       <div class="laundry-item">
+         ${i.displayPhoto?`<img class="laundry-thumb" src="${safeAttributeUrl(i.displayPhoto)}">`:`<div class="laundry-thumb" style="display:flex;align-items:center;justify-content:center">👕</div>`}
+         <div style="flex:1;min-width:110px">
+           <strong>${escapeHtml(i.name)}</strong>
+           <div class="muted">${escapeHtml(i.brand||i.color||"")}</div>
+           ${dryingMethodControls(i)}
+         </div>
+         <select class="small-btn" onchange="this.value==='wardrobe'?returnToWardrobe('${escapeJs(i.id)}'):setLaundryStatus('${escapeJs(i.id)}',this.value)">
+           <option value="${stage.id}">${stage.title.replace(/^.. /,'')}</option>
+           ${LAUNDRY_STAGES.filter(x=>x.id!==stage.id).map(x=>`<option value="${x.id}">${x.title}</option>`).join("")}
+           <option value="wardrobe">👕 Back to wardrobe</option>
+         </select>
+       </div>`).join("")
+     :`<div class="muted">Nothing here</div>`
+   }</div></div>`;
+ }).join("");
+}
 function renderMePage(){const name=el("meDisplayName"),wrap=el("meAvatarWrap");if(name)name.textContent=userProfile?.display_name||"My Profile";if(wrap)wrap.innerHTML=userProfile?.displayPhoto?`<img class="profile-avatar" src="${safeAttributeUrl(userProfile.displayPhoto)}" alt="Profile photo">`:'<div class="avatar-fallback">👤</div>'}
 
 async function loadUserProfile(){
