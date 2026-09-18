@@ -1102,6 +1102,12 @@ body{
 .drying-setup-note{padding:10px;border-radius:11px;background:#211e1a;border:1px solid #4b443c;color:#bcae9f;font-size:12px;line-height:1.5;margin:10px 0}
 @media(max-width:700px){.laundry-item{align-items:flex-start;flex-wrap:wrap}.laundry-item>select{margin-left:auto}.drying-methods{width:100%;padding-left:58px}}
 
+
+/* ===== DRYING ADDRESS AUTOCOMPLETE ===== */
+.address-autocomplete-wrap{position:relative}
+.address-suggestions{position:absolute;left:0;right:0;top:100%;z-index:120;margin-top:5px;background:#181713;border:1px solid #51483f;border-radius:12px;overflow:hidden;box-shadow:0 16px 34px rgba(0,0,0,.38);max-height:260px;overflow-y:auto}
+.address-suggestion{width:100%;border:0;border-bottom:1px solid #38322c;background:#181713;color:#eee7de;text-align:left;padding:11px 12px;cursor:pointer;display:flex;gap:9px;align-items:flex-start}
+.address-suggestion:last-child{border-bottom:0}.address-suggestion:hover{background:#25211c}.address-suggestion-pin{color:#d2ad7b}.address-suggestion-main{font-size:12px;line-height:1.4}.address-search-status{font-size:11px;color:#a99d90;margin-top:5px}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1560,7 +1566,11 @@ body{
       </div>
       <div class="field">
         <label>Drying address</label>
-        <input id="dryingLocationAddress" placeholder="Enter the address where the clothes will dry">
+        <div class="address-autocomplete-wrap">
+<input id="dryingLocationAddress" placeholder="Start typing the drying address" autocomplete="off" oninput="searchDryingAddresses(this.value)" onfocus="searchDryingAddresses(this.value)">
+<div id="dryingAddressSuggestions" class="address-suggestions hidden"></div>
+</div>
+<div id="dryingAddressSearchStatus" class="address-search-status">Start typing and choose an address from the suggestions.</div>
       </div>
       <button class="secondary" style="width:100%" onclick="saveDryingLocation()">+ Save drying location</button>
     </div>
@@ -1758,6 +1768,7 @@ body{
 <script>
 const SUPABASE_URL="https://umtppiaeralgiqvefnbh.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_hgrE28tw0hGmNP929kPgYw_h5aPs0ey";
+const GEOAPIFY_API_KEY="ac9e4371f34441ae884dc3b1acb3472f";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
 // Secure Supabase Edge Function that holds your private SerpApi key.
@@ -3351,6 +3362,11 @@ async function deleteLook(id){if(!confirm("Delete this look? This will not delet
 let dryingLocations=[];
 let outdoorDryingSessions=[];
 let dryingSetupItemId=null;
+let selectedDryingLatitude=null;
+let selectedDryingLongitude=null;
+let selectedDryingFormattedAddress="";
+let dryingAddressTimer=null;
+let dryingAddressRequest=0;
 const DRYING_METHOD_KEY_PREFIX="myWardrobeDryingMethod:";
 
 function dryingMethodKey(itemId){
@@ -3422,16 +3438,48 @@ function renderDryingLocationModal(){
  }
 }
 
+
+function clearDryingAddressSelection(){selectedDryingLatitude=null;selectedDryingLongitude=null;selectedDryingFormattedAddress="";}
+function hideDryingAddressSuggestions(){const b=el("dryingAddressSuggestions");if(b)b.classList.add("hidden")}
+function searchDryingAddresses(value){
+ const q=String(value||"").trim();clearDryingAddressSelection();if(dryingAddressTimer)clearTimeout(dryingAddressTimer);
+ const b=el("dryingAddressSuggestions"),st=el("dryingAddressSearchStatus");
+ if(q.length<3){if(b){b.innerHTML="";b.classList.add("hidden")}if(st)st.textContent="Type at least 3 characters, then choose an address.";return}
+ if(st)st.textContent="Searching addresses…";dryingAddressTimer=setTimeout(()=>fetchDryingAddressSuggestions(q),300);
+}
+async function fetchDryingAddressSuggestions(q){
+ const rid=++dryingAddressRequest,b=el("dryingAddressSuggestions"),st=el("dryingAddressSearchStatus");
+ try{
+  const p=new URLSearchParams({text:q,apiKey:GEOAPIFY_API_KEY,format:"json",limit:"6",lang:"en"});
+  const r=await fetch("https://api.geoapify.com/v1/geocode/autocomplete?"+p.toString());
+  if(!r.ok)throw new Error("Address search failed");
+  const d=await r.json();if(rid!==dryingAddressRequest)return;const results=Array.isArray(d.results)?d.results:[];
+  if(!results.length){if(b){b.innerHTML="";b.classList.add("hidden")}if(st)st.textContent="No matching addresses found. Try adding the suburb or postcode.";return}
+  b.dataset.results=JSON.stringify(results.map(x=>({formatted:x.formatted||[x.address_line1,x.address_line2].filter(Boolean).join(", "),lat:Number(x.lat),lon:Number(x.lon)})));
+  b.innerHTML=results.map((x,i)=>`<button type="button" class="address-suggestion" onclick="selectDryingAddress(${i})"><span class="address-suggestion-pin">📍</span><span class="address-suggestion-main">${escapeHtml(x.formatted||[x.address_line1,x.address_line2].filter(Boolean).join(", "))}</span></button>`).join("");
+  b.classList.remove("hidden");if(st)st.textContent="Choose the correct address from the suggestions.";
+ }catch(e){console.warn("Geoapify autocomplete error:",e);if(b){b.innerHTML="";b.classList.add("hidden")}if(st)st.textContent="Address suggestions are temporarily unavailable."}
+}
+function selectDryingAddress(i){
+ const b=el("dryingAddressSuggestions");let a=[];try{a=JSON.parse(b?.dataset?.results||"[]")}catch{}
+ const x=a[i];if(!x)return;selectedDryingFormattedAddress=x.formatted||"";selectedDryingLatitude=Number.isFinite(x.lat)?x.lat:null;selectedDryingLongitude=Number.isFinite(x.lon)?x.lon:null;
+ const inp=el("dryingLocationAddress");if(inp)inp.value=selectedDryingFormattedAddress;if(b)b.classList.add("hidden");
+ const st=el("dryingAddressSearchStatus");if(st)st.textContent="✓ Address selected and coordinates captured.";
+}
 async function saveDryingLocation(){
  const name=(el("dryingLocationName")?.value||"").trim()||"Home";
- const address=(el("dryingLocationAddress")?.value||"").trim();
- if(!address)return alert("Enter the drying address.");
+ const typedAddress=(el("dryingLocationAddress")?.value||"").trim();
+ if(!typedAddress)return alert("Enter the drying address.");
+ if(selectedDryingLatitude===null||selectedDryingLongitude===null)return alert("Please choose the correct address from the suggestions first.");
+ const address=selectedDryingFormattedAddress||typedAddress;
  const {error}=await supabaseClient.from("drying_locations").insert({
-   user_id:currentUser.id,name,address,is_default:dryingLocations.length===0
+   user_id:currentUser.id,name,address,latitude:selectedDryingLatitude,longitude:selectedDryingLongitude,is_default:dryingLocations.length===0
  });
  if(error)return alert("Could not save location: "+error.message);
  if(el("dryingLocationName"))el("dryingLocationName").value="";
  if(el("dryingLocationAddress"))el("dryingLocationAddress").value="";
+ clearDryingAddressSelection();hideDryingAddressSuggestions();
+ const st=el("dryingAddressSearchStatus");if(st)st.textContent="Start typing and choose an address from the suggestions.";
  await loadDryingData();
  renderDryingLocationModal();
 }
