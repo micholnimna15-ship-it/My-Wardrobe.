@@ -5243,8 +5243,13 @@ function renderFashionDNA(){
 ========================================================= */
 function openStyleMagazine(){
   const modal=el("styleMagazineModal");
-  if(!modal) return alert("Style Magazine could not be opened.");
+  if(!modal){
+    console.error("styleMagazineModal not found");
+    return;
+  }
+  modal.classList.remove("hidden");
 
+  try{
   const stats=calculateWardrobeStatistics();
   const score=calculateWardrobeScore();
   const dna=calculateFashionDNA();
@@ -5298,8 +5303,11 @@ function openStyleMagazine(){
     nextText="You have recorded every saved Look at least once. Try creating a new combination next month.";
   }
   el("magNextMonth").textContent=nextText;
-
-  modal.classList.remove("hidden");
+  }catch(err){
+    console.error("Style Magazine render error:",err);
+    const intro=el("magazineIntro");
+    if(intro) intro.textContent="Your magazine is open. Add and record more Looks to build this month's story.";
+  }
 }
 function closeStyleMagazine(){
   const modal=el("styleMagazineModal");
@@ -5313,11 +5321,24 @@ let wardrobeConnections=[];
 let wardrobePermissions=[];
 
 function openConnectedWardrobes(){
-  el("connectedWardrobesModal").classList.add("show");
+  const modal=document.getElementById("connectedWardrobesModal");
+  if(!modal){
+    alert("Connected Wardrobes panel is missing.");
+    return;
+  }
+  modal.classList.remove("hidden");
+  modal.style.display="flex";
   showConnectedTab("invite");
-  loadWardrobeConnections();
+  Promise.resolve(loadWardrobeConnections()).catch(err=>{
+    console.error("Connected Wardrobes load error:",err);
+  });
 }
-function closeConnectedWardrobes(){el("connectedWardrobesModal").classList.remove("show");}
+function closeConnectedWardrobes(){
+  const modal=document.getElementById("connectedWardrobesModal");
+  if(!modal)return;
+  modal.classList.add("hidden");
+  modal.style.display="";
+}
 function showConnectedTab(tab){
   const invite=tab==="invite";
   el("connectTabInvite").classList.toggle("active",invite);
@@ -5708,9 +5729,8 @@ function renderPairedStyleCard(title,items){
 </div>
 
 <div id="connectedWardrobesModal" class="modal hidden">
-  <div class="modal-card connected-modal-card">
-    <button class="modal-close" onclick="closeConnectedWardrobes()">×</button>
-    <h2 style="margin-top:0">Connected Wardrobes</h2>
+  <div class="modal-box connected-modal-card">
+    <div class="modal-head"><h2>Connected Wardrobes</h2><button class="close" onclick="closeConnectedWardrobes()">×</button></div>
     <p class="muted">Connect privately with someone you choose. Your accounts stay separate and nothing is shared until you enable it.</p>
 
     <div class="connected-tabs">
