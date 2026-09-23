@@ -1556,7 +1556,7 @@ body{
           <div class="feature-kicker">Monthly Edition <span class="feature-badge">NEW</span></div>
           <h3 class="feature-title-with-icon"><span class="feature-title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11a3 3 0 0 1 3 3v15a3 3 0 0 0-3-3H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H14v18a3 3 0 0 1 3-3h.5a2.5 2.5 0 0 1 2.5 2.5z"/></svg></span><span>Your Style Magazine</span></h3>
           <p>Your monthly wardrobe story: favourite looks, wardrobe activity, Fashion DNA, Together moments and style highlights.</p>
-          <button class="feature-btn" onclick="showFeatureComingSoon('Monthly Fashion Magazine')">Open Magazine</button>
+          <button class="feature-btn" onclick="openStyleMagazine()">Open Magazine</button>
         </section>
       </div>
 
@@ -5237,6 +5237,75 @@ function renderFashionDNA(){
 
 
 
+
+/* =========================================================
+   MONTHLY PERSONAL STYLE MAGAZINE
+========================================================= */
+function openStyleMagazine(){
+  const modal=el("styleMagazineModal");
+  if(!modal) return alert("Style Magazine could not be opened.");
+
+  const stats=calculateWardrobeStatistics();
+  const score=calculateWardrobeScore();
+  const dna=calculateFashionDNA();
+  const now=new Date();
+  const monthName=now.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+
+  el("magazineMonthTitle").textContent=monthName+" — Your Style";
+  el("magWorn").textContent=stats.wornThisMonth;
+  el("magUnique").textContent=stats.uniqueLooksThisMonth;
+  el("magScore").textContent=score.score+"/100";
+  el("magDNA").textContent=dna.stage;
+
+  el("magazineIntro").textContent=stats.wornThisMonth
+    ?`Your ${monthName} wardrobe story is taking shape from the outfits you actually recorded.`
+    :"Record outfits with “I Wore This” during the month and your magazine will build automatically.";
+
+  const currentMonthHistory=(outfitHistory||[]).filter(entry=>{
+    const d=parseLocalISODate(entry.worn_date);
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  });
+
+  const monthCounts={};
+  currentMonthHistory.forEach(entry=>{
+    if(entry.look_id){
+      const id=String(entry.look_id);
+      monthCounts[id]=(monthCounts[id]||0)+1;
+    }
+  });
+
+  const monthRanked=(savedLooks||[])
+    .map(look=>({look,count:monthCounts[String(look.id)]||0}))
+    .filter(x=>x.count>0)
+    .sort((a,b)=>b.count-a.count);
+
+  const top=monthRanked[0];
+  el("magOutfitMonth").innerHTML=top
+    ?`<div class="stats-row"><span class="stats-row-name">${escapeHtml(top.look.name||"Untitled Look")}</span><span class="stats-row-value">${top.count} wear${top.count===1?"":"s"}</span></div>`
+    :`No outfit has been recorded this month yet.`;
+
+  el("magMostWorn").innerHTML=monthRanked.length
+    ?monthRanked.slice(0,5).map(x=>`<div class="stats-row"><span class="stats-row-name">${escapeHtml(x.look.name||"Untitled Look")}</span><span class="stats-row-value">${x.count} wear${x.count===1?"":"s"}</span></div>`).join("")
+    :'<div class="stats-empty">Your most-worn Looks will appear here as you record them.</div>';
+
+  el("magDNAStory").textContent=dna.summary;
+
+  let nextText="Keep recording the outfits you wear so next month’s edition can show stronger patterns.";
+  if(stats.never && stats.never.length){
+    const names=stats.never.slice(0,3).map(x=>x.name||"Untitled Look").join(", ");
+    nextText=`Rediscover some saved Looks you have not recorded yet: ${names}.`;
+  }else if((savedLooks||[]).length){
+    nextText="You have recorded every saved Look at least once. Try creating a new combination next month.";
+  }
+  el("magNextMonth").textContent=nextText;
+
+  modal.classList.remove("hidden");
+}
+function closeStyleMagazine(){
+  const modal=el("styleMagazineModal");
+  if(modal) modal.classList.add("hidden");
+}
+
 /* =========================================================
    PHASE 7 — CONNECTED WARDROBES
 ========================================================= */
@@ -5595,6 +5664,48 @@ function renderPairedStyleCard(title,items){
 </div>
 
 
+
+
+<div id="styleMagazineModal" class="modal hidden">
+  <div class="modal-box" style="max-width:760px">
+    <div class="modal-head">
+      <div>
+        <div class="feature-kicker">MONTHLY EDITION</div>
+        <h2 id="magazineMonthTitle">Your Style Magazine</h2>
+      </div>
+      <button class="close" onclick="closeStyleMagazine()">×</button>
+    </div>
+
+    <div id="magazineIntro" class="notice"></div>
+
+    <div class="stats-grid" style="margin-top:14px">
+      <div class="stats-card"><span class="stats-label">Outfits Worn</span><strong id="magWorn">0</strong></div>
+      <div class="stats-card"><span class="stats-label">Different Looks</span><strong id="magUnique">0</strong></div>
+      <div class="stats-card"><span class="stats-label">Wardrobe Score</span><strong id="magScore">0/100</strong></div>
+      <div class="stats-card"><span class="stats-label">Fashion DNA</span><strong id="magDNA">Learning</strong></div>
+    </div>
+
+    <div class="dna-card" style="margin-top:14px">
+      <h4>Outfit of the Month</h4>
+      <div id="magOutfitMonth" class="stats-empty"></div>
+    </div>
+
+    <div class="dna-card" style="margin-top:14px">
+      <h4>Most Worn Looks</h4>
+      <div id="magMostWorn"></div>
+    </div>
+
+    <div class="dna-card" style="margin-top:14px">
+      <h4>Your Style This Month</h4>
+      <div id="magDNAStory" class="muted" style="line-height:1.6"></div>
+    </div>
+
+    <div class="dna-card" style="margin-top:14px">
+      <h4>Next Month</h4>
+      <div id="magNextMonth" class="muted" style="line-height:1.6"></div>
+    </div>
+  </div>
+</div>
 
 <div id="connectedWardrobesModal" class="modal hidden">
   <div class="modal-card connected-modal-card">
