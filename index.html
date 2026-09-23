@@ -1196,6 +1196,45 @@ body{
 .snapshot-exact-icon.dna-exact{width:39px;height:39px}
 .snapshot-exact-icon.items-exact{width:39px;height:39px}
 
+
+/* ===== MY WARDROBE 2.0 — PHASE 3 VISUAL OUTFIT CALENDAR ===== */
+.outfit-calendar-card{background:#151411;border:1px solid #4b443b;border-radius:20px;padding:18px;margin:16px 0;color:#f2ece5}
+.calendar-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.calendar-title{font:400 23px Georgia,"Times New Roman",serif;color:#f5eee6;text-align:center}
+.calendar-arrow{width:38px;height:38px;border:1px solid #554c42;border-radius:50%;background:#1a1814;color:#e7c18b;cursor:pointer;font-size:20px}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.calendar-weekdays div{text-align:center;color:#a99e91;font-size:11px;padding:7px 2px;text-transform:uppercase;letter-spacing:.04em}
+.calendar-day{position:relative;min-height:72px;border:1px solid #302d28;background:#11110f;color:#eee7de;padding:7px;cursor:pointer;text-align:left}
+.calendar-day:nth-child(7n+1){border-radius:8px 0 0 8px}
+.calendar-day:nth-child(7n){border-radius:0 8px 8px 0}
+.calendar-day.outside{color:#5e5a54;background:#0e0e0d}
+.calendar-day.selected{outline:2px solid #e4bd84;outline-offset:-2px;background:#1d1914}
+.calendar-day.today .calendar-date{background:#e4bd84;color:#111}
+.calendar-date{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:12px}
+.calendar-markers{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.calendar-dot{width:7px;height:7px;border-radius:50%;background:#d7ad72}
+.calendar-dot.worn{background:#6bc17b}
+.calendar-mini-label{font-size:9px;color:#b9aea0;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendar-selected-card{margin-top:15px;padding:14px;border:1px solid #4a433a;border-radius:15px;background:#11110f}
+.calendar-selected-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.calendar-selected-date{font:400 18px Georgia,"Times New Roman",serif;color:#f5eee6}
+.calendar-selected-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.calendar-event{padding:10px 0;border-top:1px solid #302d28}
+.calendar-event:first-child{border-top:0}
+.calendar-event strong{color:#f4ede4}
+.calendar-event small{display:block;color:#a99e91;margin-top:3px}
+@media(max-width:600px){
+ .outfit-calendar-card{padding:12px}
+ .calendar-day{min-height:58px;padding:5px}
+ .calendar-date{width:23px;height:23px}
+ .calendar-mini-label{display:none}
+}
+
+
+/* ===== MY WARDROBE 2.0 — PHASE 4 WARDROBE STATISTICS ===== */
+.stats-dashboard{margin:26px 0}.stats-dashboard h2{font:400 28px Georgia,"Times New Roman",serif;color:#f5eee6;margin:0 0 5px}.stats-subtitle{color:#9e9387;font-size:12px;margin-bottom:15px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stats-metric,.stats-panel{background:#171612;border:1px solid #4b443b;border-radius:17px;padding:16px}.stats-metric-value{font:400 29px Georgia,"Times New Roman",serif;color:#edc78e}.stats-metric-label{font-size:12px;color:#f0e8de;margin-top:5px}.stats-metric-note{font-size:10px;color:#91877b;margin-top:5px}.stats-panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.stats-panel h3{font:400 19px Georgia,"Times New Roman",serif;color:#f5eee6;margin:0 0 10px}.stats-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #302d28}.stats-row:last-child{border-bottom:0}.stats-row-name{color:#eee7de;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stats-row-value{color:#d9b47c;font-size:12px;white-space:nowrap}.stats-empty{color:#91877b;font-size:12px;padding:10px 0}.stats-progress{height:7px;background:#29251f;border-radius:99px;overflow:hidden;margin-top:10px}.stats-progress-fill{height:100%;background:#d9b47c;border-radius:99px}@media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr)}.stats-panels{grid-template-columns:1fr}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1321,6 +1360,22 @@ body{
           </button>
         </div>
       </section>
+
+      
+<section id="wardrobeStatistics" class="stats-dashboard">
+  <h2>Wardrobe Statistics</h2>
+  <div class="stats-subtitle">Insights based on your wardrobe and recorded outfit history.</div>
+  <div class="stats-grid">
+    <div class="stats-metric"><div id="statsTotalItems" class="stats-metric-value">0</div><div class="stats-metric-label">Wardrobe Items</div><div class="stats-metric-note">Across all categories</div></div>
+    <div class="stats-metric"><div id="statsWornMonth" class="stats-metric-value">0</div><div class="stats-metric-label">Looks Worn This Month</div><div class="stats-metric-note">From Outfit History</div></div>
+    <div class="stats-metric"><div id="statsUniqueLooks" class="stats-metric-value">0</div><div class="stats-metric-label">Different Looks Worn</div><div class="stats-metric-note">This month</div></div>
+    <div class="stats-metric"><div id="statsUtilisation" class="stats-metric-value">0%</div><div class="stats-metric-label">Look Utilisation</div><div class="stats-metric-note">Saved Looks worn at least once</div><div class="stats-progress"><div id="statsUtilisationBar" class="stats-progress-fill" style="width:0%"></div></div></div>
+  </div>
+  <div class="stats-panels">
+    <div class="stats-panel"><h3>Most Worn Looks</h3><div id="statsMostWorn"></div></div>
+    <div class="stats-panel"><h3>Not Worn Yet</h3><div id="statsNeverWorn"></div></div>
+  </div>
+</section>
 
       <div class="home-section-heading">
         <div><h2 class="home-section-title">My Categories</h2></div>
@@ -1613,6 +1668,29 @@ body{
         </div>
       </div>
     
+
+      
+<div id="visualOutfitCalendar" class="outfit-calendar-card">
+  <div class="calendar-head">
+    <button class="calendar-arrow" onclick="changeOutfitCalendarMonth(-1)" aria-label="Previous month">‹</button>
+    <div id="outfitCalendarTitle" class="calendar-title">Calendar</div>
+    <button class="calendar-arrow" onclick="changeOutfitCalendarMonth(1)" aria-label="Next month">›</button>
+  </div>
+  <div class="calendar-weekdays">
+    <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+  </div>
+  <div id="outfitCalendarGrid" class="calendar-grid"></div>
+
+  <div class="calendar-selected-card">
+    <div class="calendar-selected-head">
+      <div id="calendarSelectedDate" class="calendar-selected-date">Select a date</div>
+    </div>
+    <div id="calendarSelectedEvents"></div>
+    <div class="calendar-selected-actions">
+      <button class="primary" style="width:auto" onclick="openWearHistoryForSelectedDate()">I Wore This</button>
+    </div>
+  </div>
+</div>
 
       <div id="outfitHistoryCard" class="history-card">
               <h3>Outfit History</h3>
@@ -2378,6 +2456,7 @@ function renderHomeDashboard(){
  // outfit-history / wear-event tables are added in the next build phase.
  if(scoreEl) scoreEl.textContent="—";
  if(dnaEl) dnaEl.textContent="Learning";
+ if(typeof renderWardrobeStatistics==="function") renderWardrobeStatistics();
 }
 function showFeatureComingSoon(name){
  alert(name+" is next in the My Wardrobe 2.0 build. The home card is now ready; the database and feature workflow will be connected in the next phase.");
@@ -4611,6 +4690,8 @@ async function loadOutfitHistory(){
   }
   outfitHistory=data||[];
   renderOutfitHistory();
+  renderOutfitCalendar();
+  renderWardrobeStatistics();
   renderHomeDashboard?.();
 }
 
@@ -4709,6 +4790,138 @@ async function deleteOutfitHistory(id){
     .eq("user_id",currentUser.id);
   if(error){alert(error.message);return;}
   await loadOutfitHistory();
+}
+
+
+
+/* =========================================================
+   PHASE 3 — VISUAL OUTFIT CALENDAR
+========================================================= */
+
+function parseLocalISODate(iso){
+  const [y,m,d]=String(iso).split("-").map(Number);
+  return new Date(y,m-1,d);
+}
+
+function formatCalendarDateLong(iso){
+  if(!iso) return "Select a date";
+  return parseLocalISODate(iso).toLocaleDateString(undefined,{
+    weekday:"short",day:"numeric",month:"long",year:"numeric"
+  });
+}
+
+function changeOutfitCalendarMonth(delta){
+  outfitCalendarCursor=new Date(
+    outfitCalendarCursor.getFullYear(),
+    outfitCalendarCursor.getMonth()+delta,
+    1
+  );
+  renderOutfitCalendar();
+}
+
+function selectOutfitCalendarDate(iso){
+  outfitCalendarSelectedDate=iso;
+  renderOutfitCalendar();
+  renderSelectedCalendarDate();
+}
+
+function renderOutfitCalendar(){
+  const grid=el("outfitCalendarGrid");
+  const title=el("outfitCalendarTitle");
+  if(!grid||!title) return;
+
+  const year=outfitCalendarCursor.getFullYear();
+  const month=outfitCalendarCursor.getMonth();
+  title.textContent=new Date(year,month,1).toLocaleDateString(undefined,{
+    month:"long",year:"numeric"
+  });
+
+  const first=new Date(year,month,1);
+  const mondayIndex=(first.getDay()+6)%7;
+  const gridStart=new Date(year,month,1-mondayIndex);
+  const today=localDateISO();
+  let output="";
+
+  for(let i=0;i<42;i++){
+    const date=new Date(gridStart);
+    date.setDate(gridStart.getDate()+i);
+    const iso=localDateISO(date);
+    const outside=date.getMonth()!==month;
+    const worn=(outfitHistory||[]).filter(x=>x.worn_date===iso);
+    const isSelected=iso===outfitCalendarSelectedDate;
+    const isToday=iso===today;
+    const firstEntry=worn[0];
+    const look=firstEntry?(savedLooks||[]).find(x=>String(x.id)===String(firstEntry.look_id)):null;
+
+    output+=`
+      <button type="button"
+        class="calendar-day ${outside?"outside":""} ${isSelected?"selected":""} ${isToday?"today":""}"
+        onclick="selectOutfitCalendarDate('${iso}')">
+        <span class="calendar-date">${date.getDate()}</span>
+        ${worn.length?`
+          <div class="calendar-markers">
+            ${worn.slice(0,4).map(()=>'<span class="calendar-dot worn"></span>').join("")}
+          </div>
+          <div class="calendar-mini-label">${escapeHtml(look?.name||"Worn outfit")}</div>
+        `:""}
+      </button>`;
+  }
+  grid.innerHTML=output;
+  renderSelectedCalendarDate();
+}
+
+function renderSelectedCalendarDate(){
+  const title=el("calendarSelectedDate");
+  const box=el("calendarSelectedEvents");
+  if(!title||!box) return;
+  title.textContent=formatCalendarDateLong(outfitCalendarSelectedDate);
+
+  const entries=(outfitHistory||[]).filter(x=>x.worn_date===outfitCalendarSelectedDate);
+  if(!entries.length){
+    box.innerHTML='<div class="history-empty" style="margin-top:12px">Nothing recorded for this date yet.</div>';
+    return;
+  }
+
+  box.innerHTML=entries.map(entry=>{
+    const look=(savedLooks||[]).find(x=>String(x.id)===String(entry.look_id));
+    return `<div class="calendar-event">
+      <strong>${escapeHtml(look?.name||"Saved look")}</strong>
+      <small>● Wore this${entry.occasion?" · "+escapeHtml(entry.occasion):""}</small>
+      ${entry.notes?`<small>${escapeHtml(entry.notes)}</small>`:""}
+    </div>`;
+  }).join("");
+}
+
+function openWearHistoryForSelectedDate(){
+  openWearHistoryModal();
+  if(outfitCalendarSelectedDate) el("historyWornDate").value=outfitCalendarSelectedDate;
+}
+
+
+
+/* =========================================================
+   PHASE 4 — WARDROBE STATISTICS
+========================================================= */
+function calculateWardrobeStatistics(){
+ const history=outfitHistory||[],looks=savedLooks||[],items=clothingItems||[],now=new Date(),counts={};
+ history.forEach(e=>{if(e.look_id){const k=String(e.look_id);counts[k]=(counts[k]||0)+1;}});
+ const monthEntries=history.filter(e=>{const d=parseLocalISODate(e.worn_date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+ const wornIds=new Set(Object.keys(counts));
+ const uniqueMonth=new Set(monthEntries.map(e=>e.look_id?String(e.look_id):null).filter(Boolean));
+ const ranked=looks.map(look=>({look,count:counts[String(look.id)]||0})).filter(x=>x.count>0).sort((a,b)=>b.count-a.count);
+ const never=looks.filter(look=>!wornIds.has(String(look.id)));
+ return {totalItems:items.length,wornThisMonth:monthEntries.length,uniqueLooksThisMonth:uniqueMonth.size,utilisation:looks.length?Math.min(100,Math.round(wornIds.size/looks.length*100)):0,ranked,never};
+}
+function renderWardrobeStatistics(){
+ if(!el("statsTotalItems"))return;
+ const s=calculateWardrobeStatistics();
+ el("statsTotalItems").textContent=s.totalItems;
+ el("statsWornMonth").textContent=s.wornThisMonth;
+ el("statsUniqueLooks").textContent=s.uniqueLooksThisMonth;
+ el("statsUtilisation").textContent=s.utilisation+"%";
+ el("statsUtilisationBar").style.width=s.utilisation+"%";
+ el("statsMostWorn").innerHTML=s.ranked.length?s.ranked.slice(0,5).map(x=>`<div class="stats-row"><span class="stats-row-name">${escapeHtml(x.look.name||"Untitled Look")}</span><span class="stats-row-value">${x.count} wear${x.count===1?"":"s"}</span></div>`).join(""):'<div class="stats-empty">Record outfits with “I Wore This” to build your statistics.</div>';
+ el("statsNeverWorn").innerHTML=s.never.length?s.never.slice(0,5).map(look=>`<div class="stats-row"><span class="stats-row-name">${escapeHtml(look.name||"Untitled Look")}</span><span class="stats-row-value">Not worn</span></div>`).join(""):'<div class="stats-empty">Every saved Look has been worn at least once.</div>';
 }
 
 </script>
