@@ -1384,6 +1384,16 @@ body{
 .shared-plan-form textarea{min-height:80px;resize:vertical}
 .shared-plan-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
+
+/* ===== Advanced Laundry Care ===== */
+.laundry-care-btn{margin-top:8px;border:1px solid rgba(211,178,111,.28);background:rgba(211,178,111,.08);color:#e4d1aa;border-radius:999px;padding:6px 9px;font-size:10px;cursor:pointer}
+.laundry-care-summary{margin-top:7px;font-size:10px;line-height:1.5;color:#aaa08e}
+.laundry-care-form{display:grid;gap:11px}
+.laundry-care-form label{font-size:11px;color:#b8ad99}
+.laundry-care-form select,.laundry-care-form input,.laundry-care-form textarea{width:100%;margin-top:5px;border:1px solid rgba(211,178,111,.22);border-radius:12px;background:#191713;color:#f4ead6;padding:11px}
+.laundry-care-form textarea{min-height:80px;resize:vertical}
+.laundry-care-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4057,6 +4067,61 @@ function dryingMethodControls(item){
    </div>`:""}`;
 }
 
+
+function laundryCareLabel(value){
+ const map={machine_wash:"Machine Wash",hand_wash:"Hand Wash",dry_clean:"Dry Clean",
+   air_dry:"Air Dry",tumble_dry:"Tumble Dry",dry_flat:"Dry Flat",hang_dry:"Hang Dry"};
+ return map[value]||"";
+}
+function laundryCareSummary(item){
+ const parts=[];
+ if(item.laundry_care_method)parts.push(laundryCareLabel(item.laundry_care_method));
+ if(item.wash_temperature)parts.push(item.wash_temperature+"°C");
+ if(item.drying_method)parts.push(laundryCareLabel(item.drying_method));
+ if(item.laundry_expected_ready_at){
+   const d=new Date(item.laundry_expected_ready_at);
+   if(!isNaN(d))parts.push("Ready "+d.toLocaleString([],{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}));
+ }
+ return parts.length?`<div class="laundry-care-summary">${parts.map(escapeHtml).join(" · ")}</div>`:"";
+}
+function openLaundryCareModal(id){
+ const item=clothingItems.find(x=>x.id===id);
+ if(!item)return;
+ el("laundryCareItemId").value=id;
+ el("laundryCareTitle").textContent=item.name||"Laundry Care";
+ el("laundryCareMethod").value=item.laundry_care_method||"";
+ el("laundryWashTemperature").value=item.wash_temperature||"";
+ el("laundryDryingMethod").value=item.drying_method||"";
+ el("laundryExpectedReady").value=item.laundry_expected_ready_at
+   ? new Date(new Date(item.laundry_expected_ready_at).getTime()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16)
+   : "";
+ el("laundryCareNotes").value=item.laundry_care_notes||"";
+ const modal=el("laundryCareModal");
+ modal.classList.remove("hidden"); modal.style.display="flex";
+}
+function closeLaundryCareModal(){
+ const modal=el("laundryCareModal"); if(!modal)return;
+ modal.classList.add("hidden"); modal.style.display="";
+}
+async function saveLaundryCare(){
+ const id=el("laundryCareItemId").value;
+ const item=clothingItems.find(x=>x.id===id);
+ if(!item||!currentUser)return;
+ const expected=el("laundryExpectedReady").value;
+ const payload={
+   laundry_care_method:el("laundryCareMethod").value||null,
+   wash_temperature:el("laundryWashTemperature").value?Number(el("laundryWashTemperature").value):null,
+   drying_method:el("laundryDryingMethod").value||null,
+   laundry_care_notes:el("laundryCareNotes").value.trim()||null,
+   laundry_expected_ready_at:expected?new Date(expected).toISOString():null,
+   laundry_updated_at:new Date().toISOString()
+ };
+ const {error}=await supabaseClient.from("clothing_items").update(payload).eq("id",id).eq("user_id",currentUser.id);
+ if(error)return alert("Could not save laundry care: "+error.message);
+ Object.assign(item,payload);
+ closeLaundryCareModal(); renderLaundry();
+}
+
 const LAUNDRY_STAGES=[{id:"waiting",title:"🧺 Waiting to wash"},{id:"washing",title:"🫧 Washing"},{id:"drying",title:"🌬️ Drying"},{id:"ready",title:"✨ Ready"}];
 async function setLaundryStatus(id,status){
  const item=clothingItems.find(x=>x.id===id);
@@ -4066,9 +4131,17 @@ async function setLaundryStatus(id,status){
    setLocalDryingMethod(id,"");
  }
  const {error}=await supabaseClient.from("clothing_items")
-   .update({laundry_status:status}).eq("id",id).eq("user_id",currentUser.id);
+    .update({
+     laundry_status:status,
+     laundry_started_at:(status==="waiting" && !item?.laundry_started_at)?new Date().toISOString():(item?.laundry_started_at||null),
+     laundry_updated_at:new Date().toISOString()
+   }).eq("id",id).eq("user_id",currentUser.id);
  if(error)return alert("Could not update laundry: "+error.message);
- if(item)item.laundry_status=status;
+ if(item){
+   item.laundry_status=status;
+   if(status==="waiting"&&!item.laundry_started_at)item.laundry_started_at=new Date().toISOString();
+   item.laundry_updated_at=new Date().toISOString();
+ }
 
  const labels={waiting:"Waiting to wash",washing:"Washing",drying:"Drying",ready:"Ready"};
  if(status===null){
@@ -4104,6 +4177,8 @@ function renderLaundry(){
          <div style="flex:1;min-width:110px">
            <strong>${escapeHtml(i.name)}</strong>
            <div class="muted">${escapeHtml(i.brand||i.color||"")}</div>
+           ${laundryCareSummary(i)}
+           <button class="laundry-care-btn" onclick="openLaundryCareModal('${escapeJs(i.id)}')">Care & Ready Time</button>
            ${dryingMethodControls(i)}
          </div>
          <select class="small-btn" onchange="this.value==='wardrobe'?returnToWardrobe('${escapeJs(i.id)}'):setLaundryStatus('${escapeJs(i.id)}',this.value)">
@@ -6146,6 +6221,53 @@ function renderPairedStyleCard(title,items){
   </div>
 </div>
 
+
+
+<div id="laundryCareModal" class="modal hidden">
+  <div class="modal-box connected-modal-card">
+    <div class="modal-head">
+      <h2 id="laundryCareTitle">Laundry Care</h2>
+      <button class="close" onclick="closeLaundryCareModal()">×</button>
+    </div>
+    <input id="laundryCareItemId" type="hidden">
+    <div class="laundry-care-form">
+      <div class="laundry-care-two">
+        <label>Care method
+          <select id="laundryCareMethod">
+            <option value="">Not set</option>
+            <option value="machine_wash">Machine Wash</option>
+            <option value="hand_wash">Hand Wash</option>
+            <option value="dry_clean">Dry Clean</option>
+          </select>
+        </label>
+        <label>Wash temperature
+          <select id="laundryWashTemperature">
+            <option value="">Not set</option>
+            <option value="20">20°C</option><option value="30">30°C</option>
+            <option value="40">40°C</option><option value="50">50°C</option>
+            <option value="60">60°C</option><option value="90">90°C</option>
+          </select>
+        </label>
+      </div>
+      <label>Drying method
+        <select id="laundryDryingMethod">
+          <option value="">Not set</option>
+          <option value="air_dry">Air Dry</option>
+          <option value="hang_dry">Hang Dry</option>
+          <option value="dry_flat">Dry Flat</option>
+          <option value="tumble_dry">Tumble Dry</option>
+        </select>
+      </label>
+      <label>Expected ready
+        <input id="laundryExpectedReady" type="datetime-local">
+      </label>
+      <label>Care notes
+        <textarea id="laundryCareNotes" maxlength="1000" placeholder="Wash inside out, do not bleach, delicate cycle…"></textarea>
+      </label>
+      <button class="primary" onclick="saveLaundryCare()">Save Laundry Care</button>
+    </div>
+  </div>
+</div>
 
 <div id="sharedPlanModal" class="modal hidden">
   <div class="modal-box connected-modal-card">
