@@ -2165,6 +2165,7 @@ const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
+let outfitHistory=[];
 let notifications=[];
 let selectedClothingFile=null,cleanedClothingFile=null;
 let movingClothingId=null;
@@ -2275,7 +2276,7 @@ async function startApp(){
  if(appStarted){el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");return}
  appStarting=true;
  el("authScreen").classList.add("hidden");el("appScreen").classList.remove("hidden");
- try{await loadAllData();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await loadDryingData();await loadPlannedOutfits();await checkPlannerLaundryReminders();await checkTravelLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
+ try{await loadAllData();await loadOutfitHistory();await loadUserProfile();await createProfileSignedUrl();updateHomeGreeting();updateProfileHero();await loadCreditBalance();await loadNotifications();await loadDryingData();await loadPlannedOutfits();await checkPlannerLaundryReminders();await checkTravelLaundryReminders();loadShoppingProfile();syncShoppingProfileFromUserProfile();updateStoreList();renderCategories();renderLooks();renderMePage();showPage("home");appStarted=true;await handlePaymentReturn()}
  catch(e){console.error(e);alert("Could not load your wardrobe. Check your Supabase tables and RLS policies.")}
  appStarting=false;
 }
@@ -5215,11 +5216,11 @@ let wardrobeConnections=[];
 let wardrobePermissions=[];
 
 function openConnectedWardrobes(){
-  el("connectedWardrobesModal").classList.remove("hidden");
+  el("connectedWardrobesModal").classList.add("show");
   showConnectedTab("invite");
   loadWardrobeConnections();
 }
-function closeConnectedWardrobes(){el("connectedWardrobesModal").classList.add("hidden");}
+function closeConnectedWardrobes(){el("connectedWardrobesModal").classList.remove("show");}
 function showConnectedTab(tab){
   const invite=tab==="invite";
   el("connectTabInvite").classList.toggle("active",invite);
