@@ -5215,11 +5215,11 @@ let wardrobeConnections=[];
 let wardrobePermissions=[];
 
 function openConnectedWardrobes(){
-  el("connectedWardrobesModal").classList.add("show");
+  el("connectedWardrobesModal").classList.remove("hidden");
   showConnectedTab("invite");
   loadWardrobeConnections();
 }
-function closeConnectedWardrobes(){el("connectedWardrobesModal").classList.remove("show");}
+function closeConnectedWardrobes(){el("connectedWardrobesModal").classList.add("hidden");}
 function showConnectedTab(tab){
   const invite=tab==="invite";
   el("connectTabInvite").classList.toggle("active",invite);
@@ -5340,11 +5340,11 @@ async function disconnectWardrobe(connectionId){
 let selectedStyleUsVibe="Elegant";
 
 async function openStyleUs(){
-  el("styleUsModal").classList.add("show");
+  el("styleUsModal").classList.remove("hidden");
   el("styleUsResult").style.display="none";
   await loadStyleUsConnections();
 }
-function closeStyleUs(){el("styleUsModal").classList.remove("show");}
+function closeStyleUs(){el("styleUsModal").classList.add("hidden");}
 function selectStyleUsVibe(btn,vibe){
   selectedStyleUsVibe=vibe;
   document.querySelectorAll("#styleUsVibes .vibe-chip").forEach(x=>x.classList.remove("active"));
@@ -5567,7 +5567,7 @@ function renderPairedStyleCard(title,items){
 
 
 
-<div id="connectedWardrobesModal" class="modal">
+<div id="connectedWardrobesModal" class="modal hidden">
   <div class="modal-card connected-modal-card">
     <button class="modal-close" onclick="closeConnectedWardrobes()">×</button>
     <h2 style="margin-top:0">Connected Wardrobes</h2>
@@ -5617,7 +5617,7 @@ function renderPairedStyleCard(title,items){
 
 
 
-<div id="styleUsModal" class="modal">
+<div id="styleUsModal" class="modal hidden">
   <div class="modal-card style-us-modal-card">
     <button class="modal-close" onclick="closeStyleUs()">×</button>
     <h2 style="margin-top:0">Together · Style Us</h2>
