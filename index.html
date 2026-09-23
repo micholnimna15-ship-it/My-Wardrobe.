@@ -4431,14 +4431,20 @@ function getCategoryName(categoryId){
  return c?.name||"";
 }
 
+function isItemAvailableForStyling(item){
+ const status=String(item?.laundry_status??"").trim().toLowerCase();
+ return !["waiting","washing","drying"].includes(status);
+}
 function getWardrobeForAI(){
- return clothingItems.map(i=>({
-  id:String(i.id),
-  name:i.name||"",
-  category:getCategoryName(i.category_id),
-  color:i.color||"",
-  brand:i.brand||""
- }));
+ return clothingItems
+  .filter(isItemAvailableForStyling)
+  .map(i=>({
+   id:String(i.id),
+   name:i.name||"",
+   category:getCategoryName(i.category_id),
+   color:i.color||"",
+   brand:i.brand||""
+  }));
 }
 
 
@@ -5958,7 +5964,7 @@ async function loadStyleUsConnections(){
   select.innerHTML=rows.map((c,i)=>`<option value="${c.id}">Connected Wardrobe ${i+1}${c.connection_type==="event"?" · Event":""}</option>`).join("");
 }
 function styleUsOwnItems(){
-  return (clothingItems||[]).filter(x=>!x.in_laundry);
+  return (clothingItems||[]).filter(isItemAvailableForStyling);
 }
 function styleUsItemLabel(item){
   return item.name||item.item_name||item.brand||item.colour||item.color||"Wardrobe item";
@@ -5992,7 +5998,9 @@ async function generateStyleUs(){
   }
 
   const myWardrobe=styleUsOwnItems();
-  const connectedWardrobe=remote.data||[];
+  // Defence in depth: even if the RPC ever returns a laundry item,
+  // never send Waiting/Washing/Drying items to Style Us AI.
+  const connectedWardrobe=(remote.data||[]).filter(isItemAvailableForStyling);
 
   if(!myWardrobe.length){
     result.innerHTML='<div class="connected-note">Add some available items to your wardrobe first.</div>';
