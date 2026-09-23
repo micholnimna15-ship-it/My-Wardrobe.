@@ -5638,7 +5638,7 @@ function renderSharedCategoryControls(connectionId){
     +'<div class="shared-category-grid">'
     +mine.map(c=>'<label class="shared-category-chip"><input type="checkbox" '
       +(isWardrobeCategoryShared(connectionId,c.id)?'checked ':'')
-      +'onchange="toggleWardrobeSharedCategory(\\''+c.id+'\\',\\''+connectionId+'\\',this.checked)">'
+      +'onchange="toggleWardrobeSharedCategory(&quot;'+c.id+'&quot;,&quot;'+connectionId+'&quot;,this.checked)">'
       +escapeHtml((c.emoji?c.emoji+' ':'')+(c.name||'Category'))+'</label>').join('')
     +'</div></div>';
 }
