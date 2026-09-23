@@ -1251,6 +1251,27 @@ body{
 .score-explain{font-size:10px;color:#857b70;margin-top:7px;line-height:1.4}
 @media(max-width:600px){.score-components{grid-template-columns:1fr}.score-panel-head{align-items:flex-start}.score-big{font-size:34px}}
 
+
+/* ===== MY WARDROBE 2.0 — PHASE 6 FASHION DNA ===== */
+.fashion-dna-panel{margin-top:14px;background:#151411;border:1px solid #4b443b;border-radius:18px;padding:17px}
+.dna-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.dna-title{font:400 20px Georgia,"Times New Roman",serif;color:#f5eee6;margin:0}
+.dna-summary{color:#a99e91;font-size:12px;line-height:1.55;margin-top:5px;max-width:680px}
+.dna-stage{color:#d9b47c;font-size:11px;border:1px solid #5a4b38;border-radius:999px;padding:6px 10px;white-space:nowrap}
+.dna-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:15px}
+.dna-card{background:#11110f;border:1px solid #302d28;border-radius:14px;padding:14px}
+.dna-card h4{margin:0 0 10px;color:#f1e9df;font-size:13px}
+.dna-traits{display:flex;gap:8px;flex-wrap:wrap}
+.dna-trait{border:1px solid #5b4b37;background:#1b1813;color:#e7c18b;border-radius:999px;padding:7px 10px;font-size:11px}
+.dna-list{display:grid;gap:8px}
+.dna-line{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#b5aa9e}
+.dna-line strong{color:#eee7de;font-weight:600}
+.dna-confidence{margin-top:14px}
+.dna-confidence-track{height:7px;background:#29251f;border-radius:99px;overflow:hidden;margin-top:7px}
+.dna-confidence-fill{height:100%;background:#d9b47c;border-radius:99px}
+.dna-note{font-size:10px;color:#81776d;margin-top:7px;line-height:1.4}
+@media(max-width:700px){.dna-grid{grid-template-columns:1fr}.dna-head{flex-direction:column}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1419,6 +1440,34 @@ body{
     </div>
   </div>
 </div>
+
+<div id="fashionDNAPanel" class="fashion-dna-panel">
+  <div class="dna-head">
+    <div>
+      <h3 class="dna-title">Fashion DNA</h3>
+      <div id="fashionDNASummary" class="dna-summary">Your style profile will learn from the wardrobe information you add and the Looks you actually wear.</div>
+    </div>
+    <div id="fashionDNAStage" class="dna-stage">Learning</div>
+  </div>
+
+  <div class="dna-grid">
+    <div class="dna-card">
+      <h4>Your Emerging Style</h4>
+      <div id="fashionDNATraits" class="dna-traits"></div>
+      <div class="dna-confidence">
+        <div class="dna-line"><span>Profile confidence</span><strong id="fashionDNAConfidenceText">0%</strong></div>
+        <div class="dna-confidence-track"><div id="fashionDNAConfidenceBar" class="dna-confidence-fill" style="width:0%"></div></div>
+        <div class="dna-note">Confidence increases as you save Looks and record what you actually wear.</div>
+      </div>
+    </div>
+
+    <div class="dna-card">
+      <h4>Style Signals</h4>
+      <div id="fashionDNASignals" class="dna-list"></div>
+    </div>
+  </div>
+</div>
+
 
 </section>
 
@@ -5015,6 +5064,102 @@ function renderWardrobeScore(){
 
   const snapshot=el("snapshotScore");
   if(snapshot) snapshot.textContent=s.score+"/100";
+  if(typeof renderFashionDNA==="function") renderFashionDNA();
+}
+
+
+
+/* =========================================================
+   PHASE 6 — FASHION DNA
+   An evolving descriptive profile, not a fashion-quality rating.
+========================================================= */
+function normaliseStyleText(value){
+  return String(value||"").trim().toLowerCase();
+}
+
+function calculateFashionDNA(){
+  const looks=savedLooks||[];
+  const history=outfitHistory||[];
+  const categories=window.categories||[];
+  const items=clothingItems||[];
+
+  // Signals are deliberately derived only from data the app already has.
+  const occasionCounts={};
+  history.forEach(e=>{
+    const key=normaliseStyleText(e.occasion);
+    if(key) occasionCounts[key]=(occasionCounts[key]||0)+1;
+  });
+
+  const traits=[];
+  const casual=(occasionCounts["casual"]||0)+(occasionCounts["university"]||0);
+  const polished=(occasionCounts["work"]||0)+(occasionCounts["formal"]||0);
+  const social=(occasionCounts["date night"]||0)+(occasionCounts["dinner"]||0)+(occasionCounts["party"]||0);
+  const travel=(occasionCounts["travel"]||0);
+
+  if(casual) traits.push({name:"Everyday Casual",weight:casual});
+  if(polished) traits.push({name:"Polished",weight:polished});
+  if(social) traits.push({name:"Occasion-led",weight:social});
+  if(travel) traits.push({name:"Travel-ready",weight:travel});
+
+  // Saved-look names can provide weak style hints when the user chose those labels.
+  const lookWords=looks.map(x=>normaliseStyleText(x.name)).join(" ");
+  const nameSignals=[
+    ["Minimal","minimal"],["Smart Casual","smart"],["Formal","formal"],
+    ["Street","street"],["Classic","classic"],["Sporty","sport"],
+    ["Elegant","elegant"],["Casual","casual"]
+  ];
+  nameSignals.forEach(([label,word])=>{
+    if(lookWords.includes(word) && !traits.some(t=>t.name===label))
+      traits.push({name:label,weight:1});
+  });
+
+  traits.sort((a,b)=>b.weight-a.weight);
+
+  const evidence=Math.min(100,Math.round(
+    Math.min(looks.length,10)*4 +
+    Math.min(history.length,15)*4
+  ));
+
+  let stage="Learning";
+  if(evidence>=70) stage="Established";
+  else if(evidence>=35) stage="Emerging";
+
+  const top=traits.slice(0,3).map(t=>t.name);
+  const summary=top.length
+    ?`Your current Fashion DNA is leaning toward ${top.join(", ")}. This profile will evolve as you record more real outfits.`
+    :"Add saved Looks and use “I Wore This” to let Fashion DNA learn your real style patterns.";
+
+  const topOccasion=Object.entries(occasionCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  return {
+    traits:top.length?top:["Still Learning"],
+    confidence:evidence,
+    stage,
+    summary,
+    signals:[
+      ["Saved Looks",looks.length],
+      ["Recorded Wears",history.length],
+      ["Wardrobe Items",items.length],
+      ["Top Occasion",topOccasion?topOccasion[0].replace(/\b\w/g,c=>c.toUpperCase()):"Not enough data"]
+    ]
+  };
+}
+
+function renderFashionDNA(){
+  if(!el("fashionDNAPanel")) return;
+  const dna=calculateFashionDNA();
+
+  el("fashionDNASummary").textContent=dna.summary;
+  el("fashionDNAStage").textContent=dna.stage;
+  el("fashionDNATraits").innerHTML=dna.traits.map(t=>`<span class="dna-trait">${escapeHtml(t)}</span>`).join("");
+  el("fashionDNAConfidenceText").textContent=dna.confidence+"%";
+  el("fashionDNAConfidenceBar").style.width=dna.confidence+"%";
+  el("fashionDNASignals").innerHTML=dna.signals.map(([k,v])=>`
+    <div class="dna-line"><span>${escapeHtml(String(k))}</span><strong>${escapeHtml(String(v))}</strong></div>
+  `).join("");
+
+  const snapshot=el("snapshotDNA");
+  if(snapshot) snapshot.textContent=dna.stage;
 }
 
 </script>
