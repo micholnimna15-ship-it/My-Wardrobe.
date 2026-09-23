@@ -1173,22 +1173,26 @@ body{
 @media(max-width:520px){.history-entry{align-items:flex-start}.history-modal-look-grid{grid-template-columns:1fr}}
 
 
-/* ===== REFERENCE-MATCHED WARDROBE SNAPSHOT ICONS ===== */
-.snapshot-icon,
-.stat-icon{
-  color:#d8b47d !important;
+/* ===== SNAPSHOT ICONS TRACED TO REFERENCE SCREENSHOT ===== */
+.snapshot-card .snapshot-icon,
+.snapshot-card .stat-icon{
+  display:flex !important;
+  justify-content:center;
+  align-items:center;
+  min-height:48px;
+  margin-bottom:5px;
+  color:#d8b27a !important;
+  background:none !important;
 }
-.snapshot-svg{
-  width:38px;
-  height:38px;
+.snapshot-ref-icon{
+  width:43px;
+  height:43px;
   display:block;
-  color:#d8b47d;
-  margin:0 auto 8px;
+  color:#d8b27a;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.04));
 }
-.snapshot-star{
-  width:36px;
-  height:36px;
-}
+.snapshot-ref-icon.score-ref{width:42px;height:42px}
+.snapshot-ref-icon.dna-ref{width:43px;height:43px}
 
 </style>
 
@@ -1276,35 +1280,37 @@ body{
         </div>
         <div class="snapshot-grid">
           <button class="snapshot-card" onclick="showPage('looks')">
-            <div class="snapshot-icon"><svg class="snapshot-svg" viewBox="0 0 48 48" aria-hidden="true">
-<path d="M17 14l7-5 7 5 7 4-4 8-5-3v16H19V23l-5 3-4-8 7-4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-<path d="M20 12c1 3 7 3 8 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <div class="snapshot-icon"><svg class="snapshot-ref-icon looks-ref" viewBox="0 0 64 64" aria-hidden="true">
+<path d="M22 17c2-4 6-6 10-6s8 2 10 6l10 7-6 11-7-4v20H25V31l-7 4-6-11 10-7Z" fill="currentColor"/>
+<path d="M25 16c1.5 5 12.5 5 14 0" fill="none" stroke="#171611" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M20 37h24" stroke="#171611" stroke-width="2.5" opacity=".45"/>
 </svg></div>
             <div id="snapshotLooks" class="snapshot-value">0</div>
             <div class="snapshot-label">Saved Looks</div>
             <div class="snapshot-sub">Your outfit collection</div>
           </button>
           <button class="snapshot-card" onclick="showPage('me')">
-            <div class="snapshot-icon"><svg class="snapshot-svg snapshot-star" viewBox="0 0 48 48" aria-hidden="true">
-<path d="M24 7l5.1 10.4 11.5 1.7-8.3 8.1 2 11.4L24 33.2l-10.3 5.4 2-11.4-8.3-8.1 11.5-1.7L24 7z" fill="currentColor"/>
+            <div class="snapshot-icon"><svg class="snapshot-ref-icon score-ref" viewBox="0 0 64 64" aria-hidden="true">
+<path d="M32 7.5 39.2 22l16 2.3-11.6 11.3 2.8 15.9L32 44l-14.4 7.5 2.8-15.9L8.8 24.3l16-2.3L32 7.5Z" fill="currentColor"/>
 </svg></div>
             <div id="snapshotScore" class="snapshot-value">—</div>
             <div class="snapshot-label">Wardrobe Score</div>
             <div class="snapshot-sub">Activates with outfit history</div>
           </button>
           <button class="snapshot-card" onclick="showPage('me')">
-            <div class="snapshot-icon"><svg class="snapshot-svg" viewBox="0 0 48 48" aria-hidden="true">
-<circle cx="24" cy="24" r="15" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="17 7 10 8 14 10"/>
-<circle cx="24" cy="24" r="7" fill="#171611"/>
+            <div class="snapshot-icon"><svg class="snapshot-ref-icon dna-ref" viewBox="0 0 64 64" aria-hidden="true">
+<circle cx="32" cy="32" r="20" fill="none" stroke="currentColor" stroke-width="9"
+ stroke-dasharray="19 7 13 8 17 7 10 9"/>
+<circle cx="32" cy="32" r="10.5" fill="#171611"/>
 </svg></div>
             <div id="snapshotDNA" class="snapshot-value" style="font-size:21px">Learning</div>
             <div class="snapshot-label">Fashion DNA</div>
             <div class="snapshot-sub">Builds from your activity</div>
           </button>
           <button class="snapshot-card" onclick="hideAllPages();clearNavActive();el('searchPage').classList.remove('hidden');performSearch()">
-            <div class="snapshot-icon"><svg class="snapshot-svg" viewBox="0 0 48 48" aria-hidden="true">
-<path d="M17 13l7-4 7 4 8 4-4 9-5-2v15H18V24l-5 2-4-9 8-4z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
-<path d="M20 11c.8 3.2 7.2 3.2 8 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <div class="snapshot-icon"><svg class="snapshot-ref-icon items-ref" viewBox="0 0 64 64" aria-hidden="true">
+<path d="M21 17 32 11l11 6 11 6-6 12-8-4v21H24V31l-8 4-6-12 11-6Z" fill="currentColor"/>
+<path d="M25 15c1.3 5.5 12.7 5.5 14 0" fill="none" stroke="#171611" stroke-width="3.2" stroke-linecap="round"/>
 </svg></div>
             <div id="snapshotItems" class="snapshot-value">0</div>
             <div class="snapshot-label">Wardrobe Items</div>
