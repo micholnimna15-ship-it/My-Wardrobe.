@@ -1153,6 +1153,25 @@ body{
  .hero-scan-btn,.hero-add-btn{padding:13px 18px!important;min-width:0!important}
 }
 
+
+/* ===== MY WARDROBE 2.0 — PHASE 2: OUTFIT HISTORY ===== */
+.history-card{background:#181713;border:1px solid #4b443c;border-radius:20px;padding:18px;margin:16px 0;color:#f2ece5}
+.history-card h3{margin:0 0 6px;font:400 24px Georgia,"Times New Roman",serif;color:#f4efe8}
+.history-card p{margin:0;color:#a99d90;font-size:13px;line-height:1.5}
+.history-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.history-list{display:grid;gap:10px;margin-top:14px}
+.history-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid #4b443c;border-radius:14px;background:#141310}
+.history-entry-main{min-width:0}
+.history-entry-title{font-weight:800;color:#f4efe8}
+.history-entry-meta{font-size:12px;color:#a99d90;margin-top:4px}
+.history-empty{padding:18px;border:1px dashed #514a42;border-radius:14px;color:#9e9285;text-align:center}
+.history-modal-look-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:280px;overflow:auto;margin-top:8px}
+.history-look-option{border:1px solid #4b443c;background:#181713;color:#eee7de;border-radius:13px;padding:12px;text-align:left;cursor:pointer}
+.history-look-option.selected{border-color:#d2ad7b;box-shadow:0 0 0 2px rgba(210,173,123,.12)}
+.history-look-option strong{display:block;color:#fff}
+.history-delete{border:0;background:transparent;color:#d9827d;cursor:pointer;padding:6px}
+@media(max-width:520px){.history-entry{align-items:flex-start}.history-modal-look-grid{grid-template-columns:1fr}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1557,7 +1576,18 @@ body{
       </div>
     </section>
 
-    <section id="laundryPage" class="hidden">
+    
+      <div id="outfitHistoryCard" class="history-card">
+        <h3>Outfit History</h3>
+        <p>Record what you actually wore. This will later power Wardrobe Statistics, Wardrobe Score, Fashion DNA and your monthly magazine.</p>
+        <div class="history-actions">
+          <button class="primary" style="width:auto" onclick="openWearHistoryModal()">＋ I Wore This</button>
+          <button class="secondary" onclick="loadOutfitHistory()">Refresh History</button>
+        </div>
+        <div id="outfitHistoryList" class="history-list"></div>
+      </div>
+
+<section id="laundryPage" class="hidden">
       <div class="hero"><h1>🧺 Laundry</h1><p>Keep track of what is waiting, washing, drying and ready to wear.</p></div>
       <div class="laundry-board" id="laundryBoard"></div>
     </section>
@@ -2290,7 +2320,7 @@ function showPage(page){
  hideAllPages();clearNavActive();
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems();renderHomeDashboard()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
- if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");renderOutfitPlanner()}
+ if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");loadOutfitHistory();renderOutfitPlanner()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
  if(page==="travel"){el("travelPage").classList.remove("hidden");el("navTravel").classList.add("active");renderTravelPacking()}
@@ -4516,6 +4546,177 @@ async function checkSession(){
  else{el("authScreen").classList.remove("hidden");el("appScreen").classList.add("hidden")}
 }
 checkSession();
+
+
+/* =========================================================
+   PHASE 2 — OUTFIT HISTORY
+========================================================= */
+
+function localDateISO(date=new Date()){
+  const y=date.getFullYear();
+  const m=String(date.getMonth()+1).padStart(2,"0");
+  const d=String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+
+async function loadOutfitHistory(){
+  if(!currentUser) return;
+  const {data,error}=await supabaseClient
+    .from("outfit_history")
+    .select("id,user_id,look_id,worn_date,occasion,notes,created_at")
+    .eq("user_id",currentUser.id)
+    .order("worn_date",{ascending:false});
+
+  if(error){
+    console.error("Outfit history load error:",error);
+    return;
+  }
+  outfitHistory=data||[];
+  renderOutfitHistory();
+  renderHomeDashboard?.();
+}
+
+function renderOutfitHistory(){
+  const box=el("outfitHistoryList");
+  if(!box) return;
+  if(!outfitHistory.length){
+    box.innerHTML='<div class="history-empty">No worn outfits recorded yet. Tap “I Wore This” after wearing one of your saved Looks.</div>';
+    return;
+  }
+
+  box.innerHTML=outfitHistory.map(entry=>{
+    const look=(savedLooks||[]).find(x=>String(x.id)===String(entry.look_id));
+    const lookName=look?.name||"Saved look";
+    const meta=[entry.worn_date,entry.occasion].filter(Boolean).join(" · ");
+    return `
+      <div class="history-entry">
+        <div class="history-entry-main">
+          <div class="history-entry-title">${escapeHtml(lookName)}</div>
+          <div class="history-entry-meta">${escapeHtml(meta)}</div>
+          ${entry.notes?`<div class="history-entry-meta">${escapeHtml(entry.notes)}</div>`:""}
+        </div>
+        <button class="history-delete" onclick="deleteOutfitHistory('${entry.id}')">Delete</button>
+      </div>`;
+  }).join("");
+}
+
+function openWearHistoryModal(){
+  selectedHistoryLookId=null;
+  el("historyWornDate").value=localDateISO();
+  el("historyOccasion").value="";
+  el("historyNotes").value="";
+  el("historySaveMessage").textContent="";
+  renderHistoryLookOptions();
+  el("wearHistoryModal").classList.remove("hidden");
+}
+
+function closeWearHistoryModal(){
+  el("wearHistoryModal").classList.add("hidden");
+}
+
+function renderHistoryLookOptions(){
+  const box=el("historyLookOptions");
+  if(!box) return;
+  if(!(savedLooks||[]).length){
+    box.innerHTML='<div class="history-empty">Create a saved Look first, then you can record wearing it here.</div>';
+    return;
+  }
+  box.innerHTML=savedLooks.map(look=>`
+    <button type="button"
+      class="history-look-option ${String(selectedHistoryLookId)===String(look.id)?"selected":""}"
+      onclick="selectHistoryLook('${look.id}')">
+      <strong>${escapeHtml(look.name||"Untitled Look")}</strong>
+      <span class="muted">Select this look</span>
+    </button>`).join("");
+}
+
+function selectHistoryLook(id){
+  selectedHistoryLookId=id;
+  renderHistoryLookOptions();
+}
+
+async function saveOutfitHistory(){
+  const msg=el("historySaveMessage");
+  if(!currentUser){msg.textContent="Please sign in first.";return;}
+  if(!selectedHistoryLookId){msg.textContent="Choose a saved Look.";return;}
+  const wornDate=el("historyWornDate").value;
+  if(!wornDate){msg.textContent="Choose the date you wore it.";return;}
+
+  msg.textContent="Saving…";
+  const payload={
+    user_id:currentUser.id,
+    look_id:selectedHistoryLookId,
+    worn_date:wornDate,
+    occasion:el("historyOccasion").value||null,
+    notes:el("historyNotes").value.trim()||null
+  };
+
+  const {error}=await supabaseClient.from("outfit_history").insert(payload);
+  if(error){
+    console.error(error);
+    msg.textContent="Could not save: "+error.message;
+    return;
+  }
+  msg.textContent="Saved ✓";
+  await loadOutfitHistory();
+  setTimeout(closeWearHistoryModal,500);
+}
+
+async function deleteOutfitHistory(id){
+  if(!confirm("Remove this outfit from your history?")) return;
+  const {error}=await supabaseClient
+    .from("outfit_history")
+    .delete()
+    .eq("id",id)
+    .eq("user_id",currentUser.id);
+  if(error){alert(error.message);return;}
+  await loadOutfitHistory();
+}
+
 </script>
+
+<div id="wearHistoryModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>I Wore This</h2>
+      <button class="close" onclick="closeWearHistoryModal()">×</button>
+    </div>
+
+    <div class="field">
+      <label>Date worn</label>
+      <input id="historyWornDate" type="date">
+    </div>
+
+    <div class="field">
+      <label>Choose a saved Look</label>
+      <div id="historyLookOptions" class="history-modal-look-grid"></div>
+    </div>
+
+    <div class="field">
+      <label>Occasion</label>
+      <select id="historyOccasion">
+        <option value="">Choose occasion</option>
+        <option>Casual</option>
+        <option>Work</option>
+        <option>University</option>
+        <option>Date Night</option>
+        <option>Dinner</option>
+        <option>Party</option>
+        <option>Formal</option>
+        <option>Travel</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Notes (optional)</label>
+      <textarea id="historyNotes" rows="3" placeholder="Anything you want to remember about this outfit..."></textarea>
+    </div>
+
+    <button class="primary" onclick="saveOutfitHistory()">Save to Outfit History</button>
+    <div id="historySaveMessage" class="message"></div>
+  </div>
+</div>
+
 </body>
 </html>
