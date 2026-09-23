@@ -1,9 +1,11 @@
-const CACHE_NAME = "my-wardrobe-v5";
+const CACHE_NAME = "my-wardrobe-v6";
 
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./manifest.json"
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
 ];
 
 
@@ -12,7 +14,6 @@ const APP_SHELL = [
 ========================================================= */
 
 self.addEventListener("install", event => {
-
   self.skipWaiting();
 
   event.waitUntil(
@@ -20,7 +21,6 @@ self.addEventListener("install", event => {
       .open(CACHE_NAME)
       .then(cache => cache.addAll(APP_SHELL))
   );
-
 });
 
 
@@ -29,26 +29,18 @@ self.addEventListener("install", event => {
 ========================================================= */
 
 self.addEventListener("activate", event => {
-
   event.waitUntil(
-
     caches
       .keys()
-      .then(keys => {
-
-        return Promise.all(
-
+      .then(keys =>
+        Promise.all(
           keys
             .filter(key => key !== CACHE_NAME)
             .map(key => caches.delete(key))
-
-        );
-
-      })
+        )
+      )
       .then(() => self.clients.claim())
-
   );
-
 });
 
 
@@ -57,7 +49,6 @@ self.addEventListener("activate", event => {
 ========================================================= */
 
 self.addEventListener("fetch", event => {
-
   const request = event.request;
 
   if (request.method !== "GET") {
@@ -66,12 +57,11 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(request.url);
 
-
   /*
     Only cache files from the
     My Wardrobe GitHub Pages website.
 
-    Supabase and other external services
+    Supabase and external services
     continue using the network.
   */
 
@@ -79,38 +69,46 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-
   event.respondWith(
-
     fetch(request)
-
       .then(response => {
 
-        const copy = response.clone();
+        /*
+          Only cache successful responses.
+        */
+        if (
+          response &&
+          response.status === 200 &&
+          response.type === "basic"
+        ) {
+          const copy = response.clone();
 
-        caches
-          .open(CACHE_NAME)
-          .then(cache => {
-
-            cache.put(
-              request,
-              copy
-            );
-
-          });
+          caches
+            .open(CACHE_NAME)
+            .then(cache => cache.put(request, copy));
+        }
 
         return response;
-
       })
 
-      .catch(() => {
+      .catch(async () => {
+        const cached = await caches.match(request);
 
-        return caches.match(request);
+        if (cached) {
+          return cached;
+        }
 
+        /*
+          If a page navigation fails while offline,
+          fall back to the cached app.
+        */
+        if (request.mode === "navigate") {
+          return caches.match("./index.html");
+        }
+
+        return Response.error();
       })
-
   );
-
 });
 
 
@@ -119,33 +117,25 @@ self.addEventListener("fetch", event => {
 ========================================================= */
 
 self.addEventListener("push", event => {
-
   let data = {};
 
   try {
-
     data = event.data
       ? event.data.json()
       : {};
-
   } catch (error) {
-
     data = {
       body: event.data
         ? event.data.text()
         : "You have a new My Wardrobe notification."
     };
-
   }
-
 
   const title =
     data.title ||
     "My Wardrobe";
 
-
   const options = {
-
     body:
       data.body ||
       "You have a new notification.",
@@ -163,27 +153,20 @@ self.addEventListener("push", event => {
     renotify: false,
 
     data: {
-
       ...(data.data || {}),
 
       url:
         data.data?.url ||
-        "https://micholnimna15-ship-it.github.io/My-Wardrobe./"
-
+        "./"
     }
-
   };
 
-
   event.waitUntil(
-
     self.registration.showNotification(
       title,
       options
     )
-
   );
-
 });
 
 
@@ -191,80 +174,50 @@ self.addEventListener("push", event => {
    WHEN USER TAPS PHONE NOTIFICATION
 ========================================================= */
 
-self.addEventListener(
-  "notificationclick",
-  event => {
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
 
-    event.notification.close();
+  const targetUrl =
+    event.notification.data?.url ||
+    "./";
 
+  event.waitUntil(
+    self.clients
+      .matchAll({
+        type: "window",
+        includeUncontrolled: true
+      })
 
-    const targetUrl =
+      .then(async windowClients => {
 
-      event.notification.data?.url ||
+        /*
+          If My Wardrobe is already open,
+          use the existing window.
+        */
 
-      "https://micholnimna15-ship-it.github.io/My-Wardrobe./";
-
-
-    event.waitUntil(
-
-      self.clients
-        .matchAll({
-
-          type: "window",
-
-          includeUncontrolled: true
-
-        })
-
-        .then(async windowClients => {
-
-
-          /*
-            If My Wardrobe is already open,
-            use the existing window.
-          */
-
-          for (const client of windowClients) {
-
-            if ("focus" in client) {
-
-              try {
-
-                await client.navigate(
-                  targetUrl
-                );
-
-              } catch (error) {
-
-                console.log(
-                  "Could not navigate existing window."
-                );
-
-              }
-
-
-              return client.focus();
-
+        for (const client of windowClients) {
+          if ("focus" in client) {
+            try {
+              await client.navigate(targetUrl);
+            } catch (error) {
+              console.log(
+                "Could not navigate existing window."
+              );
             }
 
+            return client.focus();
           }
+        }
 
+        /*
+          Otherwise open My Wardrobe.
+        */
 
-          /*
-            Otherwise open My Wardrobe.
-          */
-
-          if (self.clients.openWindow) {
-
-            return self.clients.openWindow(
-              targetUrl
-            );
-
-          }
-
-        })
-
-    );
-
-  }
-);
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(
+            targetUrl
+          );
+        }
+      })
+  );
+});
