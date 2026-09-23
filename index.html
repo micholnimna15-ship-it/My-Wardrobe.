@@ -1235,6 +1235,22 @@ body{
 .stats-dashboard{margin:26px 0}.stats-dashboard h2{font:400 28px Georgia,"Times New Roman",serif;color:#f5eee6;margin:0 0 5px}.stats-subtitle{color:#9e9387;font-size:12px;margin-bottom:15px}
 .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stats-metric,.stats-panel{background:#171612;border:1px solid #4b443b;border-radius:17px;padding:16px}.stats-metric-value{font:400 29px Georgia,"Times New Roman",serif;color:#edc78e}.stats-metric-label{font-size:12px;color:#f0e8de;margin-top:5px}.stats-metric-note{font-size:10px;color:#91877b;margin-top:5px}.stats-panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.stats-panel h3{font:400 19px Georgia,"Times New Roman",serif;color:#f5eee6;margin:0 0 10px}.stats-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #302d28}.stats-row:last-child{border-bottom:0}.stats-row-name{color:#eee7de;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stats-row-value{color:#d9b47c;font-size:12px;white-space:nowrap}.stats-empty{color:#91877b;font-size:12px;padding:10px 0}.stats-progress{height:7px;background:#29251f;border-radius:99px;overflow:hidden;margin-top:10px}.stats-progress-fill{height:100%;background:#d9b47c;border-radius:99px}@media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr)}.stats-panels{grid-template-columns:1fr}}
 
+
+/* ===== MY WARDROBE 2.0 — PHASE 5 WARDROBE SCORE ===== */
+.wardrobe-score-panel{margin-top:14px;background:#151411;border:1px solid #4b443b;border-radius:18px;padding:17px}
+.score-panel-head{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.score-big{font:400 38px Georgia,"Times New Roman",serif;color:#edc78e;white-space:nowrap}
+.score-big span{font-size:17px;color:#b6aa9d}
+.score-description{color:#a99e91;font-size:12px;line-height:1.5;margin-top:4px}
+.score-components{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.score-component{background:#11110f;border:1px solid #302d28;border-radius:13px;padding:11px}
+.score-component-top{display:flex;justify-content:space-between;gap:8px;color:#eee7de;font-size:11px}
+.score-component-value{color:#d9b47c}
+.score-mini-track{height:5px;background:#29251f;border-radius:99px;overflow:hidden;margin-top:8px}
+.score-mini-fill{height:100%;background:#d9b47c;border-radius:99px}
+.score-explain{font-size:10px;color:#857b70;margin-top:7px;line-height:1.4}
+@media(max-width:600px){.score-components{grid-template-columns:1fr}.score-panel-head{align-items:flex-start}.score-big{font-size:34px}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1375,6 +1391,35 @@ body{
     <div class="stats-panel"><h3>Most Worn Looks</h3><div id="statsMostWorn"></div></div>
     <div class="stats-panel"><h3>Not Worn Yet</h3><div id="statsNeverWorn"></div></div>
   </div>
+
+<div id="wardrobeScorePanel" class="wardrobe-score-panel">
+  <div class="score-panel-head">
+    <div>
+      <h3 style="margin:0;font:400 20px Georgia,'Times New Roman',serif;color:#f5eee6">Your Wardrobe Score</h3>
+      <div class="score-description">A usage score based on how much of your saved style collection you actually wear. It does not judge whether your fashion is “good” or “bad”.</div>
+    </div>
+    <div id="wardrobeScoreLarge" class="score-big">0<span>/100</span></div>
+  </div>
+
+  <div class="score-components">
+    <div class="score-component">
+      <div class="score-component-top"><span>Utilisation</span><span id="scoreUtilisationValue" class="score-component-value">0/50</span></div>
+      <div class="score-mini-track"><div id="scoreUtilisationBar" class="score-mini-fill" style="width:0%"></div></div>
+      <div class="score-explain">How many of your saved Looks have been worn.</div>
+    </div>
+    <div class="score-component">
+      <div class="score-component-top"><span>Variety</span><span id="scoreVarietyValue" class="score-component-value">0/30</span></div>
+      <div class="score-mini-track"><div id="scoreVarietyBar" class="score-mini-fill" style="width:0%"></div></div>
+      <div class="score-explain">Different Looks worn recently rather than repeating only one.</div>
+    </div>
+    <div class="score-component">
+      <div class="score-component-top"><span>Activity</span><span id="scoreActivityValue" class="score-component-value">0/20</span></div>
+      <div class="score-mini-track"><div id="scoreActivityBar" class="score-mini-fill" style="width:0%"></div></div>
+      <div class="score-explain">Recent outfit-history activity during this month.</div>
+    </div>
+  </div>
+</div>
+
 </section>
 
       <div class="home-section-heading">
@@ -4922,6 +4967,54 @@ function renderWardrobeStatistics(){
  el("statsUtilisationBar").style.width=s.utilisation+"%";
  el("statsMostWorn").innerHTML=s.ranked.length?s.ranked.slice(0,5).map(x=>`<div class="stats-row"><span class="stats-row-name">${escapeHtml(x.look.name||"Untitled Look")}</span><span class="stats-row-value">${x.count} wear${x.count===1?"":"s"}</span></div>`).join(""):'<div class="stats-empty">Record outfits with “I Wore This” to build your statistics.</div>';
  el("statsNeverWorn").innerHTML=s.never.length?s.never.slice(0,5).map(look=>`<div class="stats-row"><span class="stats-row-name">${escapeHtml(look.name||"Untitled Look")}</span><span class="stats-row-value">Not worn</span></div>`).join(""):'<div class="stats-empty">Every saved Look has been worn at least once.</div>';
+ if(typeof renderWardrobeScore==="function") renderWardrobeScore();
+}
+
+
+
+/* =========================================================
+   PHASE 5 — WARDROBE SCORE
+   Usage effectiveness only — not a rating of fashion taste.
+========================================================= */
+function calculateWardrobeScore(){
+  const s=calculateWardrobeStatistics();
+  const looks=savedLooks||[];
+  const history=outfitHistory||[];
+
+  // 50 pts: percentage of saved Looks ever worn.
+  const utilisationPoints=Math.round((s.utilisation/100)*50);
+
+  // 30 pts: recent variety. Full points when up to 10 different Looks
+  // have been worn in the current month.
+  const varietyPoints=Math.min(30,Math.round((s.uniqueLooksThisMonth/10)*30));
+
+  // 20 pts: recent activity. Full points at 12 recorded wears/month.
+  const activityPoints=Math.min(20,Math.round((s.wornThisMonth/12)*20));
+
+  // If there are no saved Looks/history, keep score at zero rather than
+  // presenting a misleading assessment.
+  const score=(looks.length||history.length)
+    ?Math.min(100,utilisationPoints+varietyPoints+activityPoints)
+    :0;
+
+  return {score,utilisationPoints,varietyPoints,activityPoints};
+}
+
+function renderWardrobeScore(){
+  if(!el("wardrobeScoreLarge")) return;
+  const s=calculateWardrobeScore();
+
+  el("wardrobeScoreLarge").innerHTML=`${s.score}<span>/100</span>`;
+  el("scoreUtilisationValue").textContent=`${s.utilisationPoints}/50`;
+  el("scoreVarietyValue").textContent=`${s.varietyPoints}/30`;
+  el("scoreActivityValue").textContent=`${s.activityPoints}/20`;
+
+  el("scoreUtilisationBar").style.width=(s.utilisationPoints/50*100)+"%";
+  el("scoreVarietyBar").style.width=(s.varietyPoints/30*100)+"%";
+  el("scoreActivityBar").style.width=(s.activityPoints/20*100)+"%";
+
+  const snapshot=el("snapshotScore");
+  if(snapshot) snapshot.textContent=s.score+"/100";
 }
 
 </script>
