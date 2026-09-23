@@ -1351,6 +1351,21 @@ body{
 .style-chat-compose textarea{flex:1;min-height:46px;max-height:120px;resize:vertical;background:#151412;color:#f2ece5;border:1px solid #4b443c;border-radius:12px;padding:12px}
 .style-chat-send{min-width:78px;border:0;border-radius:12px;background:#d2ad7b;color:#17130f;font-weight:800}
 
+
+.connection-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.connection-rename-btn{border:1px solid rgba(211,178,111,.35);background:transparent;color:#d8bc7b;border-radius:999px;padding:5px 10px;font-size:11px;cursor:pointer}
+.style-chat-status{display:block;margin-top:4px;font-size:10px;color:#9d927f;text-align:right}
+.style-chat-status.seen{color:#d8bc7b}
+
+
+.shared-category-panel{margin-top:14px;padding:14px;border:1px solid rgba(211,178,111,.22);border-radius:16px;background:rgba(255,255,255,.025)}
+.shared-category-title{font-size:12px;font-weight:700;letter-spacing:.04em;color:#ead9b3;margin-bottom:5px}
+.shared-category-help{font-size:11px;line-height:1.45;color:#a99f8c;margin-bottom:10px}
+.shared-category-grid{display:flex;flex-wrap:wrap;gap:8px}
+.shared-category-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(211,178,111,.28);border-radius:999px;padding:7px 10px;font-size:11px;color:#d8cdb7;background:rgba(0,0,0,.14);cursor:pointer}
+.shared-category-chip input{accent-color:#caa85f}
+.shared-category-empty{font-size:11px;color:#938978}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2195,6 +2210,7 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHA
 const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
 const STYLE_US_API_URL=SUPABASE_URL+"/functions/v1/style-us";
+const STYLE_CHAT_API_URL=SUPABASE_URL+"/functions/v1/send-style-chat";
 const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing"; // legacy direct cleaner; background jobs now use ai_cleaning_jobs
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
@@ -2432,6 +2448,7 @@ async function createAppNotification({
 
 function notificationIcon(type){
  const t=String(type||"system").toLowerCase();
+ if(t.includes("style_chat")||t.includes("chat"))return "💬";
  if(t.includes("clean"))return "✨";
  if(t.includes("laundry"))return "🧺";
  if(t.includes("shop")||t.includes("outfit"))return "🤖";
@@ -2543,6 +2560,16 @@ async function openNotification(id){
  }
 
  const actionPage=String(n.action_page||"").toLowerCase();
+ if(actionPage==="style_chat"){
+   const connectionId=n.action_id||n.metadata?.connection_id;
+   if(connectionId){
+     if(!wardrobeConnections.some(x=>x.id===connectionId)){
+       try{await loadWardrobeConnections();}catch(e){console.warn(e);}
+     }
+     openStyleChat(connectionId);
+   }
+   return;
+ }
  if(actionPage){
    if(actionPage==="home")showPage("home");
    else if(actionPage==="laundry")showPage("laundry");
@@ -5333,6 +5360,58 @@ function closeStyleMagazine(){
 /* =========================================================
    STYLE CHAT
 ========================================================= */
+let wardrobeConnectionNames=[];
+let wardrobeSharedCategories=[];
+
+async function loadWardrobeConnectionNames(){
+  if(!currentUser){wardrobeConnectionNames=[];return;}
+  const {data,error}=await supabaseClient
+    .from("wardrobe_connection_names")
+    .select("connection_id,nickname")
+    .eq("user_id",currentUser.id);
+  if(error){console.warn("Could not load connected wardrobe names:",error.message);wardrobeConnectionNames=[];return;}
+  wardrobeConnectionNames=data||[];
+}
+function getWardrobeConnectionNickname(connectionId){
+  return wardrobeConnectionNames.find(x=>x.connection_id===connectionId)?.nickname||"";
+}
+async function renameConnectedWardrobe(connectionId){
+  if(!currentUser)return;
+  const current=getWardrobeConnectionNickname(connectionId);
+  const nickname=prompt("Name this connected wardrobe:",current);
+  if(nickname===null)return;
+  const clean=nickname.trim();
+  if(!clean)return alert("Please enter a name.");
+  if(clean.length>60)return alert("Please keep the name under 60 characters.");
+  const {error}=await supabaseClient.from("wardrobe_connection_names").upsert({
+    connection_id:connectionId,user_id:currentUser.id,nickname:clean,updated_at:new Date().toISOString()
+  },{onConflict:"connection_id,user_id"});
+  if(error)return alert("Could not rename this connected wardrobe: "+error.message);
+  await loadWardrobeConnectionNames();
+  renderWardrobeConnections();
+  const label=document.getElementById("styleChatConnectionLabel");
+  if(activeStyleChatConnectionId===connectionId&&label)label.textContent=clean;
+}
+async function markStyleChatDelivered(connectionId){
+  if(!connectionId||!currentUser)return;
+  const {error}=await supabaseClient.rpc("mark_style_chat_delivered",{p_connection_id:connectionId});
+  if(error)console.warn("Could not mark Style Chat delivered:",error.message);
+}
+async function markStyleChatSeen(connectionId){
+  if(!connectionId||!currentUser)return;
+  const {error}=await supabaseClient.rpc("mark_style_chat_seen",{p_connection_id:connectionId});
+  if(error)console.warn("Could not mark Style Chat seen:",error.message);
+}
+function styleChatStatusText(message){
+  if(!message||message.sender_id!==currentUser?.id)return "";
+  if(message.seen_at){
+    const t=new Date(message.seen_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    return '<span class="style-chat-status seen">Seen '+escapeHtml(t)+' ✓✓</span>';
+  }
+  if(message.delivered_at)return '<span class="style-chat-status">Delivered ✓✓</span>';
+  return '<span class="style-chat-status">Sent ✓</span>';
+}
+
 let activeStyleChatConnectionId=null;
 let styleChatRefreshTimer=null;
 
@@ -5342,12 +5421,16 @@ function openStyleChat(connectionId){
   if(!modal)return alert("Style Chat panel could not be opened.");
   const connection=wardrobeConnections.find(x=>x.id===connectionId);
   const label=document.getElementById("styleChatConnectionLabel");
-  if(label) label.textContent=connection ? "Private connected wardrobe conversation" : "Private Style Chat";
+  const nickname=getWardrobeConnectionNickname(connectionId);
+  if(label) label.textContent=nickname|| (connection ? "Private connected wardrobe conversation" : "Private Style Chat");
   modal.classList.remove("hidden");
   modal.style.display="flex";
-  loadStyleChatMessages();
+  Promise.resolve(markStyleChatDelivered(connectionId))
+    .then(()=>markStyleChatSeen(connectionId))
+    .then(()=>loadStyleChatMessages())
+    .catch(err=>{console.warn(err);loadStyleChatMessages();});
   clearInterval(styleChatRefreshTimer);
-  styleChatRefreshTimer=setInterval(()=>{ if(activeStyleChatConnectionId) loadStyleChatMessages(true); },5000);
+  styleChatRefreshTimer=setInterval(async()=>{ if(activeStyleChatConnectionId){await markStyleChatDelivered(activeStyleChatConnectionId);await markStyleChatSeen(activeStyleChatConnectionId);await loadStyleChatMessages(true);} },5000);
   setTimeout(()=>document.getElementById("styleChatInput")?.focus(),100);
 }
 
@@ -5363,7 +5446,7 @@ async function loadStyleChatMessages(silent=false){
   if(!activeStyleChatConnectionId||!currentUser)return;
   const box=document.getElementById("styleChatMessages");
   const {data,error}=await supabaseClient.from("style_chat_messages")
-    .select("id,sender_id,message,message_type,created_at")
+    .select("id,sender_id,message,message_type,created_at,delivered_at,seen_at")
     .eq("connection_id",activeStyleChatConnectionId)
     .order("created_at",{ascending:true})
     .limit(200);
@@ -5386,7 +5469,7 @@ function renderStyleChatMessages(messages){
     const mine=m.sender_id===currentUser.id;
     const time=new Date(m.created_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
     return '<div class="style-chat-row '+(mine?'mine':'theirs')+'"><div class="style-chat-bubble">'
-      +escapeHtml(m.message)+'<span class="style-chat-time">'+escapeHtml(time)+'</span></div></div>';
+      +escapeHtml(m.message)+'<span class="style-chat-time">'+escapeHtml(time)+'</span>'+styleChatStatusText(m)+'</div></div>';
   }).join("");
   box.scrollTop=box.scrollHeight;
 }
@@ -5397,17 +5480,38 @@ async function sendStyleChatMessage(){
   const message=(input?.value||"").trim();
   if(!message)return;
   const sendBtn=document.getElementById("styleChatSendBtn");
-  if(sendBtn)sendBtn.disabled=true;
-  const {error}=await supabaseClient.from("style_chat_messages").insert({
-    connection_id:activeStyleChatConnectionId,
-    sender_id:currentUser.id,
-    message,
-    message_type:"user"
-  });
-  if(sendBtn)sendBtn.disabled=false;
-  if(error){console.error("Style Chat send error:",error);return alert(error.message);}
-  input.value="";
-  await loadStyleChatMessages();
+  if(sendBtn){sendBtn.disabled=true;sendBtn.textContent="Sending…";}
+  try{
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    if(!session?.access_token)throw new Error("Please log in again.");
+
+    const response=await fetch(STYLE_CHAT_API_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey":SUPABASE_PUBLISHABLE_KEY,
+        "Authorization":"Bearer "+session.access_token
+      },
+      body:JSON.stringify({
+        connection_id:activeStyleChatConnectionId,
+        message
+      })
+    });
+
+    let data={};
+    try{data=await response.json()}catch(e){}
+    if(!response.ok||data.success===false){
+      throw new Error(data.error||"Could not send Style Chat message.");
+    }
+
+    input.value="";
+    await loadStyleChatMessages();
+  }catch(error){
+    console.error("Style Chat send error:",error);
+    alert(error?.message||"Could not send Style Chat message.");
+  }finally{
+    if(sendBtn){sendBtn.disabled=false;sendBtn.textContent="Send";}
+  }
 }
 
 function styleChatKeydown(event){
@@ -5486,6 +5590,8 @@ async function acceptWardrobeInvite(){
   showConnectedTab("connections");
 }
 async function loadWardrobeConnections(){
+  await loadWardrobeSharedCategories();
+  await loadWardrobeConnectionNames();
   if(!currentUser)return;
   const {data,error}=await supabaseClient.from("wardrobe_connections")
     .select("*").eq("status","active").order("created_at",{ascending:false});
@@ -5500,6 +5606,62 @@ async function loadWardrobeConnections(){
   }
   renderWardrobeConnections();
 }
+
+async function loadWardrobeSharedCategories(){
+  if(!currentUser){wardrobeSharedCategories=[];return;}
+  const {data,error}=await supabaseClient
+    .from("wardrobe_shared_categories")
+    .select("connection_id,owner_user_id,category_id")
+    .eq("owner_user_id",currentUser.id);
+  if(error){
+    console.warn("Could not load shared wardrobe categories:",error.message);
+    wardrobeSharedCategories=[];
+    return;
+  }
+  wardrobeSharedCategories=data||[];
+}
+function isWardrobeCategoryShared(connectionId,categoryId){
+  return wardrobeSharedCategories.some(x=>
+    x.connection_id===connectionId &&
+    x.owner_user_id===currentUser?.id &&
+    x.category_id===categoryId
+  );
+}
+function renderSharedCategoryControls(connectionId){
+  const mine=(categories||[]).filter(c=>!c.user_id||c.user_id===currentUser?.id);
+  if(!mine.length){
+    return '<div class="shared-category-panel"><div class="shared-category-title">Categories shared with AI</div><div class="shared-category-empty">Add wardrobe categories first, then you can choose which ones to share.</div></div>';
+  }
+  return '<div class="shared-category-panel">'
+    +'<div class="shared-category-title">Categories shared with this connection</div>'
+    +'<div class="shared-category-help">Only checked categories from your wardrobe can be used by the connected person’s AI. Their categories must be enabled separately from their own account.</div>'
+    +'<div class="shared-category-grid">'
+    +mine.map(c=>'<label class="shared-category-chip"><input type="checkbox" '
+      +(isWardrobeCategoryShared(connectionId,c.id)?'checked ':'')
+      +'onchange="toggleWardrobeSharedCategory(\\''+c.id+'\\',\\''+connectionId+'\\',this.checked)">'
+      +escapeHtml((c.emoji?c.emoji+' ':'')+(c.name||'Category'))+'</label>').join('')
+    +'</div></div>';
+}
+async function toggleWardrobeSharedCategory(categoryId,connectionId,enabled){
+  if(!currentUser)return;
+  if(enabled){
+    const {error}=await supabaseClient.from("wardrobe_shared_categories").upsert({
+      connection_id:connectionId,
+      owner_user_id:currentUser.id,
+      category_id:categoryId
+    },{onConflict:"connection_id,owner_user_id,category_id"});
+    if(error){alert("Could not share this category: "+error.message);await loadWardrobeSharedCategories();renderWardrobeConnections();return;}
+  }else{
+    const {error}=await supabaseClient.from("wardrobe_shared_categories").delete()
+      .eq("connection_id",connectionId)
+      .eq("owner_user_id",currentUser.id)
+      .eq("category_id",categoryId);
+    if(error){alert("Could not stop sharing this category: "+error.message);await loadWardrobeSharedCategories();renderWardrobeConnections();return;}
+  }
+  await loadWardrobeSharedCategories();
+  renderWardrobeConnections();
+}
+
 function renderWardrobeConnections(){
   const box=el("connectionsList");
   if(!box)return;
@@ -5510,7 +5672,7 @@ function renderWardrobeConnections(){
   box.innerHTML=wardrobeConnections.map(c=>{
     const other=c.user_one===currentUser.id?c.user_two:c.user_one;
     const mine=wardrobePermissions.find(p=>p.connection_id===c.id&&p.user_id===currentUser.id)||{};
-    return `<div class="connection-card">
+    return `<div class="connection-card"><div class="connection-name-row"><strong>${escapeHtml(getWardrobeConnectionNickname(c.id)||"Connected Wardrobe")}</strong><button class="connection-rename-btn" type="button" onclick="renameConnectedWardrobe(\'${c.id}\')">Rename</button></div>
       <div class="connection-head">
         <div><strong>Connected Wardrobe</strong><div class="connected-note">Private connection · ${escapeHtml(c.connection_type||"permanent")}</div></div>
         <span class="connection-status">ACTIVE</span>
@@ -5523,6 +5685,7 @@ function renderWardrobeConnections(){
         ${permissionToggle(c.id,"allow_ai_styling","Allow AI Styling",mine.allow_ai_styling)}
       </div>
       <div class="connected-note">These switches control only what YOU share. My Fit, measurements, birthday and account/payment information remain private.</div>
+      ${renderSharedCategoryControls(c.id)}
       <div class="connected-actions">
         <button class="style-chat-btn" onclick="openStyleChat('${c.id}')">Style Chat</button>
         <button class="connected-danger" onclick="disconnectWardrobe('${c.id}')">Disconnect</button>
