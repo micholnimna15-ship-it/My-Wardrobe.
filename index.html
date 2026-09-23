@@ -1108,6 +1108,51 @@ body{
 .address-suggestions{position:absolute;left:0;right:0;top:100%;z-index:120;margin-top:5px;background:#181713;border:1px solid #51483f;border-radius:12px;overflow:hidden;box-shadow:0 16px 34px rgba(0,0,0,.38);max-height:260px;overflow-y:auto}
 .address-suggestion{width:100%;border:0;border-bottom:1px solid #38322c;background:#181713;color:#eee7de;text-align:left;padding:11px 12px;cursor:pointer;display:flex;gap:9px;align-items:flex-start}
 .address-suggestion:last-child{border-bottom:0}.address-suggestion:hover{background:#25211c}.address-suggestion-pin{color:#d2ad7b}.address-suggestion-main{font-size:12px;line-height:1.4}.address-search-status{font-size:11px;color:#a99d90;margin-top:5px}
+
+/* ===== MY WARDROBE 2.0 — HOME FOUNDATION ===== */
+.home-hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}
+.hero-scan-btn{border:1px solid #8d765d;border-radius:999px;padding:14px 24px;background:rgba(20,18,15,.72);color:#e7c99e;font-weight:800;cursor:pointer}
+.hero-scan-btn:hover{border-color:#d2ad7b;background:#1b1916}
+.snapshot-section{margin-top:30px}
+.snapshot-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.snapshot-head h2{margin:0;color:#f4efe8;font:400 32px Georgia,"Times New Roman",serif}
+.snapshot-link{border:0;background:transparent;color:#d2ad7b;cursor:pointer}
+.snapshot-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.snapshot-card{min-height:126px;background:linear-gradient(145deg,#1c1a17,#121210);border:1px solid #51483f;border-radius:18px;padding:18px;color:#f4efe8;text-align:left;cursor:pointer}
+.snapshot-card:hover{border-color:#8d765d}
+.snapshot-icon{font-size:24px;margin-bottom:13px}
+.snapshot-value{font:400 30px Georgia,"Times New Roman",serif;line-height:1}
+.snapshot-label{font-size:13px;color:#c7b9aa;margin-top:8px}
+.snapshot-sub{font-size:11px;color:#8f8479;margin-top:5px}
+.home-feature-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+.feature-panel{position:relative;overflow:hidden;min-height:220px;border-radius:24px;border:1px solid #51483f;padding:28px;background:linear-gradient(135deg,#211d18,#121210);color:#f4efe8}
+.feature-panel h3{margin:0 0 8px;font:400 32px Georgia,"Times New Roman",serif}
+.feature-panel p{margin:0 0 20px;color:#c5b7a8;line-height:1.55;max-width:440px}
+.feature-kicker{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#d2ad7b;margin-bottom:10px}
+.feature-btn{border:0;border-radius:999px;padding:12px 20px;background:#d9b37f;color:#17120e;font-weight:800;cursor:pointer}
+.feature-btn.secondary-dark{background:#1b1916;color:#e4c397;border:1px solid #705e4c}
+.together-panel{background:
+ radial-gradient(circle at 88% 25%,rgba(184,132,79,.20),transparent 27%),
+ linear-gradient(135deg,#241e18,#11110f)}
+.magazine-panel{background:
+ radial-gradient(circle at 82% 30%,rgba(210,173,123,.16),transparent 30%),
+ linear-gradient(135deg,#1b1916,#0f100f)}
+.feature-badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#2d5b38;color:#d9f0df;font-size:11px;font-weight:800;margin-left:8px}
+.home-mini-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:800px){
+ .snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .home-feature-row{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+ .snapshot-head h2{font-size:27px}
+ .snapshot-card{min-height:112px;padding:15px}
+ .snapshot-value{font-size:26px}
+ .feature-panel{padding:22px;min-height:200px}
+ .feature-panel h3{font-size:28px}
+ .home-hero-actions{gap:8px}
+ .hero-scan-btn,.hero-add-btn{padding:13px 18px!important;min-width:0!important}
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1179,16 +1224,71 @@ body{
         <div class="home-luxury-copy">
           <h1 class="hero-greeting"><span id="greetingText">Good evening,</span><br><span id="heroUserName">there.</span></h1>
           <p>CONFIDENCE LOOKS GOOD ON YOU.</p>
-          <button class="hero-add-btn" onclick="openClothingModal()">＋ &nbsp; Add Item</button>
+          <div class="home-hero-actions">
+            <button class="hero-add-btn" onclick="openClothingModal()">＋ &nbsp; Add Item</button>
+            <button class="hero-scan-btn" onclick="openClothingModal()">📸 &nbsp; AI Scan</button>
+          </div>
         </div>
         <div class="wardrobe-mark" aria-hidden="true"></div>
       </div>
+
+      <section class="snapshot-section">
+        <div class="snapshot-head">
+          <h2>Your Wardrobe Snapshot</h2>
+          <button class="snapshot-link" onclick="showPage('me')">View details →</button>
+        </div>
+        <div class="snapshot-grid">
+          <button class="snapshot-card" onclick="showPage('looks')">
+            <div class="snapshot-icon">👗</div>
+            <div id="snapshotLooks" class="snapshot-value">0</div>
+            <div class="snapshot-label">Saved Looks</div>
+            <div class="snapshot-sub">Your outfit collection</div>
+          </button>
+          <button class="snapshot-card" onclick="showPage('me')">
+            <div class="snapshot-icon">★</div>
+            <div id="snapshotScore" class="snapshot-value">—</div>
+            <div class="snapshot-label">Wardrobe Score</div>
+            <div class="snapshot-sub">Activates with outfit history</div>
+          </button>
+          <button class="snapshot-card" onclick="showPage('me')">
+            <div class="snapshot-icon">◐</div>
+            <div id="snapshotDNA" class="snapshot-value" style="font-size:21px">Learning</div>
+            <div class="snapshot-label">Fashion DNA</div>
+            <div class="snapshot-sub">Builds from your activity</div>
+          </button>
+          <button class="snapshot-card" onclick="hideAllPages();clearNavActive();el('searchPage').classList.remove('hidden');performSearch()">
+            <div class="snapshot-icon">👕</div>
+            <div id="snapshotItems" class="snapshot-value">0</div>
+            <div class="snapshot-label">Wardrobe Items</div>
+            <div class="snapshot-sub">Across all categories</div>
+          </button>
+        </div>
+      </section>
 
       <div class="home-section-heading">
         <div><h2 class="home-section-title">My Categories</h2></div>
         <button class="add-category-link" onclick="openCategoryModal()">+ Category</button>
       </div>
       <div id="categoryGrid" class="category-grid"></div>
+
+      <div class="home-feature-row">
+        <section class="feature-panel together-panel">
+          <div class="feature-kicker">Connected Wardrobes <span class="feature-badge">NEW</span></div>
+          <h3>♡ Together</h3>
+          <p>Connect with someone you choose using a private code. Coordinate outfits, plan occasions and style together with AI.</p>
+          <div class="home-mini-actions">
+            <button class="feature-btn" onclick="showFeatureComingSoon('Connected Wardrobes')">Connect Wardrobe</button>
+            <button class="feature-btn secondary-dark" onclick="showFeatureComingSoon('Style Us Together')">Style Us</button>
+          </div>
+        </section>
+
+        <section class="feature-panel magazine-panel">
+          <div class="feature-kicker">Monthly Edition <span class="feature-badge">NEW</span></div>
+          <h3>Your Style Magazine</h3>
+          <p>Your monthly wardrobe story: favourite looks, wardrobe activity, Fashion DNA, Together moments and style highlights.</p>
+          <button class="feature-btn" onclick="showFeatureComingSoon('Monthly Fashion Magazine')">Open Magazine</button>
+        </section>
+      </div>
 
       <div class="ai-promo">
         <div>
@@ -2188,7 +2288,7 @@ function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","pla
 function clearNavActive(){["navHome","navLooks","navPlanner","navShop","navLaundry","navTravel"].forEach(id=>el(id)?.classList.remove("active"))}
 function showPage(page){
  hideAllPages();clearNavActive();
- if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems()}
+ if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems();renderHomeDashboard()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
  if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");renderOutfitPlanner()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
@@ -2197,6 +2297,24 @@ function showPage(page){
  if(page==="me"){el("mePage").classList.remove("hidden");renderMePage()}
 }
 function goHome(){showPage("home")}
+
+function renderHomeDashboard(){
+ const looksEl=el("snapshotLooks");
+ const itemsEl=el("snapshotItems");
+ const scoreEl=el("snapshotScore");
+ const dnaEl=el("snapshotDNA");
+ if(looksEl) looksEl.textContent=String(savedLooks?.length||0);
+ if(itemsEl) itemsEl.textContent=String(clothingItems?.length||0);
+
+ // Score and Fashion DNA intentionally stay in learning mode until
+ // outfit-history / wear-event tables are added in the next build phase.
+ if(scoreEl) scoreEl.textContent="—";
+ if(dnaEl) dnaEl.textContent="Learning";
+}
+function showFeatureComingSoon(name){
+ alert(name+" is next in the My Wardrobe 2.0 build. The home card is now ready; the database and feature workflow will be connected in the next phase.");
+}
+
 
 
 let plannerSelectedItemIds=[];
