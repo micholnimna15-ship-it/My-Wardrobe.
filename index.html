@@ -1366,6 +1366,24 @@ body{
 .shared-category-chip input{accent-color:#caa85f}
 .shared-category-empty{font-size:11px;color:#938978}
 
+
+/* ===== Shared Plans ===== */
+.shared-plans-panel{margin-top:14px;padding:14px;border:1px solid rgba(211,178,111,.22);border-radius:16px;background:rgba(255,255,255,.025)}
+.shared-plans-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.shared-plans-title{font-size:12px;font-weight:700;letter-spacing:.04em;color:#ead9b3}
+.shared-plan-add{border:1px solid rgba(211,178,111,.35);background:rgba(211,178,111,.1);color:#ead9b3;border-radius:999px;padding:7px 10px;font-size:11px;cursor:pointer}
+.shared-plan-card{padding:11px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(0,0,0,.14);margin-top:8px}
+.shared-plan-name{font-size:13px;font-weight:700;color:#f3ead8}
+.shared-plan-meta{font-size:11px;color:#aaa08e;line-height:1.55;margin-top:4px}
+.shared-plan-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.shared-plan-actions button{border:1px solid rgba(211,178,111,.28);background:transparent;color:#dcc9a1;border-radius:999px;padding:6px 10px;font-size:10px;cursor:pointer}
+.shared-plan-empty{font-size:11px;color:#938978}
+.shared-plan-form{display:grid;gap:10px}
+.shared-plan-form label{font-size:11px;color:#b8ad99}
+.shared-plan-form input,.shared-plan-form textarea{width:100%;margin-top:5px;border:1px solid rgba(211,178,111,.22);border-radius:12px;background:#191713;color:#f4ead6;padding:11px}
+.shared-plan-form textarea{min-height:80px;resize:vertical}
+.shared-plan-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5362,6 +5380,8 @@ function closeStyleMagazine(){
 ========================================================= */
 let wardrobeConnectionNames=[];
 let wardrobeSharedCategories=[];
+let sharedPlans=[];
+let activeSharedPlanConnectionId=null;
 
 async function loadWardrobeConnectionNames(){
   if(!currentUser){wardrobeConnectionNames=[];return;}
@@ -5604,6 +5624,7 @@ async function loadWardrobeConnections(){
     const p=await supabaseClient.from("wardrobe_connection_permissions").select("*").in("connection_id",ids);
     if(!p.error)wardrobePermissions=p.data||[];
   }
+  await loadSharedPlans();
   renderWardrobeConnections();
 }
 
@@ -5662,6 +5683,116 @@ async function toggleWardrobeSharedCategory(categoryId,connectionId,enabled){
   renderWardrobeConnections();
 }
 
+
+async function loadSharedPlans(){
+  if(!currentUser){sharedPlans=[];return;}
+  const ids=(wardrobeConnections||[]).map(c=>c.id);
+  if(!ids.length){sharedPlans=[];return;}
+  const {data,error}=await supabaseClient
+    .from("shared_plans").select("*").in("connection_id",ids)
+    .order("plan_date",{ascending:true}).order("plan_time",{ascending:true});
+  if(error){console.warn("Could not load shared plans:",error.message);sharedPlans=[];return;}
+  sharedPlans=data||[];
+}
+function sharedPlansForConnection(connectionId){
+  return (sharedPlans||[]).filter(p=>p.connection_id===connectionId && p.status!=="cancelled");
+}
+function formatSharedPlanDate(value){
+  if(!value)return "";
+  return new Date(value+"T00:00:00").toLocaleDateString([],{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+}
+function formatSharedPlanTime(value){
+  if(!value)return "";
+  const parts=value.split(":");
+  const d=new Date(); d.setHours(Number(parts[0]||0),Number(parts[1]||0),0,0);
+  return d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+}
+function renderSharedPlansPanel(connectionId){
+  const plans=sharedPlansForConnection(connectionId);
+  const cards=plans.length ? plans.slice(0,4).map(p=>{
+    const meta=[
+      p.plan_date ? "📅 "+formatSharedPlanDate(p.plan_date) : "",
+      p.plan_time ? "🕒 "+formatSharedPlanTime(p.plan_time) : "",
+      p.location ? "📍 "+escapeHtml(p.location) : "",
+      p.occasion ? "Occasion: "+escapeHtml(p.occasion) : ""
+    ].filter(Boolean).join(" · ");
+    const del=p.created_by===currentUser?.id
+      ? `<button onclick="deleteSharedPlan('${p.id}')">Delete</button>` : "";
+    return `<div class="shared-plan-card">
+      <div class="shared-plan-name">${escapeHtml(p.title||"Shared Plan")}</div>
+      <div class="shared-plan-meta">${meta}</div>
+      ${p.notes?`<div class="shared-plan-meta">${escapeHtml(p.notes)}</div>`:""}
+      <div class="shared-plan-actions">
+        <button onclick="openSharedPlanModal('${connectionId}','${p.id}')">Open Plan</button>
+        <button onclick="styleUsFromSharedPlan('${p.id}')">✦ Style Us</button>
+        ${del}
+      </div>
+    </div>`;
+  }).join("") : `<div class="shared-plan-empty">No shared plans yet. Create one for an event, dinner, trip or day out.</div>`;
+  return `<div class="shared-plans-panel">
+    <div class="shared-plans-head">
+      <div class="shared-plans-title">Shared Plans</div>
+      <button class="shared-plan-add" onclick="openSharedPlanModal('${connectionId}')">+ Create Plan</button>
+    </div>${cards}
+  </div>`;
+}
+function openSharedPlanModal(connectionId,planId=""){
+  activeSharedPlanConnectionId=connectionId;
+  const plan=planId?(sharedPlans||[]).find(p=>p.id===planId):null;
+  const modal=document.getElementById("sharedPlanModal");
+  if(!modal)return;
+  document.getElementById("sharedPlanId").value=plan?.id||"";
+  document.getElementById("sharedPlanTitle").value=plan?.title||"";
+  document.getElementById("sharedPlanOccasion").value=plan?.occasion||"";
+  document.getElementById("sharedPlanDate").value=plan?.plan_date||"";
+  document.getElementById("sharedPlanTime").value=(plan?.plan_time||"").slice(0,5);
+  document.getElementById("sharedPlanLocation").value=plan?.location||"";
+  document.getElementById("sharedPlanNotes").value=plan?.notes||"";
+  modal.classList.remove("hidden"); modal.style.display="flex";
+}
+function closeSharedPlanModal(){
+  const modal=document.getElementById("sharedPlanModal");
+  if(!modal)return;
+  modal.classList.add("hidden"); modal.style.display="";
+}
+async function saveSharedPlan(){
+  if(!currentUser||!activeSharedPlanConnectionId)return;
+  const id=document.getElementById("sharedPlanId").value;
+  const title=document.getElementById("sharedPlanTitle").value.trim();
+  if(!title)return alert("Please enter a plan title.");
+  const payload={
+    connection_id:activeSharedPlanConnectionId,title,
+    occasion:document.getElementById("sharedPlanOccasion").value.trim()||null,
+    plan_date:document.getElementById("sharedPlanDate").value||null,
+    plan_time:document.getElementById("sharedPlanTime").value||null,
+    location:document.getElementById("sharedPlanLocation").value.trim()||null,
+    notes:document.getElementById("sharedPlanNotes").value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  let error;
+  if(id)({error}=await supabaseClient.from("shared_plans").update(payload).eq("id",id));
+  else {payload.created_by=currentUser.id;({error}=await supabaseClient.from("shared_plans").insert(payload));}
+  if(error)return alert("Could not save shared plan: "+error.message);
+  closeSharedPlanModal(); await loadSharedPlans(); renderWardrobeConnections();
+}
+async function deleteSharedPlan(planId){
+  if(!confirm("Delete this shared plan?"))return;
+  const {error}=await supabaseClient.from("shared_plans").delete().eq("id",planId);
+  if(error)return alert("Could not delete shared plan: "+error.message);
+  await loadSharedPlans(); renderWardrobeConnections();
+}
+function styleUsFromSharedPlan(planId){
+  const plan=(sharedPlans||[]).find(p=>p.id===planId);
+  if(!plan)return;
+  closeConnectedWardrobes(); openStyleUs();
+  setTimeout(()=>{
+    const occasion=document.getElementById("styleUsOccasion");
+    const date=document.getElementById("styleUsDate");
+    if(occasion)occasion.value=plan.occasion||plan.title||"";
+    if(date&&plan.plan_date)date.value=plan.plan_date;
+  },50);
+}
+
 function renderWardrobeConnections(){
   const box=el("connectionsList");
   if(!box)return;
@@ -5686,6 +5817,7 @@ function renderWardrobeConnections(){
       </div>
       <div class="connected-note">These switches control only what YOU share. My Fit, measurements, birthday and account/payment information remain private.</div>
       ${renderSharedCategoryControls(c.id)}
+      ${renderSharedPlansPanel(c.id)}
       <div class="connected-actions">
         <button class="style-chat-btn" onclick="openStyleChat('${c.id}')">Style Chat</button>
         <button class="connected-danger" onclick="disconnectWardrobe('${c.id}')">Disconnect</button>
@@ -6010,6 +6142,40 @@ function renderPairedStyleCard(title,items){
     <div class="style-chat-compose">
       <textarea id="styleChatInput" placeholder="Message about outfits, plans or style…" onkeydown="styleChatKeydown(event)"></textarea>
       <button id="styleChatSendBtn" class="style-chat-send" onclick="sendStyleChatMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="sharedPlanModal" class="modal hidden">
+  <div class="modal-box connected-modal-card">
+    <div class="modal-head">
+      <h2>Shared Plan</h2>
+      <button class="close" onclick="closeSharedPlanModal()">×</button>
+    </div>
+    <input id="sharedPlanId" type="hidden">
+    <div class="shared-plan-form">
+      <label>Plan title
+        <input id="sharedPlanTitle" type="text" maxlength="100" placeholder="Dinner Date, Wedding, Trip Day 1…">
+      </label>
+      <label>Occasion
+        <input id="sharedPlanOccasion" type="text" maxlength="100" placeholder="Dinner, wedding, casual day out…">
+      </label>
+      <div class="shared-plan-two">
+        <label>Date
+          <input id="sharedPlanDate" type="date">
+        </label>
+        <label>Time
+          <input id="sharedPlanTime" type="time">
+        </label>
+      </div>
+      <label>Location
+        <input id="sharedPlanLocation" type="text" maxlength="150" placeholder="Optional">
+      </label>
+      <label>Notes
+        <textarea id="sharedPlanNotes" maxlength="1000" placeholder="Anything you both should remember…"></textarea>
+      </label>
+      <button class="primary" onclick="saveSharedPlan()">Save Shared Plan</button>
     </div>
   </div>
 </div>
