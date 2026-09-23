@@ -1336,7 +1336,22 @@ body{
       height:100%;
     }
 
-  </style>
+  
+/* ===== STYLE CHAT ===== */
+.style-chat-btn{border:1px solid #6b5a48;background:#211e1a;color:#e5c18e;border-radius:10px;padding:9px 13px;font-weight:700}
+.style-chat-modal-card{width:min(650px,100%)}
+.style-chat-connection{font-size:12px;color:#a99d90;margin:-7px 0 13px}
+.style-chat-messages{height:min(52vh,460px);overflow-y:auto;padding:12px;background:#0f100f;border:1px solid #403a34;border-radius:14px;display:flex;flex-direction:column;gap:10px}
+.style-chat-empty{text-align:center;color:#8f857b;padding:34px 12px;font-size:13px}
+.style-chat-row{display:flex}.style-chat-row.mine{justify-content:flex-end}.style-chat-row.theirs{justify-content:flex-start}
+.style-chat-bubble{max-width:78%;padding:10px 12px;border-radius:15px;background:#25221e;border:1px solid #4b443c;color:#f1eae2;line-height:1.4;white-space:pre-wrap;word-break:break-word}
+.style-chat-row.mine .style-chat-bubble{background:#d2ad7b;color:#17130f;border-color:#d2ad7b}
+.style-chat-time{display:block;font-size:10px;opacity:.65;margin-top:5px}
+.style-chat-compose{display:flex;gap:8px;margin-top:11px}
+.style-chat-compose textarea{flex:1;min-height:46px;max-height:120px;resize:vertical;background:#151412;color:#f2ece5;border:1px solid #4b443c;border-radius:12px;padding:12px}
+.style-chat-send{min-width:78px;border:0;border-radius:12px;background:#d2ad7b;color:#17130f;font-weight:800}
+
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5314,6 +5329,95 @@ function closeStyleMagazine(){
   if(modal) modal.classList.add("hidden");
 }
 
+
+/* =========================================================
+   STYLE CHAT
+========================================================= */
+let activeStyleChatConnectionId=null;
+let styleChatRefreshTimer=null;
+
+function openStyleChat(connectionId){
+  activeStyleChatConnectionId=connectionId;
+  const modal=document.getElementById("styleChatModal");
+  if(!modal)return alert("Style Chat panel could not be opened.");
+  const connection=wardrobeConnections.find(x=>x.id===connectionId);
+  const label=document.getElementById("styleChatConnectionLabel");
+  if(label) label.textContent=connection ? "Private connected wardrobe conversation" : "Private Style Chat";
+  modal.classList.remove("hidden");
+  modal.style.display="flex";
+  loadStyleChatMessages();
+  clearInterval(styleChatRefreshTimer);
+  styleChatRefreshTimer=setInterval(()=>{ if(activeStyleChatConnectionId) loadStyleChatMessages(true); },5000);
+  setTimeout(()=>document.getElementById("styleChatInput")?.focus(),100);
+}
+
+function closeStyleChat(){
+  const modal=document.getElementById("styleChatModal");
+  if(modal){modal.classList.add("hidden");modal.style.display="";}
+  activeStyleChatConnectionId=null;
+  clearInterval(styleChatRefreshTimer);
+  styleChatRefreshTimer=null;
+}
+
+async function loadStyleChatMessages(silent=false){
+  if(!activeStyleChatConnectionId||!currentUser)return;
+  const box=document.getElementById("styleChatMessages");
+  const {data,error}=await supabaseClient.from("style_chat_messages")
+    .select("id,sender_id,message,message_type,created_at")
+    .eq("connection_id",activeStyleChatConnectionId)
+    .order("created_at",{ascending:true})
+    .limit(200);
+  if(error){
+    console.error("Style Chat load error:",error);
+    if(!silent&&box) box.innerHTML='<div class="style-chat-empty">'+escapeHtml(error.message)+'</div>';
+    return;
+  }
+  renderStyleChatMessages(data||[]);
+}
+
+function renderStyleChatMessages(messages){
+  const box=document.getElementById("styleChatMessages");
+  if(!box)return;
+  if(!messages.length){
+    box.innerHTML='<div class="style-chat-empty">No messages yet. Start the Style Chat.</div>';
+    return;
+  }
+  box.innerHTML=messages.map(m=>{
+    const mine=m.sender_id===currentUser.id;
+    const time=new Date(m.created_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    return '<div class="style-chat-row '+(mine?'mine':'theirs')+'"><div class="style-chat-bubble">'
+      +escapeHtml(m.message)+'<span class="style-chat-time">'+escapeHtml(time)+'</span></div></div>';
+  }).join("");
+  box.scrollTop=box.scrollHeight;
+}
+
+async function sendStyleChatMessage(){
+  if(!activeStyleChatConnectionId||!currentUser)return;
+  const input=document.getElementById("styleChatInput");
+  const message=(input?.value||"").trim();
+  if(!message)return;
+  const sendBtn=document.getElementById("styleChatSendBtn");
+  if(sendBtn)sendBtn.disabled=true;
+  const {error}=await supabaseClient.from("style_chat_messages").insert({
+    connection_id:activeStyleChatConnectionId,
+    sender_id:currentUser.id,
+    message,
+    message_type:"user"
+  });
+  if(sendBtn)sendBtn.disabled=false;
+  if(error){console.error("Style Chat send error:",error);return alert(error.message);}
+  input.value="";
+  await loadStyleChatMessages();
+}
+
+function styleChatKeydown(event){
+  if(event.key==="Enter"&&!event.shiftKey){
+    event.preventDefault();
+    sendStyleChatMessage();
+  }
+}
+
+
 /* =========================================================
    PHASE 7 — CONNECTED WARDROBES
 ========================================================= */
@@ -5420,6 +5524,7 @@ function renderWardrobeConnections(){
       </div>
       <div class="connected-note">These switches control only what YOU share. My Fit, measurements, birthday and account/payment information remain private.</div>
       <div class="connected-actions">
+        <button class="style-chat-btn" onclick="openStyleChat('${c.id}')">Style Chat</button>
         <button class="connected-danger" onclick="disconnectWardrobe('${c.id}')">Disconnect</button>
       </div>
     </div>`;
@@ -5724,6 +5829,24 @@ function renderPairedStyleCard(title,items){
     <div class="dna-card" style="margin-top:14px">
       <h4>Next Month</h4>
       <div id="magNextMonth" class="muted" style="line-height:1.6"></div>
+    </div>
+  </div>
+</div>
+
+
+<div id="styleChatModal" class="modal hidden">
+  <div class="modal-box style-chat-modal-card">
+    <div class="modal-head">
+      <h2>Style Chat</h2>
+      <button class="close" onclick="closeStyleChat()">×</button>
+    </div>
+    <div id="styleChatConnectionLabel" class="style-chat-connection">Private connected wardrobe conversation</div>
+    <div id="styleChatMessages" class="style-chat-messages">
+      <div class="style-chat-empty">Loading messages…</div>
+    </div>
+    <div class="style-chat-compose">
+      <textarea id="styleChatInput" placeholder="Message about outfits, plans or style…" onkeydown="styleChatKeydown(event)"></textarea>
+      <button id="styleChatSendBtn" class="style-chat-send" onclick="sendStyleChatMessage()">Send</button>
     </div>
   </div>
 </div>
