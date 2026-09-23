@@ -2166,6 +2166,13 @@ const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
 let outfitHistory=[];
+let outfitCalendarCursor=new Date();
+outfitCalendarCursor=new Date(outfitCalendarCursor.getFullYear(),outfitCalendarCursor.getMonth(),1);
+let outfitCalendarSelectedDate=[
+  new Date().getFullYear(),
+  String(new Date().getMonth()+1).padStart(2,"0"),
+  String(new Date().getDate()).padStart(2,"0")
+].join("-");
 let notifications=[];
 let selectedClothingFile=null,cleanedClothingFile=null;
 let movingClothingId=null;
