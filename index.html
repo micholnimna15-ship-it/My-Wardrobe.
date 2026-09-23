@@ -2158,6 +2158,7 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHA
 // Secure Supabase Edge Function that holds your private SerpApi key.
 const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
+const STYLE_US_API_URL=SUPABASE_URL+"/functions/v1/style-us";
 const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing"; // legacy direct cleaner; background jobs now use ai_cleaning_jobs
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
@@ -5370,7 +5371,7 @@ function styleUsItemLabel(item){
 }
 function chooseStyleUsItems(items,max=4){
   if(!items?.length)return [];
-  // Keep this deterministic and simple until the secure AI backend is connected:
+  // Legacy local selector retained for compatibility:
   // favour items with richer metadata, then take a small outfit-sized selection.
   return [...items].sort((a,b)=>{
     const sa=[a.name,a.brand,a.colour||a.color,a.category_id].filter(Boolean).length;
@@ -5384,78 +5385,131 @@ async function generateStyleUs(){
 
   const result=el("styleUsResult");
   result.style.display="block";
-  result.innerHTML='<div class="style-us-loading">Styling both wardrobes…</div>';
+  result.innerHTML='<div class="style-us-loading">My Stylist AI is coordinating both wardrobes…</div>';
 
   const occasion=el("styleUsOccasion").value;
   const eventDate=el("styleUsDate").value||null;
 
-  // Secure RPC: returns only what the connected person has permitted.
+  // The connected wardrobe is supplied by the permission-aware RPC.
   const remote=await supabaseClient.rpc("get_connected_wardrobe_items",{p_connection_id:connectionId});
   if(remote.error){
     result.innerHTML=`<div class="connected-note">${escapeHtml(remote.error.message)}</div>`;
     return;
   }
 
-  const myItems=chooseStyleUsItems(styleUsOwnItems());
-  const theirItems=chooseStyleUsItems(remote.data||[]);
+  const myWardrobe=styleUsOwnItems();
+  const connectedWardrobe=remote.data||[];
 
-  if(!theirItems.length){
+  if(!myWardrobe.length){
+    result.innerHTML='<div class="connected-note">Add some available items to your wardrobe first.</div>';
+    return;
+  }
+  if(!connectedWardrobe.length){
     result.innerHTML='<div class="connected-note">The connected wardrobe is not currently available for AI styling. Ask the other person to enable the relevant sharing permission and <strong>Allow AI Styling</strong>.</div>';
     return;
   }
 
-  // Save the shared styling session first.
-  const sessionInsert=await supabaseClient.from("together_sessions").insert({
-    connection_id:connectionId,
-    created_by:currentUser.id,
-    occasion,
-    vibe:selectedStyleUsVibe,
-    event_date:eventDate,
-    title:`${occasion} · ${selectedStyleUsVibe}`,
-    status:"generated"
-  }).select().single();
+  try{
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    const headers={
+      "Content-Type":"application/json",
+      "apikey":SUPABASE_PUBLISHABLE_KEY
+    };
+    if(session?.access_token)headers["Authorization"]="Bearer "+session.access_token;
+    else headers["Authorization"]="Bearer "+SUPABASE_PUBLISHABLE_KEY;
 
-  if(sessionInsert.error){
-    result.innerHTML=`<div class="connected-note">${escapeHtml(sessionInsert.error.message)}</div>`;
-    return;
+    const response=await fetch(STYLE_US_API_URL,{
+      method:"POST",
+      headers,
+      body:JSON.stringify({
+        occasion,
+        vibe:selectedStyleUsVibe,
+        eventDate,
+        myWardrobe,
+        connectedWardrobe
+      })
+    });
+
+    let data={};
+    try{data=await response.json()}catch(e){}
+    if(!response.ok||data.success===false)throw new Error(data.error||"Style Us AI failed.");
+    if(!data.style)throw new Error("My Stylist AI returned no paired outfit.");
+
+    const ai=data.style;
+    const myIds=new Set((ai.personOne?.wardrobeItemIds||[]).map(String));
+    const theirIds=new Set((ai.personTwo?.wardrobeItemIds||[]).map(String));
+    const myItems=myWardrobe.filter(i=>myIds.has(String(i.id)));
+    const theirItems=connectedWardrobe.filter(i=>theirIds.has(String(i.id)));
+
+    // Resolve the other connected user.
+    let connection=wardrobeConnections.find(c=>c.id===connectionId);
+    if(!connection){
+      const q=await supabaseClient.from("wardrobe_connections").select("*").eq("id",connectionId).single();
+      connection=q.data||null;
+    }
+    if(!connection)throw new Error("Connection details could not be loaded.");
+    const otherUser=connection.user_one===currentUser.id?connection.user_two:connection.user_one;
+
+    // Save the AI-generated Together session.
+    const sessionInsert=await supabaseClient.from("together_sessions").insert({
+      connection_id:connectionId,
+      created_by:currentUser.id,
+      occasion,
+      vibe:selectedStyleUsVibe,
+      event_date:eventDate,
+      title:ai.pairName||`${occasion} · ${selectedStyleUsVibe}`,
+      status:"generated"
+    }).select().single();
+    if(sessionInsert.error)throw sessionInsert.error;
+
+    const outfitInsert=await supabaseClient.from("together_outfits").insert([
+      {
+        session_id:sessionInsert.data.id,
+        user_id:currentUser.id,
+        outfit_name:ai.personOne?.outfitName||"Your Outfit",
+        explanation:ai.personOne?.explanation||""
+      },
+      {
+        session_id:sessionInsert.data.id,
+        user_id:otherUser,
+        outfit_name:ai.personTwo?.outfitName||"Their Outfit",
+        explanation:ai.personTwo?.explanation||""
+      }
+    ]).select();
+    if(outfitInsert.error)throw outfitInsert.error;
+
+    const myOutfit=outfitInsert.data.find(o=>o.user_id===currentUser.id);
+    const theirOutfit=outfitInsert.data.find(o=>o.user_id===otherUser);
+    const links=[
+      ...myItems.map(i=>({together_outfit_id:myOutfit.id,clothing_item_id:i.id})),
+      ...theirItems.map(i=>({together_outfit_id:theirOutfit.id,clothing_item_id:i.id}))
+    ];
+    if(links.length){
+      const linkInsert=await supabaseClient.from("together_outfit_items").insert(links);
+      if(linkInsert.error)console.warn("Together item links:",linkInsert.error.message);
+    }
+
+    result.innerHTML=`
+      <div><strong style="color:#edc78e">${escapeHtml(ai.pairName||`${occasion} · ${selectedStyleUsVibe}`)}</strong></div>
+      <div class="style-us-note" style="margin-top:6px">${escapeHtml(ai.coordinationExplanation||"")}</div>
+      <div class="paired-outfits">
+        ${renderAIStyleUsCard(ai.personOne?.outfitName||"Your Outfit",ai.personOne?.explanation||"",myItems)}
+        ${renderAIStyleUsCard(ai.personTwo?.outfitName||"Their Outfit",ai.personTwo?.explanation||"",theirItems)}
+      </div>
+      <div class="style-us-note">✦ Generated by My Stylist AI and saved to Together.</div>`;
+  }catch(error){
+    console.error("Style Us:",error);
+    result.innerHTML=`<div class="connected-note">${escapeHtml(error?.message||"Style Us failed.")}</div>`;
   }
-
-  const session=sessionInsert.data;
-  const connection=wardrobeConnections.find(c=>c.id===connectionId);
-  let otherUser=null;
-  if(connection) otherUser=connection.user_one===currentUser.id?connection.user_two:connection.user_one;
-  if(!otherUser){
-    const q=await supabaseClient.from("wardrobe_connections").select("*").eq("id",connectionId).single();
-    if(q.data)otherUser=q.data.user_one===currentUser.id?q.data.user_two:q.data.user_one;
-  }
-
-  const outfits=[
-    {session_id:session.id,user_id:currentUser.id,outfit_name:`Your ${selectedStyleUsVibe} Look`,explanation:`Coordinated for ${occasion}.`},
-    {session_id:session.id,user_id:otherUser,outfit_name:`Their ${selectedStyleUsVibe} Look`,explanation:`Coordinated with your outfit for ${occasion}.`}
-  ];
-  const outfitInsert=await supabaseClient.from("together_outfits").insert(outfits).select();
-
-  if(outfitInsert.error){
-    result.innerHTML=`<div class="connected-note">${escapeHtml(outfitInsert.error.message)}</div>`;
-    return;
-  }
-
-  // Save item links for both generated sides.
-  const myOutfit=outfitInsert.data.find(o=>o.user_id===currentUser.id);
-  const theirOutfit=outfitInsert.data.find(o=>o.user_id===otherUser);
-  const links=[
-    ...myItems.map(i=>({together_outfit_id:myOutfit.id,clothing_item_id:i.id})),
-    ...theirItems.map(i=>({together_outfit_id:theirOutfit.id,clothing_item_id:i.id}))
-  ];
-  if(links.length) await supabaseClient.from("together_outfit_items").insert(links);
-
-  result.innerHTML=`
-    <div><strong style="color:#edc78e">${escapeHtml(occasion)} · ${escapeHtml(selectedStyleUsVibe)}</strong></div>
-    <div class="paired-outfits">
-      ${renderPairedStyleCard("Your Outfit",myItems)}
-      ${renderPairedStyleCard("Their Outfit",theirItems)}
+}
+function renderAIStyleUsCard(title,explanation,items){
+  return `<div class="paired-card">
+    <h4>${escapeHtml(title)}</h4>
+    ${explanation?`<div class="style-us-note">${escapeHtml(explanation)}</div>`:""}
+    <div class="paired-items">
+      ${items.length?items.map(i=>`<div class="paired-item">${escapeHtml(styleUsItemLabel(i))}${(i.colour||i.color)?` · ${escapeHtml(i.colour||i.color)}`:""}</div>`).join(""):'<div class="connected-note">No owned item was selected.</div>'}
     </div>
-    <div class="style-us-note">Saved as a Together session. This first version coordinates a pair from permitted wardrobe items; the next AI layer will improve colour, texture, formality and item-to-item matching.</div>`;
+  </div>`;
 }
 function renderPairedStyleCard(title,items){
   return `<div class="paired-card">
