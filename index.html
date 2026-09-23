@@ -1272,6 +1272,29 @@ body{
 .dna-note{font-size:10px;color:#81776d;margin-top:7px;line-height:1.4}
 @media(max-width:700px){.dna-grid{grid-template-columns:1fr}.dna-head{flex-direction:column}}
 
+
+/* ===== MY WARDROBE 2.0 — PHASE 7 CONNECTED WARDROBES ===== */
+.connected-modal-card{max-width:650px!important}
+.connected-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}
+.connected-tab{border:1px solid #4b443b;background:#11110f;color:#aaa096;border-radius:12px;padding:11px;cursor:pointer}
+.connected-tab.active{border-color:#d7ad72;color:#f1d3a5;background:#1d1913}
+.connected-section{display:none}.connected-section.active{display:block}
+.invite-code-box{margin:12px 0;padding:17px;border:1px dashed #876b48;border-radius:15px;background:#11110f;text-align:center}
+.invite-code-value{font:400 27px Georgia,"Times New Roman",serif;color:#edc78e;letter-spacing:.08em}
+.connected-field{margin:12px 0}
+.connected-field label{display:block;color:#b9aea0;font-size:11px;margin-bottom:6px}
+.connected-field input,.connected-field select{width:100%;background:#11110f;color:#f2ece5;border:1px solid #4b443b;border-radius:12px;padding:12px}
+.connection-card{border:1px solid #403a32;background:#11110f;border-radius:15px;padding:14px;margin-top:10px}
+.connection-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.connection-status{font-size:10px;color:#78c58a;border:1px solid #365d40;border-radius:999px;padding:4px 8px}
+.permission-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.permission-toggle{display:flex;align-items:center;gap:8px;background:#181612;border:1px solid #302d28;border-radius:10px;padding:9px;color:#d8d0c7;font-size:11px}
+.permission-toggle input{accent-color:#d7ad72}
+.connected-note{font-size:10px;color:#8f857a;line-height:1.45;margin-top:9px}
+.connected-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.connected-danger{border:1px solid #6b3d3d!important;color:#d99797!important;background:#1c1212!important}
+@media(max-width:560px){.permission-grid{grid-template-columns:1fr}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1483,7 +1506,7 @@ body{
           <h3>♡ Together</h3>
           <p>Connect with someone you choose using a private code. Coordinate outfits, plan occasions and style together with AI.</p>
           <div class="home-mini-actions">
-            <button class="feature-btn" onclick="showFeatureComingSoon('Connected Wardrobes')">Connect Wardrobe</button>
+            <button class="feature-btn" onclick="openConnectedWardrobes()">Connect Wardrobe</button>
             <button class="feature-btn secondary-dark" onclick="showFeatureComingSoon('Style Us Together')">Style Us</button>
           </div>
         </section>
@@ -5162,6 +5185,132 @@ function renderFashionDNA(){
   if(snapshot) snapshot.textContent=dna.stage;
 }
 
+
+
+/* =========================================================
+   PHASE 7 — CONNECTED WARDROBES
+========================================================= */
+let wardrobeConnections=[];
+let wardrobePermissions=[];
+
+function openConnectedWardrobes(){
+  el("connectedWardrobesModal").classList.add("show");
+  showConnectedTab("invite");
+  loadWardrobeConnections();
+}
+function closeConnectedWardrobes(){el("connectedWardrobesModal").classList.remove("show");}
+function showConnectedTab(tab){
+  const invite=tab==="invite";
+  el("connectTabInvite").classList.toggle("active",invite);
+  el("connectTabConnections").classList.toggle("active",!invite);
+  el("connectedInviteSection").classList.toggle("active",invite);
+  el("connectedConnectionsSection").classList.toggle("active",!invite);
+  if(!invite) loadWardrobeConnections();
+}
+function toggleConnectionExpiry(){
+  el("connectionExpiryWrap").style.display=el("connectionType").value==="event"?"block":"none";
+}
+async function generateWardrobeInvite(){
+  if(!currentUser)return alert("Please sign in first.");
+  const type=el("connectionType").value;
+  let expiry=null;
+  if(type==="event"){
+    const raw=el("connectionExpiry").value;
+    if(!raw)return alert("Choose when this event connection should expire.");
+    expiry=new Date(raw).toISOString();
+  }
+  const {data,error}=await supabaseClient.rpc("create_wardrobe_invite",{
+    p_connection_type:type,p_expires_at:expiry
+  });
+  if(error)return alert(error.message);
+  el("generatedInviteCode").textContent=data;
+  el("generatedInviteBox").style.display="block";
+}
+async function copyWardrobeInvite(){
+  const code=el("generatedInviteCode").textContent.trim();
+  if(!code)return;
+  try{await navigator.clipboard.writeText(code);alert("Invite code copied.");}
+  catch{alert("Code: "+code);}
+}
+async function acceptWardrobeInvite(){
+  const code=el("wardrobeInviteInput").value.trim().toUpperCase();
+  if(!code)return alert("Enter the invite code first.");
+  const {error}=await supabaseClient.rpc("accept_wardrobe_invite",{p_invite_code:code});
+  if(error)return alert(error.message);
+  el("wardrobeInviteInput").value="";
+  alert("Wardrobes connected.");
+  showConnectedTab("connections");
+}
+async function loadWardrobeConnections(){
+  if(!currentUser)return;
+  const {data,error}=await supabaseClient.from("wardrobe_connections")
+    .select("*").eq("status","active").order("created_at",{ascending:false});
+  if(error){el("connectionsList").innerHTML=`<div class="connected-note">${escapeHtml(error.message)}</div>`;return;}
+  wardrobeConnections=data||[];
+
+  const ids=wardrobeConnections.map(x=>x.id);
+  wardrobePermissions=[];
+  if(ids.length){
+    const p=await supabaseClient.from("wardrobe_connection_permissions").select("*").in("connection_id",ids);
+    if(!p.error)wardrobePermissions=p.data||[];
+  }
+  renderWardrobeConnections();
+}
+function renderWardrobeConnections(){
+  const box=el("connectionsList");
+  if(!box)return;
+  if(!wardrobeConnections.length){
+    box.innerHTML='<div class="connected-note">No connected wardrobes yet. Generate a private code or enter one you received.</div>';
+    return;
+  }
+  box.innerHTML=wardrobeConnections.map(c=>{
+    const other=c.user_one===currentUser.id?c.user_two:c.user_one;
+    const mine=wardrobePermissions.find(p=>p.connection_id===c.id&&p.user_id===currentUser.id)||{};
+    return `<div class="connection-card">
+      <div class="connection-head">
+        <div><strong>Connected Wardrobe</strong><div class="connected-note">Private connection · ${escapeHtml(c.connection_type||"permanent")}</div></div>
+        <span class="connection-status">ACTIVE</span>
+      </div>
+      <div class="permission-grid">
+        ${permissionToggle(c.id,"share_clothes","Clothes",mine.share_clothes)}
+        ${permissionToggle(c.id,"share_shoes","Shoes",mine.share_shoes)}
+        ${permissionToggle(c.id,"share_accessories","Accessories",mine.share_accessories)}
+        ${permissionToggle(c.id,"share_saved_looks","Saved Looks",mine.share_saved_looks)}
+        ${permissionToggle(c.id,"allow_ai_styling","Allow AI Styling",mine.allow_ai_styling)}
+      </div>
+      <div class="connected-note">These switches control only what YOU share. My Fit, measurements, birthday and account/payment information remain private.</div>
+      <div class="connected-actions">
+        <button class="connected-danger" onclick="disconnectWardrobe('${c.id}')">Disconnect</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function permissionToggle(connectionId,field,label,checked){
+  return `<label class="permission-toggle"><input type="checkbox" ${checked?"checked":""}
+    onchange="updateWardrobePermission('${connectionId}','${field}',this.checked)"> ${escapeHtml(label)}</label>`;
+}
+async function updateWardrobePermission(connectionId,field,value){
+  const allowed=["share_clothes","share_shoes","share_accessories","share_saved_looks","allow_ai_styling"];
+  if(!allowed.includes(field))return;
+  const existing=wardrobePermissions.find(p=>p.connection_id===connectionId&&p.user_id===currentUser.id);
+  let result;
+  if(existing){
+    result=await supabaseClient.from("wardrobe_connection_permissions").update({[field]:value,updated_at:new Date().toISOString()}).eq("id",existing.id);
+  }else{
+    result=await supabaseClient.from("wardrobe_connection_permissions").insert({
+      connection_id:connectionId,user_id:currentUser.id,[field]:value
+    });
+  }
+  if(result.error){alert(result.error.message);await loadWardrobeConnections();return;}
+  await loadWardrobeConnections();
+}
+async function disconnectWardrobe(connectionId){
+  if(!confirm("Disconnect this wardrobe? You will stop sharing through this connection."))return;
+  const {error}=await supabaseClient.from("wardrobe_connections").update({status:"disconnected"}).eq("id",connectionId);
+  if(error)return alert(error.message);
+  await loadWardrobeConnections();
+}
+
 </script>
 
 <div id="wearHistoryModal" class="modal hidden">
@@ -5204,6 +5353,56 @@ function renderFashionDNA(){
 
     <button class="primary" onclick="saveOutfitHistory()">Save to Outfit History</button>
     <div id="historySaveMessage" class="message"></div>
+  </div>
+</div>
+
+
+
+<div id="connectedWardrobesModal" class="modal">
+  <div class="modal-card connected-modal-card">
+    <button class="modal-close" onclick="closeConnectedWardrobes()">×</button>
+    <h2 style="margin-top:0">Connected Wardrobes</h2>
+    <p class="muted">Connect privately with someone you choose. Your accounts stay separate and nothing is shared until you enable it.</p>
+
+    <div class="connected-tabs">
+      <button id="connectTabInvite" class="connected-tab active" onclick="showConnectedTab('invite')">Invite / Connect</button>
+      <button id="connectTabConnections" class="connected-tab" onclick="showConnectedTab('connections')">My Connections</button>
+    </div>
+
+    <div id="connectedInviteSection" class="connected-section active">
+      <div class="connected-field">
+        <label>Connection type</label>
+        <select id="connectionType" onchange="toggleConnectionExpiry()">
+          <option value="permanent">Permanent</option>
+          <option value="event">Event only</option>
+        </select>
+      </div>
+      <div id="connectionExpiryWrap" class="connected-field" style="display:none">
+        <label>Event connection expires</label>
+        <input id="connectionExpiry" type="datetime-local">
+      </div>
+      <button class="primary" onclick="generateWardrobeInvite()">Generate Private Code</button>
+
+      <div id="generatedInviteBox" class="invite-code-box" style="display:none">
+        <div class="connected-note">Share this code only with the person you want to connect with.</div>
+        <div id="generatedInviteCode" class="invite-code-value"></div>
+        <div class="connected-actions" style="justify-content:center">
+          <button onclick="copyWardrobeInvite()">Copy Code</button>
+        </div>
+      </div>
+
+      <div style="height:1px;background:#302d28;margin:20px 0"></div>
+
+      <h3>Enter an Invite Code</h3>
+      <div class="connected-field">
+        <input id="wardrobeInviteInput" type="text" placeholder="MW-XXXXXX" autocomplete="off" maxlength="20">
+      </div>
+      <button class="primary" onclick="acceptWardrobeInvite()">Connect Wardrobes</button>
+    </div>
+
+    <div id="connectedConnectionsSection" class="connected-section">
+      <div id="connectionsList"><div class="connected-note">Loading connections…</div></div>
+    </div>
   </div>
 </div>
 
