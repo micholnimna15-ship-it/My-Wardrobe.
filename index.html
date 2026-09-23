@@ -1295,6 +1295,26 @@ body{
 .connected-danger{border:1px solid #6b3d3d!important;color:#d99797!important;background:#1c1212!important}
 @media(max-width:560px){.permission-grid{grid-template-columns:1fr}}
 
+
+/* ===== MY WARDROBE 2.0 — PHASE 8C TOGETHER / STYLE US ===== */
+.style-us-modal-card{max-width:760px!important}
+.style-us-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.style-us-field{margin:10px 0}
+.style-us-field label{display:block;color:#aaa096;font-size:11px;margin-bottom:6px}
+.style-us-field select,.style-us-field input{width:100%;background:#11110f;color:#f2ece5;border:1px solid #4b443b;border-radius:12px;padding:12px}
+.vibe-picker{display:flex;gap:7px;flex-wrap:wrap}
+.vibe-chip{border:1px solid #4b443b;background:#11110f;color:#b7ada1;border-radius:999px;padding:8px 11px;cursor:pointer;font-size:11px}
+.vibe-chip.active{border-color:#d7ad72;background:#211b14;color:#f0cc97}
+.style-us-result{margin-top:17px;border:1px solid #4b443b;border-radius:18px;background:#12110f;padding:15px}
+.paired-outfits{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.paired-card{border:1px solid #36312b;border-radius:15px;background:#181612;padding:14px}
+.paired-card h4{margin:0 0 8px;color:#f4ece2;font:400 18px Georgia,"Times New Roman",serif}
+.paired-items{display:grid;gap:7px;margin-top:10px}
+.paired-item{border:1px solid #302d28;border-radius:10px;padding:9px;color:#ddd4ca;font-size:11px}
+.style-us-note{color:#8f857a;font-size:10px;line-height:1.5;margin-top:8px}
+.style-us-loading{padding:24px;text-align:center;color:#d9b47c}
+@media(max-width:650px){.style-us-grid,.paired-outfits{grid-template-columns:1fr}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5311,6 +5331,141 @@ async function disconnectWardrobe(connectionId){
   await loadWardrobeConnections();
 }
 
+
+
+/* =========================================================
+   PHASE 8C — TOGETHER / STYLE US
+========================================================= */
+let selectedStyleUsVibe="Elegant";
+
+async function openStyleUs(){
+  el("styleUsModal").classList.add("show");
+  el("styleUsResult").style.display="none";
+  await loadStyleUsConnections();
+}
+function closeStyleUs(){el("styleUsModal").classList.remove("show");}
+function selectStyleUsVibe(btn,vibe){
+  selectedStyleUsVibe=vibe;
+  document.querySelectorAll("#styleUsVibes .vibe-chip").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+}
+async function loadStyleUsConnections(){
+  if(!currentUser)return;
+  const {data,error}=await supabaseClient.from("wardrobe_connections")
+    .select("*").eq("status","active").order("created_at",{ascending:false});
+  const select=el("styleUsConnection");
+  if(error){select.innerHTML='<option>Unable to load connections</option>';return;}
+  const rows=(data||[]).filter(c=>!c.expires_at||new Date(c.expires_at)>new Date());
+  if(!rows.length){
+    select.innerHTML='<option value="">No active connections</option>';
+    return;
+  }
+  select.innerHTML=rows.map((c,i)=>`<option value="${c.id}">Connected Wardrobe ${i+1}${c.connection_type==="event"?" · Event":""}</option>`).join("");
+}
+function styleUsOwnItems(){
+  return (clothingItems||[]).filter(x=>!x.in_laundry);
+}
+function styleUsItemLabel(item){
+  return item.name||item.item_name||item.brand||item.colour||item.color||"Wardrobe item";
+}
+function chooseStyleUsItems(items,max=4){
+  if(!items?.length)return [];
+  // Keep this deterministic and simple until the secure AI backend is connected:
+  // favour items with richer metadata, then take a small outfit-sized selection.
+  return [...items].sort((a,b)=>{
+    const sa=[a.name,a.brand,a.colour||a.color,a.category_id].filter(Boolean).length;
+    const sb=[b.name,b.brand,b.colour||b.color,b.category_id].filter(Boolean).length;
+    return sb-sa;
+  }).slice(0,max);
+}
+async function generateStyleUs(){
+  const connectionId=el("styleUsConnection").value;
+  if(!connectionId)return alert("Connect a wardrobe first.");
+
+  const result=el("styleUsResult");
+  result.style.display="block";
+  result.innerHTML='<div class="style-us-loading">Styling both wardrobes…</div>';
+
+  const occasion=el("styleUsOccasion").value;
+  const eventDate=el("styleUsDate").value||null;
+
+  // Secure RPC: returns only what the connected person has permitted.
+  const remote=await supabaseClient.rpc("get_connected_wardrobe_items",{p_connection_id:connectionId});
+  if(remote.error){
+    result.innerHTML=`<div class="connected-note">${escapeHtml(remote.error.message)}</div>`;
+    return;
+  }
+
+  const myItems=chooseStyleUsItems(styleUsOwnItems());
+  const theirItems=chooseStyleUsItems(remote.data||[]);
+
+  if(!theirItems.length){
+    result.innerHTML='<div class="connected-note">The connected wardrobe is not currently available for AI styling. Ask the other person to enable the relevant sharing permission and <strong>Allow AI Styling</strong>.</div>';
+    return;
+  }
+
+  // Save the shared styling session first.
+  const sessionInsert=await supabaseClient.from("together_sessions").insert({
+    connection_id:connectionId,
+    created_by:currentUser.id,
+    occasion,
+    vibe:selectedStyleUsVibe,
+    event_date:eventDate,
+    title:`${occasion} · ${selectedStyleUsVibe}`,
+    status:"generated"
+  }).select().single();
+
+  if(sessionInsert.error){
+    result.innerHTML=`<div class="connected-note">${escapeHtml(sessionInsert.error.message)}</div>`;
+    return;
+  }
+
+  const session=sessionInsert.data;
+  const connection=wardrobeConnections.find(c=>c.id===connectionId);
+  let otherUser=null;
+  if(connection) otherUser=connection.user_one===currentUser.id?connection.user_two:connection.user_one;
+  if(!otherUser){
+    const q=await supabaseClient.from("wardrobe_connections").select("*").eq("id",connectionId).single();
+    if(q.data)otherUser=q.data.user_one===currentUser.id?q.data.user_two:q.data.user_one;
+  }
+
+  const outfits=[
+    {session_id:session.id,user_id:currentUser.id,outfit_name:`Your ${selectedStyleUsVibe} Look`,explanation:`Coordinated for ${occasion}.`},
+    {session_id:session.id,user_id:otherUser,outfit_name:`Their ${selectedStyleUsVibe} Look`,explanation:`Coordinated with your outfit for ${occasion}.`}
+  ];
+  const outfitInsert=await supabaseClient.from("together_outfits").insert(outfits).select();
+
+  if(outfitInsert.error){
+    result.innerHTML=`<div class="connected-note">${escapeHtml(outfitInsert.error.message)}</div>`;
+    return;
+  }
+
+  // Save item links for both generated sides.
+  const myOutfit=outfitInsert.data.find(o=>o.user_id===currentUser.id);
+  const theirOutfit=outfitInsert.data.find(o=>o.user_id===otherUser);
+  const links=[
+    ...myItems.map(i=>({together_outfit_id:myOutfit.id,clothing_item_id:i.id})),
+    ...theirItems.map(i=>({together_outfit_id:theirOutfit.id,clothing_item_id:i.id}))
+  ];
+  if(links.length) await supabaseClient.from("together_outfit_items").insert(links);
+
+  result.innerHTML=`
+    <div><strong style="color:#edc78e">${escapeHtml(occasion)} · ${escapeHtml(selectedStyleUsVibe)}</strong></div>
+    <div class="paired-outfits">
+      ${renderPairedStyleCard("Your Outfit",myItems)}
+      ${renderPairedStyleCard("Their Outfit",theirItems)}
+    </div>
+    <div class="style-us-note">Saved as a Together session. This first version coordinates a pair from permitted wardrobe items; the next AI layer will improve colour, texture, formality and item-to-item matching.</div>`;
+}
+function renderPairedStyleCard(title,items){
+  return `<div class="paired-card">
+    <h4>${escapeHtml(title)}</h4>
+    <div class="paired-items">
+      ${items.length?items.map(i=>`<div class="paired-item">${escapeHtml(styleUsItemLabel(i))}${(i.colour||i.color)?` · ${escapeHtml(i.colour||i.color)}`:""}</div>`).join(""):'<div class="connected-note">No available items.</div>'}
+    </div>
+  </div>`;
+}
+
 </script>
 
 <div id="wearHistoryModal" class="modal hidden">
@@ -5403,6 +5558,58 @@ async function disconnectWardrobe(connectionId){
     <div id="connectedConnectionsSection" class="connected-section">
       <div id="connectionsList"><div class="connected-note">Loading connections…</div></div>
     </div>
+  </div>
+</div>
+
+
+
+<div id="styleUsModal" class="modal">
+  <div class="modal-card style-us-modal-card">
+    <button class="modal-close" onclick="closeStyleUs()">×</button>
+    <h2 style="margin-top:0">Together · Style Us</h2>
+    <p class="muted">Create coordinated outfits from two connected wardrobes. The outfits complement each other without needing to match exactly.</p>
+
+    <div class="style-us-grid">
+      <div class="style-us-field">
+        <label>Connected wardrobe</label>
+        <select id="styleUsConnection"></select>
+      </div>
+      <div class="style-us-field">
+        <label>Occasion</label>
+        <select id="styleUsOccasion">
+          <option>Date Night</option>
+          <option>Dinner</option>
+          <option>Wedding</option>
+          <option>Party</option>
+          <option>Casual Day</option>
+          <option>Travel</option>
+          <option>Formal Event</option>
+          <option>Photos</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="style-us-field">
+      <label>Vibe</label>
+      <div id="styleUsVibes" class="vibe-picker">
+        <button class="vibe-chip active" onclick="selectStyleUsVibe(this,'Elegant')">Elegant</button>
+        <button class="vibe-chip" onclick="selectStyleUsVibe(this,'Romantic')">Romantic</button>
+        <button class="vibe-chip" onclick="selectStyleUsVibe(this,'Minimal')">Minimal</button>
+        <button class="vibe-chip" onclick="selectStyleUsVibe(this,'Street')">Street</button>
+        <button class="vibe-chip" onclick="selectStyleUsVibe(this,'Casual')">Casual</button>
+        <button class="vibe-chip" onclick="selectStyleUsVibe(this,'Surprise Us')">Surprise Us</button>
+      </div>
+    </div>
+
+    <div class="style-us-field">
+      <label>Date (optional)</label>
+      <input id="styleUsDate" type="date">
+    </div>
+
+    <button class="primary" onclick="generateStyleUs()">✦ Style Us</button>
+    <div class="style-us-note">Only information permitted through Connected Wardrobes is used. If the other person disables AI Styling, their wardrobe will no longer be available here.</div>
+
+    <div id="styleUsResult" class="style-us-result" style="display:none"></div>
   </div>
 </div>
 
