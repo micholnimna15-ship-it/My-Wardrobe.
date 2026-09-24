@@ -1455,6 +1455,26 @@ body{
 .planned-outfit.has-laundry{border-color:#8b6849!important}.planned-conflict{margin-top:9px;padding:8px 10px;border-radius:10px;background:#2a2118;color:#e0b27c;font-size:12px}
 @media(max-width:620px){.planner-saved-looks{grid-template-columns:1fr}}
 
+
+/* ===== TRAVEL PACKING 2.0 ===== */
+.travel-saved-looks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+.travel-look-btn{border:1px solid #4b443c;background:#181713;color:#f2ece5;border-radius:14px;padding:10px;text-align:left;display:flex;align-items:center;gap:10px;cursor:pointer}
+.travel-look-btn:hover,.travel-look-btn.active{border-color:#d2ad7b}
+.travel-look-thumbs{display:flex;min-width:62px}
+.travel-look-thumbs img,.travel-look-ph{width:34px;height:42px;object-fit:cover;background:#24211d;border:1px solid #4b443c;border-radius:7px;margin-right:-8px}
+.travel-look-ph{display:flex;align-items:center;justify-content:center}
+.travel-selected-preview{display:flex;gap:7px;overflow-x:auto;margin-top:10px;padding-bottom:3px}
+.travel-selected-chip{flex:0 0 auto;display:flex;align-items:center;gap:7px;border:1px solid #4b443c;background:#191815;border-radius:999px;padding:6px 9px 6px 6px;font-size:11px}
+.travel-selected-chip img,.travel-selected-chip .ph{width:29px;height:29px;border-radius:50%;object-fit:cover;background:#24211d;display:flex;align-items:center;justify-content:center}
+.travel-selected-chip.laundry{border-color:#9b7048;color:#e0b27c}
+.travel-readiness{display:flex;flex-wrap:wrap;gap:8px;margin:11px 0}
+.travel-readiness-pill{border:1px solid #4b443c;background:#1b1916;border-radius:999px;padding:7px 10px;font-size:11px;color:#c9beb1}
+.travel-readiness-pill.good{border-color:#53634f;color:#b9d0b4}
+.travel-readiness-pill.warn{border-color:#8b6849;color:#e0b27c}
+.travel-missing-box{margin-top:10px;padding:10px 12px;border:1px solid #5a4c3e;background:#211c17;border-radius:11px;font-size:12px;color:#d8c7b5}
+.travel-complete-box{margin-top:10px;padding:10px 12px;border:1px solid #4e624c;background:#182019;border-radius:11px;font-size:12px;color:#b9d0b4}
+@media(max-width:620px){.travel-saved-looks{grid-template-columns:1fr}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2020,6 +2040,14 @@ body{
           </div>
 
           <div class="section-head" style="margin-top:18px">
+            <div>
+              <h2 style="margin:0">Start with a Saved Look</h2>
+              <div class="muted">Optional — add every piece from one or more of your existing Looks.</div>
+            </div>
+          </div>
+          <div id="travelSavedLooks" class="travel-saved-looks"></div>
+
+          <div class="section-head" style="margin-top:18px">
             <h2>Choose from my wardrobe</h2>
             <button type="button" class="secondary" onclick="clearTravelSelection()">Clear</button>
           </div>
@@ -2038,6 +2066,7 @@ body{
           </div>
 
           <div id="travelSelectedCount" class="muted" style="margin-top:10px">0 items selected</div>
+          <div id="travelSelectedPreview" class="travel-selected-preview"></div>
           <div id="travelLaundryWarning" class="planner-laundry-warning hidden"></div>
           <button class="primary" style="margin-top:16px" onclick="saveTrip()">🧳 Create Packing List</button>
         </div>
@@ -3192,8 +3221,54 @@ function loadTravelTrips(){
  catch(e){travelTrips=[]}
 }
 function persistTravelTrips(){localStorage.setItem(travelStorageKey(),JSON.stringify(travelTrips))}
+
+function travelLookItemIds(lookId){
+ return (lookItems||[]).filter(x=>String(x.look_id)===String(lookId)).map(x=>x.clothing_item_id).filter(Boolean);
+}
+function renderTravelSavedLooks(){
+ const wrap=el("travelSavedLooks"); if(!wrap)return;
+ if(!(savedLooks||[]).length){
+   wrap.innerHTML='<div class="planner-empty">No Saved Looks yet. You can choose individual wardrobe pieces below.</div>';
+   return;
+ }
+ wrap.innerHTML=(savedLooks||[]).map(look=>{
+   const ids=travelLookItemIds(look.id);
+   const items=ids.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+   const active=ids.length&&ids.every(id=>travelSelectedItemIds.includes(id));
+   const thumbs=items.slice(0,3).map(i=>i.displayPhoto
+     ?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`
+     :'<div class="travel-look-ph">👕</div>').join("");
+   return `<button type="button" class="travel-look-btn ${active?"active":""}" onclick="addSavedLookToTravel('${escapeJs(look.id)}')">
+     <div class="travel-look-thumbs">${thumbs||'<div class="travel-look-ph">✨</div>'}</div>
+     <div><strong>${escapeHtml(look.name||"Untitled Look")}</strong><div class="muted">${items.length} piece${items.length===1?"":"s"}</div></div>
+   </button>`;
+ }).join("");
+}
+function addSavedLookToTravel(lookId){
+ const ids=travelLookItemIds(lookId).filter(id=>clothingItems.some(i=>String(i.id)===String(id)));
+ if(!ids.length)return alert("This Look has no wardrobe items to add.");
+ travelSelectedItemIds=[...new Set([...travelSelectedItemIds,...ids])];
+ if(travelActiveCategoryId)renderTravelCategoryItems(travelActiveCategoryId);
+ updateTravelSelectedCount();
+}
+function renderTravelSelectedPreview(){
+ const wrap=el("travelSelectedPreview"); if(!wrap)return;
+ const items=travelSelectedItemIds.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+ wrap.innerHTML=items.map(i=>`<div class="travel-selected-chip ${i.laundry_status?"laundry":""}">
+   ${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:'<span class="ph">👕</span>'}
+   <span>${escapeHtml(i.name||"Item")}${i.laundry_status?" · 🧺":""}</span>
+ </div>`).join("");
+}
+function travelDaysUntil(dateValue){
+ if(!dateValue)return null;
+ const today=new Date(); today.setHours(0,0,0,0);
+ const d=new Date(dateValue+"T00:00:00"); d.setHours(0,0,0,0);
+ return Math.ceil((d-today)/86400000);
+}
+
 function renderTravelPacking(){
  loadTravelTrips();
+ renderTravelSavedLooks();
  renderTravelCategories();
  renderTravelTrips();
  updateTravelSelectedCount();
@@ -3250,8 +3325,11 @@ function clearTravelSelection(){
  travelSelectedItemIds=[];
  if(travelActiveCategoryId)renderTravelCategoryItems(travelActiveCategoryId);
  updateTravelSelectedCount();
+ renderTravelSavedLooks();
 }
 function updateTravelSelectedCount(){
+ renderTravelSelectedPreview();
+ renderTravelSavedLooks();
  const c=el("travelSelectedCount");
  if(c)c.textContent=travelSelectedItemIds.length+" item"+(travelSelectedItemIds.length===1?"":"s")+" selected";
  const w=el("travelLaundryWarning"); if(!w)return;
@@ -3270,6 +3348,7 @@ function saveTrip(){
  const type=el("tripType")?.value||"Holiday";
  if(!name)return alert("Enter a trip name.");
  if(!departure)return alert("Choose your departure date.");
+ if(returnDate && returnDate < departure)return alert("Return date cannot be before departure.");
  if(!travelSelectedItemIds.length)return alert("Choose at least one item to pack.");
  travelTrips.push({
    id:crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random(),
@@ -3277,7 +3356,7 @@ function saveTrip(){
  });
  persistTravelTrips();
  travelSelectedItemIds=[];travelActiveCategoryId=null;
- ["tripName","tripDestination"].forEach(id=>{if(el(id))el(id).value=""});
+ ["tripName","tripDestination","tripDeparture","tripReturn"].forEach(id=>{if(el(id))el(id).value=""});
  el("travelCategoryItems")?.classList.add("hidden");el("travelCategoryChooser")?.classList.remove("hidden");
  renderTravelPacking();
 }
@@ -3379,6 +3458,10 @@ function renderTravelTrips(){
    const packed=t.packedIds||[];
    const packedCount=items.filter(i=>packed.includes(i.id)).length;
    const pct=items.length?Math.round((packedCount/items.length)*100):0;
+   const missing=items.filter(i=>!packed.includes(i.id));
+   const laundryItems=items.filter(i=>!!i.laundry_status);
+   const daysUntil=travelDaysUntil(t.departure);
+   const tripTiming=daysUntil===null?"":daysUntil<0?"Trip date passed":daysUntil===0?"Leaving today":daysUntil===1?"Leaving tomorrow":`${daysUntil} days to go`;
 
    const grouped={};
    items.forEach(i=>{
@@ -3424,6 +3507,14 @@ function renderTravelTrips(){
        <div class="travel-progress-track"><div class="travel-progress-fill" style="width:${pct}%"></div></div>
        <strong style="color:#d2ad7b">${pct}%</strong>
      </div>
+     <div class="travel-readiness">
+       ${tripTiming?`<span class="travel-readiness-pill">${escapeHtml(tripTiming)}</span>`:""}
+       <span class="travel-readiness-pill ${missing.length?"warn":"good"}">${missing.length?`${missing.length} still to pack`:"✓ Packing complete"}</span>
+       ${laundryItems.length?`<span class="travel-readiness-pill warn">🧺 ${laundryItems.length} in Laundry</span>`:""}
+     </div>
+     ${missing.length
+       ? `<div class="travel-missing-box"><strong>Still to pack:</strong> ${escapeHtml(missing.map(i=>i.name||"Item").join(", "))}</div>`
+       : items.length?'<div class="travel-complete-box">✓ Everything on this packing list is packed.</div>':""}
      ${groups||'<div class="muted" style="margin-top:12px">No items found.</div>'}
      ${renderTripItemEditor(t)}
      <div class="planned-actions">
