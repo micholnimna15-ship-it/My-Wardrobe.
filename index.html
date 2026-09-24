@@ -1562,6 +1562,33 @@ body{
 /* Empty categories stay dark */
 .category-card:has(.category-cover-placeholder){background:#181713!important;}
 
+
+/* ===== FINAL WHITE CLOTHING PHOTO BACKGROUNDS ===== */
+/* Real category cover photos */
+.category-card img.category-cover,
+.category-card .category-cover{
+  background:#ffffff !important;
+  object-fit:contain !important;
+}
+
+/* Individual clothing photos after opening a category */
+.clothing-card img.clothing-photo,
+.clothing-card .clothing-photo{
+  background:#ffffff !important;
+  object-fit:contain !important;
+}
+
+/* Other real wardrobe-item thumbnails used in wardrobe views */
+.clothing-grid img,
+.clothing-grid .clothing-photo{
+  background-color:#ffffff !important;
+}
+
+/* Keep empty category placeholders dark */
+.category-cover-placeholder{
+  background:radial-gradient(circle at 50% 35%,#39332c,#1b1916 70%) !important;
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
