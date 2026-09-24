@@ -1723,28 +1723,28 @@ body{
 }
 
 
-/* ===== OUTFIT PLANNER — COMPLETE INTELLIGENCE UPGRADE ===== */
-.planned-outfit{padding:18px!important;border-radius:20px!important;background:#181713!important;border:1px solid #4b443c!important}
-.planned-outfit.has-laundry{border-color:#9b7246!important}
-.planned-outfit-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
-.planned-date{color:#d2ad7b;font-size:12px;font-weight:800;letter-spacing:.3px}
-.planned-title{font:400 24px Georgia,"Times New Roman",serif;color:#fff;margin:5px 0}
-.planned-meta{color:#a99d90;font-size:13px;line-height:1.45}
-.planner-date-badge{white-space:nowrap;border:1px solid #4b443c;background:#211f1b;color:#d8cbbd;padding:7px 10px;border-radius:999px;font-size:11px}
-.planned-thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:15px 0}
-.planned-thumb-wrap{position:relative;min-width:0}
-.planned-thumb-wrap img,.planned-thumb-placeholder{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff!important;border-radius:13px;border:1px solid #4b443c}
-.planned-thumb-name{font-size:10px;color:#b7aa9c;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.planned-thumb-laundry{position:absolute;right:5px;top:5px;background:#9b7246;color:#fff;border-radius:999px;padding:4px 6px;font-size:10px}
-.planned-conflict{margin:10px 0;padding:11px 12px;border-radius:12px;background:#30251b;border:1px solid #765738;color:#e4c59e;font-size:12px;line-height:1.45}
-.planned-ready{margin:10px 0;color:#9fc0a2;font-size:12px}
-.planned-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
-.planned-actions .small-btn{flex:1;min-width:105px}
-.planned-actions .planner-tryon-btn{background:#d2ad7b!important;color:#15120f!important;border-color:#d2ad7b!important;font-weight:800}
-.planner-detail-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
-.planner-detail-item{display:flex;gap:9px;align-items:center;padding:8px;border:1px solid #4b443c;border-radius:12px;background:#151412}
-.planner-detail-item img{width:50px;height:50px;object-fit:contain;background:#fff;border-radius:9px}
-@media(max-width:600px){.planned-thumbs{grid-template-columns:repeat(3,minmax(0,1fr))}.planned-outfit-top{display:block}.planner-date-badge{display:inline-block;margin-top:8px}.planned-actions .small-btn{min-width:calc(50% - 8px)}}
+/* ===== TRAVEL PACKING INTELLIGENCE — COMPLETE ===== */
+.travel-ai-panel{margin:16px 0;padding:17px;border:1px solid #4b443c;border-radius:18px;background:linear-gradient(145deg,#1d1b18,#121210);display:flex;justify-content:space-between;gap:15px;align-items:center}
+.travel-ai-eyebrow{font-size:10px;letter-spacing:2px;color:#d2ad7b;font-weight:800;margin-bottom:5px}
+.travel-ai-panel h3{margin:0 0 5px;color:#fff;font:400 22px Georgia,"Times New Roman",serif}
+.travel-ai-panel p{margin:0;color:#a99d90;font-size:12px;line-height:1.5;max-width:600px}
+.travel-ai-btn{border:0;border-radius:999px;padding:12px 16px;background:#d2ad7b;color:#17130f;font-weight:800;white-space:nowrap}
+.travel-ai-result{border:1px solid #4b443c;border-radius:17px;background:#181713;padding:15px;margin:12px 0}
+.travel-ai-result h3{margin:0 0 6px;color:#f4efe8;font:400 20px Georgia,"Times New Roman",serif}
+.travel-ai-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px}
+.travel-ai-item{position:relative;border:1px solid #4b443c;border-radius:13px;background:#141310;overflow:hidden}
+.travel-ai-item img,.travel-ai-item .ph{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;display:flex;align-items:center;justify-content:center;font-size:32px}
+.travel-ai-item-copy{padding:8px;font-size:11px;color:#eee7de}
+.travel-ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.travel-day-plan{margin-top:16px;border-top:1px solid #4b443c;padding-top:13px}
+.travel-day{padding:10px 0;border-bottom:1px solid #302d28}
+.travel-day-title{color:#d2ad7b;font-weight:800;font-size:12px;margin-bottom:7px}
+.travel-day-items{display:flex;gap:7px;overflow-x:auto}
+.travel-day-chip{display:flex;align-items:center;gap:6px;border:1px solid #4b443c;border-radius:999px;padding:5px 9px;color:#c9bdb0;font-size:11px;white-space:nowrap}
+.travel-day-chip img{width:26px;height:26px;border-radius:50%;object-fit:contain;background:#fff}
+.travel-trip-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.travel-trip-actions .small-btn{flex:1;min-width:130px}
+@media(max-width:650px){.travel-ai-panel{display:block}.travel-ai-btn{width:100%;margin-top:13px}.travel-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 </style>
 
@@ -2424,6 +2424,16 @@ body{
               <option>Adventure</option><option>Other</option>
             </select>
           </div>
+
+          <div class="travel-ai-panel">
+            <div>
+              <div class="travel-ai-eyebrow">TRAVEL INTELLIGENCE</div>
+              <h3>Build my packing list</h3>
+              <p>Uses your trip details and prioritises clothes already in your wardrobe. You can review everything before saving.</p>
+            </div>
+            <button type="button" class="travel-ai-btn" onclick="generateTravelPackingSuggestions()">✨ Suggest from My Wardrobe</button>
+          </div>
+          <div id="travelAISuggestions"></div>
 
           <div class="section-head" style="margin-top:18px">
             <div>
@@ -3608,15 +3618,11 @@ function renderPlannedOutfits(){
    return;
  }
  wrap.innerHTML=sorted.map(p=>{
-   const items=(p.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
-   const laundryItems=items.filter(i=>!!i.laundry_status);
-   const thumbs=items.map(i=>{
-     const visual=i.displayPhoto
-       ? `<img src="${escapeHtml(i.displayPhoto)}" title="${escapeHtml(i.name||"Item")}" alt="">`
-       : `<div class="planned-thumb-placeholder">👕</div>`;
-     return `<div class="planned-thumb-wrap">${visual}${i.laundry_status?'<span class="planned-thumb-laundry">🧺</span>':""}<div class="planned-thumb-name">${escapeHtml(i.name||"Item")}</div></div>`;
-   }).join("");
-   return `<div class="planned-outfit ${laundryItems.length?"has-laundry":""}">
+   const items=(p.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id)).filter(Boolean);
+   const thumbs=items.map(i=>i.displayPhoto
+     ? `<img src="${escapeHtml(i.displayPhoto)}" title="${escapeHtml(i.name||"Item")}" alt="">`
+     : `<div class="planned-thumb-placeholder">👕</div>`).join("");
+   return `<div class="planned-outfit ${items.some(i=>i.laundry_status)?"has-laundry":""}">
      <div class="planned-outfit-top">
        <div>
          <div class="planned-date">📅 ${escapeHtml(plannerPrettyDate(p.date))}</div>
@@ -3626,44 +3632,13 @@ function renderPlannedOutfits(){
        <span class="planner-date-badge">${items.length} item${items.length===1?"":"s"}</span>
      </div>
      <div class="planned-thumbs">${thumbs||'<span class="muted">Items no longer in wardrobe</span>'}</div>
-     ${laundryItems.length
-       ? `<div class="planned-conflict">🧺 <b>Laundry check:</b> ${escapeHtml(laundryItems.map(i=>i.name||"Item").join(", "))} ${laundryItems.length===1?"is":"are"} currently in Laundry. A reminder will be created before this outfit is needed.</div>`
-       : `<div class="planned-ready">✓ No selected items are currently marked as Laundry.</div>`}
-     <div class="planned-actions">
-       <button class="small-btn" onclick="viewPlannedOutfit('${escapeJs(p.id)}')">View Outfit</button>
-       <button class="small-btn planner-tryon-btn" onclick="tryOnPlannedOutfit('${escapeJs(p.id)}')">✦ Virtual Try-On</button>
-       <button class="small-btn" onclick="editPlannedOutfit('${escapeJs(p.id)}')">Edit</button>
-       <button class="small-btn danger" onclick="deletePlannedOutfit('${escapeJs(p.id)}')">Remove</button>
+     ${items.some(i=>i.laundry_status)?`<div class="planned-conflict">🧺 ${escapeHtml(items.filter(i=>i.laundry_status).map(i=>i.name||"Item").join(", "))} ${items.filter(i=>i.laundry_status).length===1?"is":"are"} currently in Laundry.</div>`:""}
+      <div class="planned-actions">
+       <button class="small-btn" onclick="editPlannedOutfit('${p.id}')">Edit</button>
+       <button class="small-btn danger" onclick="deletePlannedOutfit('${p.id}')">Delete</button>
      </div>
    </div>`;
  }).join("");
-}
-
-function viewPlannedOutfit(id){
- const p=plannedOutfits.find(x=>String(x.id)===String(id));if(!p)return;
- const items=(p.itemIds||[]).map(itemId=>clothingItems.find(i=>String(i.id)===String(itemId))).filter(Boolean);
- const content=items.map(i=>`<div class="planner-detail-item">
-   ${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:'<span style="font-size:28px">👕</span>'}
-   <div><strong>${escapeHtml(i.name||"Item")}</strong><div class="muted">${i.laundry_status?"🧺 Currently in Laundry":"Ready in wardrobe"}</div></div>
- </div>`).join("");
- alert(`${p.name||p.occasion||"Planned outfit"}\n${plannerPrettyDate(p.date)} · ${p.occasion||""}\n\n${items.map(i=>"• "+(i.name||"Item")+(i.laundry_status?" — IN LAUNDRY":"")).join("\n")}${p.notes?"\n\nNotes: "+p.notes:""}`);
-}
-
-function tryOnPlannedOutfit(id){
- const p=plannedOutfits.find(x=>String(x.id)===String(id));if(!p)return;
- const usable=(p.itemIds||[]).filter(itemId=>clothingItems.find(i=>String(i.id)===String(itemId))?.displayPhoto);
- if(!usable.length)return alert("These planned items need photos before Virtual Try-On can use them.");
- showPage("tryon");
- tryOnMode=usable.length>1?"outfit":"single";
- tryOnSelectedItemId=tryOnMode==="single"?usable[0]:null;
- tryOnSelectedItemIds=tryOnMode==="outfit"?usable.slice(0,4):[];
- el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single");
- el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
- if(el("tryOnModeHelp"))el("tryOnModeHelp").textContent=tryOnMode==="single"
-   ?"Your planned wardrobe item is ready for Virtual Try-On."
-   :`${tryOnSelectedItemIds.length} planned pieces are ready to generate together.`;
- renderTryOnWardrobe();
- setTimeout(()=>el("tryOnWardrobeGrid")?.scrollIntoView({behavior:"smooth",block:"start"}),120);
 }
 
 function editPlannedOutfit(id){
@@ -3704,39 +3679,40 @@ async function checkPlannerLaundryReminders(){
  if(!currentUser)return;
  await loadPlannedOutfits();
 
- const now=new Date(); now.setHours(0,0,0,0);
- const dayKey=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
- const tomorrow=new Date(now); tomorrow.setDate(tomorrow.getDate()+1);
- const checks=[
-   {date:dayKey(now),label:"today",urgency:"urgent"},
-   {date:dayKey(tomorrow),label:"tomorrow",urgency:"high"}
- ];
+ const now=new Date();
+ now.setHours(0,0,0,0);
+ const tomorrow=new Date(now);
+ tomorrow.setDate(tomorrow.getDate()+1);
+ const tomorrowKey=[
+   tomorrow.getFullYear(),
+   String(tomorrow.getMonth()+1).padStart(2,"0"),
+   String(tomorrow.getDate()).padStart(2,"0")
+ ].join("-");
 
- for(const check of checks){
-   const plans=plannedOutfits.filter(p=>p.date===check.date);
-   for(const plan of plans){
-     const laundryItems=(plan.itemIds||[])
-       .map(id=>clothingItems.find(i=>String(i.id)===String(id)))
-       .filter(i=>i && !!i.laundry_status);
-     if(!laundryItems.length)continue;
+ const tomorrowPlans=plannedOutfits.filter(p=>p.date===tomorrowKey);
+ if(!tomorrowPlans.length)return;
 
-     const names=laundryItems.map(i=>i.name||"Clothing item");
-     const joined=names.join(", ");
-     const message=names.length===1
-       ? `${joined} planned for ${check.label} is still in Laundry. Make sure it is ready for your outfit.`
-       : `${joined} planned for ${check.label} are still in Laundry. Make sure they are ready for your outfit.`;
+ for(const plan of tomorrowPlans){
+   const laundryItems=(plan.itemIds||[])
+     .map(id=>clothingItems.find(i=>i.id===id))
+     .filter(i=>i && !!i.laundry_status);
+   if(!laundryItems.length)continue;
 
-     await createAppNotification({
-       type:"planner_laundry_reminder",
-       title:check.label==="today"?"🧺 Outfit Needed Today":"🧺 Outfit Laundry Reminder",
-       message,
-       actionPage:"planner",
-       actionId:plan.id,
-       eventKey:`planner-laundry-${check.label}-${plan.id}-${check.date}`,
-       priority:check.urgency,
-       metadata:{plan_id:plan.id,plan_date:check.date,item_ids:laundryItems.map(i=>i.id)}
-     });
-   }
+   const names=laundryItems.map(i=>i.name||"Clothing item");
+   const message=names.length===1
+     ? `${names[0]} planned for tomorrow is still in Laundry. Make sure it is ready for your outfit.`
+     : `${names.join(", ")} planned for tomorrow are still in Laundry. Make sure they are ready for your outfit.`;
+
+   await createAppNotification({
+     type:"planner_laundry_reminder",
+     title:"🧺 Outfit Laundry Reminder",
+     message,
+     actionPage:"planner",
+     actionId:plan.id,
+     eventKey:`planner-laundry-${plan.id}-${tomorrowKey}`,
+     priority:"high",
+     metadata:{plan_id:plan.id,plan_date:tomorrowKey,item_ids:laundryItems.map(i=>i.id)}
+   });
  }
 }
 
@@ -3793,6 +3769,120 @@ function travelDaysUntil(dateValue){
  const today=new Date(); today.setHours(0,0,0,0);
  const d=new Date(dateValue+"T00:00:00"); d.setHours(0,0,0,0);
  return Math.ceil((d-today)/86400000);
+}
+
+
+function travelTripDayCount(){
+ const a=el("tripDeparture")?.value||"", b=el("tripReturn")?.value||"";
+ if(!a)return 1;
+ if(!b)return 2;
+ const d1=new Date(a+"T12:00:00"),d2=new Date(b+"T12:00:00");
+ return Math.max(1,Math.min(21,Math.floor((d2-d1)/86400000)+1));
+}
+function travelCategoryKeyword(item){
+ const cat=(categories.find(c=>String(c.id)===String(item.category_id))?.name||"").toLowerCase();
+ const name=(item.name||"").toLowerCase();
+ return cat+" "+name;
+}
+function travelPickBy(words,count,used){
+ const candidates=clothingItems.filter(i=>{
+   const hay=travelCategoryKeyword(i);
+   return words.some(w=>hay.includes(w))&&!used.has(String(i.id));
+ });
+ const clean=candidates.filter(i=>!i.laundry_status);
+ return [...clean,...candidates.filter(i=>i.laundry_status)].slice(0,count);
+}
+function generateTravelPackingSuggestions(){
+ const destination=(el("tripDestination")?.value||"").trim();
+ const type=el("tripType")?.value||"Holiday";
+ const days=travelTripDayCount();
+ if(!clothingItems.length)return alert("Add some clothes to your wardrobe first.");
+
+ const used=new Set(), picks=[];
+ const add=(words,count)=>{
+   travelPickBy(words,count,used).forEach(i=>{used.add(String(i.id));picks.push(i)});
+ };
+ const tops=Math.min(Math.max(2,Math.ceil(days*.65)),6);
+ const bottoms=Math.min(Math.max(1,Math.ceil(days/3)),4);
+
+ add(["shirt","top","tee","t-shirt","tshirt","blouse","polo"],tops);
+ add(["trouser","pants","jean","short","skirt"],bottoms);
+ if(["Business","Wedding"].includes(type))add(["blazer","jacket","suit","dress"],2);
+ else add(["jacket","hoodie","sweater","jumper","cardigan"],1);
+ add(["shoe","sneaker","loafer","boot","heel","sandal"],Math.min(2,Math.max(1,Math.ceil(days/5))));
+ if(type==="Beach")add(["swim","bikini","swimsuit","short","sandal"],2);
+ add(["underwear","sock"],Math.min(days+1,7));
+
+ if(picks.length<Math.min(5,clothingItems.length)){
+   clothingItems.filter(i=>!used.has(String(i.id))&&!i.laundry_status)
+     .slice(0,Math.min(6,clothingItems.length)-picks.length)
+     .forEach(i=>{used.add(String(i.id));picks.push(i)});
+ }
+
+ const box=el("travelAISuggestions");if(!box)return;
+ const laundry=picks.filter(i=>i.laundry_status);
+ box.innerHTML=`<div class="travel-ai-result">
+   <h3>${escapeHtml(type)} packing suggestion${destination?" · "+escapeHtml(destination):""}</h3>
+   <div class="muted">Based on ${days} day${days===1?"":"s"}. My Wardrobe is prioritised before anything else.</div>
+   <div class="travel-ai-grid">${picks.map(i=>`<div class="travel-ai-item">
+     ${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:'<div class="ph">👕</div>'}
+     <div class="travel-ai-item-copy">${escapeHtml(i.name||"Item")}${i.laundry_status?" · 🧺":""}</div>
+   </div>`).join("")}</div>
+   ${laundry.length?`<div class="planned-conflict">🧺 ${escapeHtml(laundry.map(i=>i.name||"Item").join(", "))} ${laundry.length===1?"is":"are"} currently in Laundry.</div>`:""}
+   <div class="travel-ai-actions">
+     <button type="button" class="primary" style="width:auto" onclick='applyTravelAISuggestions(${JSON.stringify(picks.map(i=>String(i.id)))})'>Add all to Packing List</button>
+     <button type="button" class="secondary" onclick="clearTravelAISuggestions()">Dismiss</button>
+   </div>
+ </div>`;
+}
+function applyTravelAISuggestions(ids){
+ travelSelectedItemIds=[...new Set([...travelSelectedItemIds,...ids])];
+ updateTravelSelectedCount();
+ if(travelActiveCategoryId)renderTravelCategoryItems(travelActiveCategoryId);
+ el("travelSelectedPreview")?.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function clearTravelAISuggestions(){if(el("travelAISuggestions"))el("travelAISuggestions").innerHTML=""}
+
+function travelBuildDayPlans(trip){
+ const items=(trip.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+ if(!items.length)return [];
+ const start=new Date((trip.departure||new Date().toISOString().slice(0,10))+"T12:00:00");
+ const end=trip.returnDate?new Date(trip.returnDate+"T12:00:00"):start;
+ const days=Math.max(1,Math.min(14,Math.floor((end-start)/86400000)+1));
+ const tops=items.filter(i=>/shirt|top|tee|t-shirt|blouse|polo|dress/i.test(travelCategoryKeyword(i)));
+ const bottoms=items.filter(i=>/trouser|pants|jean|short|skirt/i.test(travelCategoryKeyword(i)));
+ const layers=items.filter(i=>/jacket|blazer|hoodie|sweater|jumper|cardigan/i.test(travelCategoryKeyword(i)));
+ const shoes=items.filter(i=>/shoe|sneaker|loafer|boot|heel|sandal/i.test(travelCategoryKeyword(i)));
+ const plans=[];
+ for(let n=0;n<days;n++){
+   const date=new Date(start);date.setDate(start.getDate()+n);
+   const chosen=[];
+   if(tops.length)chosen.push(tops[n%tops.length]);
+   if(bottoms.length)chosen.push(bottoms[n%bottoms.length]);
+   if(layers.length && (n%2===0||trip.type==="Business"))chosen.push(layers[n%layers.length]);
+   if(shoes.length)chosen.push(shoes[n%shoes.length]);
+   plans.push({date:date.toISOString().slice(0,10),itemIds:[...new Set(chosen.map(i=>i.id))]});
+ }
+ return plans;
+}
+function toggleTravelDayPlan(tripId){
+ const trip=travelTrips.find(t=>String(t.id)===String(tripId));if(!trip)return;
+ trip.showDayPlan=!trip.showDayPlan;
+ if(trip.showDayPlan&&!trip.dayPlans?.length)trip.dayPlans=travelBuildDayPlans(trip);
+ persistTravelTrips();renderTravelTrips();
+}
+function tryOnTravelDay(tripId,dayIndex){
+ const trip=travelTrips.find(t=>String(t.id)===String(tripId));if(!trip)return;
+ const plan=(trip.dayPlans||[])[dayIndex];if(!plan)return;
+ const ids=(plan.itemIds||[]).filter(id=>clothingItems.find(i=>String(i.id)===String(id))?.displayPhoto);
+ if(!ids.length)return alert("These day-plan items need photos before Virtual Try-On can use them.");
+ showPage("tryon");
+ tryOnMode=ids.length>1?"outfit":"single";
+ tryOnSelectedItemId=tryOnMode==="single"?ids[0]:null;
+ tryOnSelectedItemIds=tryOnMode==="outfit"?ids.slice(0,4):[];
+ el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single");
+ el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
+ renderTryOnWardrobe();
 }
 
 function renderTravelPacking(){
@@ -3881,7 +3971,7 @@ function saveTrip(){
  if(!travelSelectedItemIds.length)return alert("Choose at least one item to pack.");
  travelTrips.push({
    id:crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random(),
-   name,destination,departure,returnDate,type,itemIds:[...travelSelectedItemIds],packedIds:[],createdAt:new Date().toISOString()
+   name,destination,departure,returnDate,type,itemIds:[...travelSelectedItemIds],packedIds:[],dayPlans:[],showDayPlan:false,createdAt:new Date().toISOString()
  });
  persistTravelTrips();
  travelSelectedItemIds=[];travelActiveCategoryId=null;
@@ -4046,9 +4136,20 @@ function renderTravelTrips(){
        : items.length?'<div class="travel-complete-box">✓ Everything on this packing list is packed.</div>':""}
      ${groups||'<div class="muted" style="margin-top:12px">No items found.</div>'}
      ${renderTripItemEditor(t)}
-     <div class="planned-actions">
-       <button class="small-btn" onclick="event.stopPropagation();editTripItems('${t.id}')">✏️ Edit Packing Items</button>
-       <button class="small-btn" onclick="event.stopPropagation();alert('AI Outfit Suggestions stay optional and separate from your packing list.')">✨ AI Suggestions</button>
+     ${t.showDayPlan?`<div class="travel-day-plan">
+       <div class="travel-group-head"><strong>Day-by-day outfits</strong><span class="muted">Built from packed wardrobe pieces</span></div>
+       ${(t.dayPlans||[]).map((dp,di)=>{
+         const ditems=(dp.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+         return `<div class="travel-day">
+           <div class="travel-day-title">Day ${di+1} · ${escapeHtml(plannerPrettyDate(dp.date))}</div>
+           <div class="travel-day-items">${ditems.map(i=>`<span class="travel-day-chip">${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:"👕"}${escapeHtml(i.name||"Item")}</span>`).join("")}</div>
+           ${ditems.length?`<button class="small-btn" style="margin-top:8px" onclick="event.stopPropagation();tryOnTravelDay('${t.id}',${di})">✦ Try this day on</button>`:""}
+         </div>`;
+       }).join("")}
+     </div>`:""}
+     <div class="travel-trip-actions">
+       <button class="small-btn" onclick="event.stopPropagation();editTripItems('${t.id}')">✏️ Edit Packing</button>
+       <button class="small-btn" onclick="event.stopPropagation();toggleTravelDayPlan('${t.id}')">${t.showDayPlan?"Hide":"✨ Build"} Day Outfits</button>
        <button class="small-btn danger" onclick="event.stopPropagation();deleteTrip('${t.id}')">Delete Trip</button>
      </div>
    </div>`;
@@ -4059,27 +4160,24 @@ function renderTravelTrips(){
 async function checkTravelLaundryReminders(){
  if(!currentUser)return;
  loadTravelTrips();
- const today=new Date(); today.setHours(0,0,0,0);
- const tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
- const key=[tomorrow.getFullYear(),String(tomorrow.getMonth()+1).padStart(2,"0"),String(tomorrow.getDate()).padStart(2,"0")].join("-");
-
- for(const trip of travelTrips.filter(t=>t.departure===key)){
-   const laundry=(trip.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id))
-     .filter(i=>i&&String(i.laundry_status||"").toLowerCase()==="laundry");
-   if(!laundry.length)continue;
-   const storageKey=`travel-laundry:${currentUser.id}:${trip.id}:${key}`;
-   if(localStorage.getItem(storageKey))continue;
-   const names=laundry.map(i=>i.name||"Clothing item");
-   const message=names.length===1
-     ? `${names[0]} for ${trip.name} tomorrow is still in Laundry. Make sure it is ready before you leave.`
-     : `${names.join(", ")} for ${trip.name} tomorrow are still in Laundry. Make sure they are ready before you leave.`;
-   const {error}=await supabaseClient.from("notifications").insert({
-     user_id:currentUser.id,
-     type:"travel_laundry_reminder",
-     title:"🧺 Packing Reminder",
-     message
-   });
-   if(!error)localStorage.setItem(storageKey,"1");
+ const today=new Date();today.setHours(0,0,0,0);
+ const key=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+ const tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
+ for(const check of [{date:key(today),label:"today"},{date:key(tomorrow),label:"tomorrow"}]){
+   for(const trip of travelTrips.filter(t=>t.departure===check.date)){
+     const laundry=(trip.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id)))
+       .filter(i=>i&&String(i.laundry_status||"").toLowerCase()==="laundry");
+     if(!laundry.length)continue;
+     const storageKey=`travel-laundry:${check.label}:${currentUser.id}:${trip.id}:${check.date}`;
+     if(localStorage.getItem(storageKey))continue;
+     const names=laundry.map(i=>i.name||"Clothing item");
+     const message=`${names.join(", ")} for ${trip.name} ${check.label} ${names.length===1?"is":"are"} still in Laundry. Make sure ${names.length===1?"it is":"they are"} ready before you leave.`;
+     const {error}=await supabaseClient.from("notifications").insert({
+       user_id:currentUser.id,type:"travel_laundry_reminder",
+       title:check.label==="today"?"🧺 Trip Leaves Today":"🧺 Packing Reminder",message
+     });
+     if(!error)localStorage.setItem(storageKey,"1");
+   }
  }
  await loadNotifications();
 }
