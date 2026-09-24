@@ -1722,6 +1722,30 @@ body{
   .ai-outfit-actions button{min-width:0!important}
 }
 
+
+/* ===== OUTFIT PLANNER — COMPLETE INTELLIGENCE UPGRADE ===== */
+.planned-outfit{padding:18px!important;border-radius:20px!important;background:#181713!important;border:1px solid #4b443c!important}
+.planned-outfit.has-laundry{border-color:#9b7246!important}
+.planned-outfit-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.planned-date{color:#d2ad7b;font-size:12px;font-weight:800;letter-spacing:.3px}
+.planned-title{font:400 24px Georgia,"Times New Roman",serif;color:#fff;margin:5px 0}
+.planned-meta{color:#a99d90;font-size:13px;line-height:1.45}
+.planner-date-badge{white-space:nowrap;border:1px solid #4b443c;background:#211f1b;color:#d8cbbd;padding:7px 10px;border-radius:999px;font-size:11px}
+.planned-thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:15px 0}
+.planned-thumb-wrap{position:relative;min-width:0}
+.planned-thumb-wrap img,.planned-thumb-placeholder{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff!important;border-radius:13px;border:1px solid #4b443c}
+.planned-thumb-name{font-size:10px;color:#b7aa9c;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planned-thumb-laundry{position:absolute;right:5px;top:5px;background:#9b7246;color:#fff;border-radius:999px;padding:4px 6px;font-size:10px}
+.planned-conflict{margin:10px 0;padding:11px 12px;border-radius:12px;background:#30251b;border:1px solid #765738;color:#e4c59e;font-size:12px;line-height:1.45}
+.planned-ready{margin:10px 0;color:#9fc0a2;font-size:12px}
+.planned-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.planned-actions .small-btn{flex:1;min-width:105px}
+.planned-actions .planner-tryon-btn{background:#d2ad7b!important;color:#15120f!important;border-color:#d2ad7b!important;font-weight:800}
+.planner-detail-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.planner-detail-item{display:flex;gap:9px;align-items:center;padding:8px;border:1px solid #4b443c;border-radius:12px;background:#151412}
+.planner-detail-item img{width:50px;height:50px;object-fit:contain;background:#fff;border-radius:9px}
+@media(max-width:600px){.planned-thumbs{grid-template-columns:repeat(3,minmax(0,1fr))}.planned-outfit-top{display:block}.planner-date-badge{display:inline-block;margin-top:8px}.planned-actions .small-btn{min-width:calc(50% - 8px)}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3584,11 +3608,15 @@ function renderPlannedOutfits(){
    return;
  }
  wrap.innerHTML=sorted.map(p=>{
-   const items=(p.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id)).filter(Boolean);
-   const thumbs=items.map(i=>i.displayPhoto
-     ? `<img src="${escapeHtml(i.displayPhoto)}" title="${escapeHtml(i.name||"Item")}" alt="">`
-     : `<div class="planned-thumb-placeholder">👕</div>`).join("");
-   return `<div class="planned-outfit ${items.some(i=>i.laundry_status)?"has-laundry":""}">
+   const items=(p.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+   const laundryItems=items.filter(i=>!!i.laundry_status);
+   const thumbs=items.map(i=>{
+     const visual=i.displayPhoto
+       ? `<img src="${escapeHtml(i.displayPhoto)}" title="${escapeHtml(i.name||"Item")}" alt="">`
+       : `<div class="planned-thumb-placeholder">👕</div>`;
+     return `<div class="planned-thumb-wrap">${visual}${i.laundry_status?'<span class="planned-thumb-laundry">🧺</span>':""}<div class="planned-thumb-name">${escapeHtml(i.name||"Item")}</div></div>`;
+   }).join("");
+   return `<div class="planned-outfit ${laundryItems.length?"has-laundry":""}">
      <div class="planned-outfit-top">
        <div>
          <div class="planned-date">📅 ${escapeHtml(plannerPrettyDate(p.date))}</div>
@@ -3598,13 +3626,44 @@ function renderPlannedOutfits(){
        <span class="planner-date-badge">${items.length} item${items.length===1?"":"s"}</span>
      </div>
      <div class="planned-thumbs">${thumbs||'<span class="muted">Items no longer in wardrobe</span>'}</div>
-     ${items.some(i=>i.laundry_status)?`<div class="planned-conflict">🧺 ${escapeHtml(items.filter(i=>i.laundry_status).map(i=>i.name||"Item").join(", "))} ${items.filter(i=>i.laundry_status).length===1?"is":"are"} currently in Laundry.</div>`:""}
-      <div class="planned-actions">
-       <button class="small-btn" onclick="editPlannedOutfit('${p.id}')">Edit</button>
-       <button class="small-btn danger" onclick="deletePlannedOutfit('${p.id}')">Delete</button>
+     ${laundryItems.length
+       ? `<div class="planned-conflict">🧺 <b>Laundry check:</b> ${escapeHtml(laundryItems.map(i=>i.name||"Item").join(", "))} ${laundryItems.length===1?"is":"are"} currently in Laundry. A reminder will be created before this outfit is needed.</div>`
+       : `<div class="planned-ready">✓ No selected items are currently marked as Laundry.</div>`}
+     <div class="planned-actions">
+       <button class="small-btn" onclick="viewPlannedOutfit('${escapeJs(p.id)}')">View Outfit</button>
+       <button class="small-btn planner-tryon-btn" onclick="tryOnPlannedOutfit('${escapeJs(p.id)}')">✦ Virtual Try-On</button>
+       <button class="small-btn" onclick="editPlannedOutfit('${escapeJs(p.id)}')">Edit</button>
+       <button class="small-btn danger" onclick="deletePlannedOutfit('${escapeJs(p.id)}')">Remove</button>
      </div>
    </div>`;
  }).join("");
+}
+
+function viewPlannedOutfit(id){
+ const p=plannedOutfits.find(x=>String(x.id)===String(id));if(!p)return;
+ const items=(p.itemIds||[]).map(itemId=>clothingItems.find(i=>String(i.id)===String(itemId))).filter(Boolean);
+ const content=items.map(i=>`<div class="planner-detail-item">
+   ${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:'<span style="font-size:28px">👕</span>'}
+   <div><strong>${escapeHtml(i.name||"Item")}</strong><div class="muted">${i.laundry_status?"🧺 Currently in Laundry":"Ready in wardrobe"}</div></div>
+ </div>`).join("");
+ alert(`${p.name||p.occasion||"Planned outfit"}\n${plannerPrettyDate(p.date)} · ${p.occasion||""}\n\n${items.map(i=>"• "+(i.name||"Item")+(i.laundry_status?" — IN LAUNDRY":"")).join("\n")}${p.notes?"\n\nNotes: "+p.notes:""}`);
+}
+
+function tryOnPlannedOutfit(id){
+ const p=plannedOutfits.find(x=>String(x.id)===String(id));if(!p)return;
+ const usable=(p.itemIds||[]).filter(itemId=>clothingItems.find(i=>String(i.id)===String(itemId))?.displayPhoto);
+ if(!usable.length)return alert("These planned items need photos before Virtual Try-On can use them.");
+ showPage("tryon");
+ tryOnMode=usable.length>1?"outfit":"single";
+ tryOnSelectedItemId=tryOnMode==="single"?usable[0]:null;
+ tryOnSelectedItemIds=tryOnMode==="outfit"?usable.slice(0,4):[];
+ el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single");
+ el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
+ if(el("tryOnModeHelp"))el("tryOnModeHelp").textContent=tryOnMode==="single"
+   ?"Your planned wardrobe item is ready for Virtual Try-On."
+   :`${tryOnSelectedItemIds.length} planned pieces are ready to generate together.`;
+ renderTryOnWardrobe();
+ setTimeout(()=>el("tryOnWardrobeGrid")?.scrollIntoView({behavior:"smooth",block:"start"}),120);
 }
 
 function editPlannedOutfit(id){
@@ -3645,40 +3704,39 @@ async function checkPlannerLaundryReminders(){
  if(!currentUser)return;
  await loadPlannedOutfits();
 
- const now=new Date();
- now.setHours(0,0,0,0);
- const tomorrow=new Date(now);
- tomorrow.setDate(tomorrow.getDate()+1);
- const tomorrowKey=[
-   tomorrow.getFullYear(),
-   String(tomorrow.getMonth()+1).padStart(2,"0"),
-   String(tomorrow.getDate()).padStart(2,"0")
- ].join("-");
+ const now=new Date(); now.setHours(0,0,0,0);
+ const dayKey=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+ const tomorrow=new Date(now); tomorrow.setDate(tomorrow.getDate()+1);
+ const checks=[
+   {date:dayKey(now),label:"today",urgency:"urgent"},
+   {date:dayKey(tomorrow),label:"tomorrow",urgency:"high"}
+ ];
 
- const tomorrowPlans=plannedOutfits.filter(p=>p.date===tomorrowKey);
- if(!tomorrowPlans.length)return;
+ for(const check of checks){
+   const plans=plannedOutfits.filter(p=>p.date===check.date);
+   for(const plan of plans){
+     const laundryItems=(plan.itemIds||[])
+       .map(id=>clothingItems.find(i=>String(i.id)===String(id)))
+       .filter(i=>i && !!i.laundry_status);
+     if(!laundryItems.length)continue;
 
- for(const plan of tomorrowPlans){
-   const laundryItems=(plan.itemIds||[])
-     .map(id=>clothingItems.find(i=>i.id===id))
-     .filter(i=>i && !!i.laundry_status);
-   if(!laundryItems.length)continue;
+     const names=laundryItems.map(i=>i.name||"Clothing item");
+     const joined=names.join(", ");
+     const message=names.length===1
+       ? `${joined} planned for ${check.label} is still in Laundry. Make sure it is ready for your outfit.`
+       : `${joined} planned for ${check.label} are still in Laundry. Make sure they are ready for your outfit.`;
 
-   const names=laundryItems.map(i=>i.name||"Clothing item");
-   const message=names.length===1
-     ? `${names[0]} planned for tomorrow is still in Laundry. Make sure it is ready for your outfit.`
-     : `${names.join(", ")} planned for tomorrow are still in Laundry. Make sure they are ready for your outfit.`;
-
-   await createAppNotification({
-     type:"planner_laundry_reminder",
-     title:"🧺 Outfit Laundry Reminder",
-     message,
-     actionPage:"planner",
-     actionId:plan.id,
-     eventKey:`planner-laundry-${plan.id}-${tomorrowKey}`,
-     priority:"high",
-     metadata:{plan_id:plan.id,plan_date:tomorrowKey,item_ids:laundryItems.map(i=>i.id)}
-   });
+     await createAppNotification({
+       type:"planner_laundry_reminder",
+       title:check.label==="today"?"🧺 Outfit Needed Today":"🧺 Outfit Laundry Reminder",
+       message,
+       actionPage:"planner",
+       actionId:plan.id,
+       eventKey:`planner-laundry-${check.label}-${plan.id}-${check.date}`,
+       priority:check.urgency,
+       metadata:{plan_id:plan.id,plan_date:check.date,item_ids:laundryItems.map(i=>i.id)}
+     });
+   }
  }
 }
 
