@@ -681,7 +681,7 @@ body{
 .recent-card{
   min-width:150px;background:#181713;border:1px solid #514a42;border-radius:18px;overflow:hidden;
 }
-.recent-card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#24211d}
+.recent-card img{width:100%;aspect-ratio:4/5;object-fit:contain;display:block;background:#ffffff!important}
 .recent-placeholder{aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;font-size:44px;background:#24211d}
 .recent-body{padding:10px 11px}
 .recent-body strong{font-family:Georgia,"Times New Roman",serif;font-weight:500;color:#fff}
@@ -1627,6 +1627,14 @@ body{
 }
 .home2-recent-img img{
   background:#ffffff !important;
+  object-fit:contain !important;
+}
+
+
+/* ===== EXACT RECENT ITEMS PHOTO FIX ===== */
+#recentItemsGrid .recent-card > img{
+  background:#ffffff !important;
+  background-color:#ffffff !important;
   object-fit:contain !important;
 }
 
