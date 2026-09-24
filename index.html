@@ -1716,12 +1716,11 @@ body{
 @media(max-width:650px){.saved-tryons-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 
-/* ===== OUTFIT INTELLIGENCE — MISSING PIECES → SHOP AI ===== */
-.ai-missing-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
-.ai-missing-shop-btn{border:0;border-radius:999px;padding:9px 13px;background:#d2ad7b;color:#17130f;font-weight:800;cursor:pointer}
-.ai-missing-shop-btn:hover{filter:brightness(1.05)}
-.ai-missing-search{margin:10px 0 16px}
-.ai-missing-search .live-products{margin-top:10px}
+/* ===== OUTFIT INTELLIGENCE → PLANNER ===== */
+@media(min-width:760px){
+  .ai-outfit-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ai-outfit-actions button{min-width:0!important}
+}
 
 </style>
 
@@ -6053,6 +6052,7 @@ function renderAIOutfitActions(outfit){
  if(!ids.length)return "";
  return `<div class="ai-outfit-actions">
   <button type="button" class="secondary" onclick="saveAIOutfitAsLook()">♡ Save to My Looks</button>
+  <button type="button" class="secondary" onclick="addAIOutfitToPlanner()">📅 Add to Planner</button>
   <button type="button" class="secondary tryon-link" onclick="sendAIOutfitToTryOn()">✦ Try This Outfit On</button>
  </div><div class="ai-outfit-count">${ids.length} wardrobe piece${ids.length===1?"":"s"} selected by AI</div>`;
 }
@@ -6071,6 +6071,54 @@ async function saveAIOutfitAsLook(){
  await loadAllData();renderLooks();
  alert(`Saved “${name}” to My Looks.`);
 }
+
+function addAIOutfitToPlanner(){
+ const ids=getAIOutfitWardrobeIds();
+ if(!ids.length)return alert("Create an AI outfit first.");
+
+ editingPlannerId=null;
+ plannerSelectedItemIds=[...ids];
+ plannerActiveCategoryId=null;
+
+ showPage("planner");
+
+ const dateInput=el("plannerDate");
+ if(dateInput && !dateInput.value){
+   const d=new Date();
+   d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+   dateInput.min=d.toISOString().slice(0,10);
+ }
+
+ const occasionSelect=el("plannerOccasion");
+ if(occasionSelect && selectedOccasion){
+   const match=[...occasionSelect.options].find(o=>o.value.toLowerCase()===String(selectedOccasion).toLowerCase());
+   if(match)occasionSelect.value=match.value;
+ }
+
+ if(el("plannerName")){
+   el("plannerName").value=currentAIOutfit?.outfitName||`${selectedOccasion||"AI"} outfit`;
+ }
+ if(el("plannerNotes")){
+   el("plannerNotes").value="Created with Outfit Intelligence";
+ }
+
+ el("plannerCategoryItems")?.classList.add("hidden");
+ el("plannerCategoryChooser")?.classList.remove("hidden");
+ renderPlannerWardrobeItems();
+
+ const laundry=ids
+   .map(id=>clothingItems.find(i=>String(i.id)===String(id)))
+   .filter(i=>i?.laundry_status);
+
+ setTimeout(()=>{
+   el("plannerDate")?.scrollIntoView({behavior:"smooth",block:"center"});
+   el("plannerDate")?.focus();
+   if(laundry.length){
+     alert(`${laundry.length} selected item${laundry.length===1?" is":"s are"} currently in Laundry. You can still plan the outfit.`);
+   }
+ },250);
+}
+
 function sendAIOutfitToTryOn(){
  const ids=getAIOutfitWardrobeIds();
  if(!ids.length)return alert("Create an AI outfit first.");
@@ -6085,74 +6133,6 @@ function sendAIOutfitToTryOn(){
  if(el("tryOnModeHelp"))el("tryOnModeHelp").textContent=tryOnMode==="single"?"Your AI-selected wardrobe item is ready. Add your photo to try it on.":"Your AI-selected outfit is ready. Add your photo to generate the Virtual Try-On.";
  renderVirtualTryOnItems();renderTryOnOutfitSummary();updateTryOnButton();
  el("tryOnPage")?.scrollIntoView({behavior:"smooth",block:"start"});
-}
-
-
-function missingPieceSearchId(index){
- return `occasionMissingSearch-${index}`;
-}
-
-async function shopForMissingPiece(index){
- const outfit=currentAIOutfit;
- const missing=Array.isArray(outfit?.missingItems)?outfit.missingItems.slice(0,2):[];
- const item=missing[index];
- if(!item)return alert("That suggested item is no longer available.");
-
- const query=String(item.searchQuery||item.item||"").trim();
- if(!query)return alert("There is no search description for this item.");
-
- const target=el(missingPieceSearchId(index));
- if(!target)return;
-
- target.innerHTML=`<div class="loading-box"><b>Searching your selected stores…</b><br><span class="muted">${escapeHtml(query)}</span></div>`;
-
- try{
-  const products=await searchProducts(query);
-  target.innerHTML=`
-   <div class="ai-missing-search">
-    ${renderLiveProducts(products,getSelectedStores())}
-    ${renderOfficialStoreLinks(query)}
-   </div>`;
- }catch(error){
-  target.innerHTML=`<div class="notice"><b>Product search failed:</b> ${escapeHtml(error?.message||"Unknown error")}</div>${renderOfficialStoreLinks(query)}`;
- }
-}
-
-function openMissingPieceInShopAI(index){
- const outfit=currentAIOutfit;
- const missing=Array.isArray(outfit?.missingItems)?outfit.missingItems.slice(0,2):[];
- const item=missing[index];
- if(!item)return;
-
- const query=String(item.searchQuery||item.item||"").trim();
- openShopFeature("onlineMatch");
-
- const results=el("onlineMatchResults");
- if(results){
-  results.innerHTML=`
-   <div class="item-analysis-card">
-    <b>From your ${escapeHtml(selectedOccasion||"occasion")} outfit</b><br>
-    <span class="muted">Looking for: ${escapeHtml(item.item||query||"Suggested item")}</span>
-    ${item.reason?`<div class="muted" style="margin-top:5px">${escapeHtml(item.reason)}</div>`:""}
-   </div>
-   <div class="notice">You can still upload a product photo above if you want AI to match around a specific item.</div>`;
- }
- if(query){
-  setTimeout(()=>shopForMissingPieceFromOnlineView(query),50);
- }
-}
-
-async function shopForMissingPieceFromOnlineView(query){
- const results=el("onlineMatchResults");
- if(!results||!query)return;
- const intro=results.innerHTML;
- results.innerHTML=intro+`<div class="loading-box"><b>Searching your selected stores for ${escapeHtml(query)}…</b></div>`;
- try{
-  const products=await searchProducts(query);
-  results.innerHTML=intro+renderLiveProducts(products,getSelectedStores())+renderOfficialStoreLinks(query);
- }catch(error){
-  results.innerHTML=intro+`<div class="notice"><b>Product search failed:</b> ${escapeHtml(error?.message||"Unknown error")}</div>`+renderOfficialStoreLinks(query);
- }
 }
 
 async function createAIOutfit(){
@@ -6190,23 +6170,30 @@ async function createAIOutfit(){
   }
 
   html+=`<div class="section-head"><h2>Suggested additions</h2></div>`;
-  html+=`<div class="notice">Your wardrobe is still the priority. Shop only for the pieces you actually want to add.</div>`;
 
-  missing.forEach((item,index)=>{
+  for(const item of missing){
    const query=(item.searchQuery||item.item||"").trim();
-   html+=`
-    <div class="ai-missing">
-      <h3>${escapeHtml(item.item||"Suggested item")}</h3>
-      <div class="muted">${escapeHtml(item.reason||"This would complete the outfit.")}</div>
-      <div class="ai-missing-actions">
-        <button type="button" class="ai-missing-shop-btn" onclick="shopForMissingPiece(${index})">🛍 Find this online</button>
-        <button type="button" class="secondary" onclick="openMissingPieceInShopAI(${index})">Open in Shop AI →</button>
-      </div>
-    </div>
-    <div id="${missingPieceSearchId(index)}"></div>`;
-  });
+   html+=`<div class="ai-missing"><h3>${escapeHtml(item.item||"Suggested item")}</h3><div class="muted">${escapeHtml(item.reason||"This would complete the outfit.")}</div></div>`;
 
-  box.innerHTML=html;
+   if(query){
+    html+=`<div class="loading-box" id="loading-${escapeHtml(query)}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`;
+    box.innerHTML=html;
+
+    try{
+     const products=await searchProducts(query);
+     html=html.replace(
+      `<div class="loading-box" id="loading-${escapeHtml(query)}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`,
+      renderLiveProducts(products,getSelectedStores())+renderOfficialStoreLinks(query)
+     );
+    }catch(searchError){
+     html=html.replace(
+      `<div class="loading-box" id="loading-${escapeHtml(query)}">Searching live products for <b>${escapeHtml(query)}</b>…</div>`,
+      `<div class="notice"><b>Product search failed:</b> ${escapeHtml(searchError.message||"Unknown error")}</div>`+renderOfficialStoreLinks(query)
+     );
+    }
+    box.innerHTML=html;
+   }
+  }
  }catch(error){
   console.error(error);
   box.innerHTML=`<div class="notice"><b>AI stylist failed:</b> ${escapeHtml(error.message||"Unknown error")}</div>`;
