@@ -2275,6 +2275,7 @@ const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
 const MULTI_SCAN_API_URL=SUPABASE_URL+"/functions/v1/scan-multiple-clothes";
+const EXTRACT_CLOTHING_API_URL=SUPABASE_URL+"/functions/v1/extract-clothing-item";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
 let outfitHistory=[];
@@ -3770,7 +3771,22 @@ function renderMultiScanResults(items=multiScanDetectedItems){
        </div>
       </div>
 
-      <div class="muted" style="margin-top:4px">
+      <div style="margin-top:12px">
+       <button id="multiExtractBtn-${index}" type="button" class="secondary" style="width:100%" onclick="extractMultiScanItem(${index})">
+        ✨ Extract Item
+       </button>
+       <div id="multiExtractStatus-${index}" class="muted" style="margin-top:8px"></div>
+       <div id="multiExtractPreview-${index}" style="margin-top:10px">
+        ${item.extractedImage?`
+         <div class="photo-frame" style="min-height:190px">
+          <img src="${item.extractedImage}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain">
+         </div>
+         <div class="notice" style="margin-top:8px">Extraction preview only. The wardrobe save function is still using the original group photo.</div>
+        `:""}
+       </div>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
        AI detected: ${escapeMultiScanHtml(item.itemType||"Clothing")} · suggested ${escapeMultiScanHtml(item.categorySuggestion||"Other")}
       </div>
       ${item.description?`<div class="muted" style="margin-top:7px;line-height:1.45">${escapeMultiScanHtml(item.description)}</div>`:""}
@@ -3787,6 +3803,86 @@ function renderMultiScanResults(items=multiScanDetectedItems){
 function updateMultiScanItem(index,field,value){
  if(!multiScanDetectedItems[index])return;
  multiScanDetectedItems[index][field]=value;
+}
+
+
+async function extractMultiScanItem(index){
+ const item=multiScanDetectedItems[index];
+ if(!item)return;
+ if(!multiScanSelectedFile)return alert("Choose the original scan photo again.");
+
+ const btn=el(`multiExtractBtn-${index}`);
+ const status=el(`multiExtractStatus-${index}`);
+ const preview=el(`multiExtractPreview-${index}`);
+
+ if(btn){btn.disabled=true;btn.textContent="Extracting…";}
+ if(status)status.textContent="AI is isolating this garment from the original photo…";
+ if(preview)preview.innerHTML="";
+
+ try{
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session?.access_token)throw new Error("Please log in again.");
+
+  const image=await fileToDataUrl(multiScanSelectedFile);
+
+  const response=await fetch(EXTRACT_CLOTHING_API_URL,{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json",
+    "apikey":SUPABASE_PUBLISHABLE_KEY,
+    "Authorization":"Bearer "+session.access_token
+   },
+   body:JSON.stringify({
+    image,
+    item:{
+     name:String(item.name||"Clothing item").trim(),
+     itemType:item.itemType||"garment",
+     color:String(item.color||"").trim(),
+     description:item.description||""
+    }
+   })
+  });
+
+  let data={};
+  try{data=await response.json()}catch(e){}
+
+  if(!response.ok||data.success===false||!data.image){
+   throw new Error(data.error||`Extraction failed (${response.status}).`);
+  }
+
+  item.extractedImage=data.image;
+
+  if(status)status.textContent="Extraction complete. Compare it carefully with the real garment.";
+  if(preview){
+   preview.innerHTML=`
+    <div class="photo-frame" style="min-height:190px">
+     <img src="${data.image}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px">
+     <button type="button" class="secondary" onclick="extractMultiScanItem(${index})">↻ Retry</button>
+     <button type="button" class="secondary" onclick="clearMultiScanExtraction(${index})">Remove Preview</button>
+    </div>
+    <div class="notice" style="margin-top:8px">
+     Test mode: this extracted image is only a preview. Saving still uses the original group photo.
+    </div>`;
+  }
+
+ }catch(err){
+  console.error("Garment extraction:",err);
+  if(status)status.textContent="Extraction failed: "+(err?.message||String(err));
+  if(preview)preview.innerHTML='<div class="notice">Nothing was changed or saved.</div>';
+ }finally{
+  if(btn){btn.disabled=false;btn.textContent="✨ Extract Item";}
+ }
+}
+
+function clearMultiScanExtraction(index){
+ const item=multiScanDetectedItems[index];
+ if(item)item.extractedImage=null;
+ const preview=el(`multiExtractPreview-${index}`);
+ const status=el(`multiExtractStatus-${index}`);
+ if(preview)preview.innerHTML="";
+ if(status)status.textContent="";
 }
 
 async function scanMultipleClothes(){
