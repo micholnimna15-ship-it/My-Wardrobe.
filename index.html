@@ -1509,7 +1509,7 @@ body{
 .tour-spotlight{position:fixed;border:2px solid #d2ad7b;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.72),0 0 30px rgba(210,173,123,.25);pointer-events:none;transition:all .22s ease;z-index:10051}
 .tour-card{position:fixed;width:min(340px,calc(100vw - 28px));background:#191714;border:1px solid #6a5946;border-radius:18px;padding:18px;z-index:10052;box-shadow:0 18px 60px rgba(0,0,0,.5);transition:top .22s ease,left .22s ease}
 .tour-card-top{display:flex;justify-content:space-between;align-items:center;color:#998d81;font-size:10px;letter-spacing:1px}.tour-card-top button{border:0;background:transparent;color:#c8b49a;cursor:pointer;font-size:11px}.tour-card-icon{font-size:24px;margin:16px 0 8px}.tour-card h3{font:500 22px Georgia,"Times New Roman",serif;color:#f4eee7;margin:0 0 8px}.tour-card p{color:#b9aea2;font-size:12px;line-height:1.55;margin:0 0 18px}
-.tour-card-actions{display:flex;justify-content:space-between;gap:8px}.tour-card-actions button{border-radius:10px;padding:9px 14px;cursor:pointer}.tour-back{border:1px solid #49423a;background:#171613;color:#bdb2a6}.tour-next{margin-left:auto;border:1px solid #9a7b58;background:#d2ad7b;color:#17130f;font-weight:700}
+.tour-card-actions{display:flex;justify-content:space-between;gap:8px}.tour-card-actions button{border-radius:10px;padding:9px 14px;cursor:pointer}.tour-back{border:1px solid #49423a;background:#171613;color:#bdb2a6}.tour-next{margin-left:auto;border:1px solid #9a7b58;background:#d2ad7b;color:#17130f;font-weight:700}.tour-action{border:1px solid #6f5b45;background:#211b15;color:#e0bd91!important}
 .tour-highlight{position:relative;z-index:10053!important}
 @media(max-width:600px){.tour-card{width:calc(100vw - 24px)}.tour-welcome-card{padding:29px 22px}}
 
@@ -7243,44 +7243,59 @@ let appTourIndex=0;
 let appTourActive=false;
 
 const APP_TOUR_STEPS=[
- {selectors:["[onclick*=\"wardrobe\"]","#wardrobeNav"],icon:"👕",title:"Your Wardrobe",text:"Add and organise your clothes here. Create categories and keep your wardrobe in one place."},
- {selectors:["[onclick*=\"looks\"]","#looksNav"],icon:"💗",title:"Looks",text:"Build and save complete outfits using pieces from your wardrobe."},
- {selectors:["[onclick*=\"planner\"]","#plannerNav"],icon:"📅",title:"Outfit Planner",text:"Plan what you want to wear on future dates and keep upcoming outfits organised."},
- {selectors:["[onclick*=\"shop\"]","#shopNav"],icon:"✨",title:"Shop AI",text:"Get personalised styling help, match your wardrobe and find missing pieces online."},
- {selectors:["[onclick*=\"laundry\"]","#laundryNav"],icon:"🧺",title:"Laundry",text:"Track clothes through waiting, washing, drying and ready stages, including outdoor drying alerts."},
- {selectors:["[onclick*=\"travel\"]","#travelNav"],icon:"✈️",title:"Travel",text:"Create trips, build packing lists and see whether something you need is still in Laundry."},
- {selectors:["#profileBtn",".profile-btn",".profile-avatar","[onclick*=\"profile\"]"],icon:"👤",title:"Your Profile",text:"Manage your profile, My Fit and shopping preferences here. You can also replay this tour anytime."}
+ {page:"home",selectors:["#homePage .home2-dashboard","#homePage"],icon:"🏠",title:"Home",text:"This is your daily overview. You can see planned outfits, laundry attention and upcoming travel here."},
+ {page:"wardrobe",selectors:["#wardrobePage button[onclick*='openClothingModal']","#wardrobePage .category-grid","#wardrobePage"],icon:"👕",title:"Add your first item",text:"This is your Wardrobe. Use Add Item to photograph or upload clothing, then organise it into your own categories.",actionLabel:"Try Add Item",action:"add"},
+ {page:"looks",selectors:["#looksPage button","#looksPage"],icon:"💗",title:"Create a Look",text:"Combine wardrobe pieces into complete outfits and save your favourite combinations here."},
+ {page:"planner",selectors:["#plannerPage button","#plannerPage"],icon:"📅",title:"Plan an Outfit",text:"Choose a date, occasion and wardrobe pieces. Planner can also warn you when something you need is still in Laundry."},
+ {page:"laundry",selectors:["#laundryPage .laundry-board","#laundryPage"],icon:"🧺",title:"Manage Laundry",text:"Move clothing through Waiting, Washing, Drying and Ready. Outdoor drying can also use your saved location for rain alerts."},
+ {page:"travel",selectors:["#travelPage button","#travelPage"],icon:"✈️",title:"Pack for Travel",text:"Create a trip, choose wardrobe items and tick them off as you pack. Laundry conflicts are shown before departure."},
+ {page:"shop",selectors:["#shopPage .shop-feature-grid","#shopPage"],icon:"✨",title:"Shop AI",text:"Choose an occasion, match with what you already own, or find missing pieces online. Your profile, fit, budget and preferred stores help personalise results."},
+ {page:"profile",selectors:["#profilePage","#profileModal",".profile-panel"],icon:"👤",title:"Profile & My Fit",text:"Keep your sizes, fit preferences and shopping profile up to date. You can replay this guided tour from here anytime."}
 ];
 
 function appTourStorageKey(){
- const uid=currentUser?.id||'guest';
- return `mywardrobe_onboarding_v1_${uid}`;
+ const uid=currentUser?.id||"guest";
+ return `mywardrobe_onboarding_v2_${uid}`;
 }
-function hasCompletedAppTour(){
- return localStorage.getItem(appTourStorageKey())==='1';
-}
+function hasCompletedAppTour(){return localStorage.getItem(appTourStorageKey())==="1"}
 function maybeShowFirstTimeTour(){
  if(!currentUser||hasCompletedAppTour())return;
- setTimeout(()=>el('appTourWelcome')?.classList.remove('hidden'),450);
+ setTimeout(()=>el("appTourWelcome")?.classList.remove("hidden"),450);
+}
+function tourFindTarget(step){
+ for(const s of (step.selectors||[])){try{const n=document.querySelector(s);if(n&&n.offsetParent!==null)return n}catch(_){}}
+ return null;
+}
+function tourOpenPage(step){
+ try{
+   if(step.page==="profile"){
+     if(typeof openProfile==="function")openProfile();
+     else if(typeof openProfileModal==="function")openProfileModal();
+     else if(typeof showPage==="function")showPage("profile");
+   }else if(typeof showPage==="function"){
+     showPage(step.page);
+   }
+ }catch(e){console.warn("Tour page navigation:",e)}
 }
 function startAppTour(){
- el('appTourWelcome')?.classList.add('hidden');
- appTourIndex=0; appTourActive=true;
- el('appTourLayer')?.classList.remove('hidden');
+ el("appTourWelcome")?.classList.add("hidden");
+ appTourIndex=0;appTourActive=true;
+ el("appTourLayer")?.classList.remove("hidden");
  showAppTourStep();
 }
 function finishAppTour(){
- localStorage.setItem(appTourStorageKey(),'1');
+ localStorage.setItem(appTourStorageKey(),"1");
  appTourActive=false;
- document.querySelectorAll('.tour-highlight').forEach(n=>n.classList.remove('tour-highlight'));
- el('appTourWelcome')?.classList.add('hidden');
- el('appTourLayer')?.classList.add('hidden');
+ document.querySelectorAll(".tour-highlight").forEach(n=>n.classList.remove("tour-highlight"));
+ el("appTourWelcome")?.classList.add("hidden");
+ el("appTourLayer")?.classList.add("hidden");
+ try{if(typeof showPage==="function")showPage("home")}catch(_){}
 }
 function skipAppTour(){finishAppTour()}
 function replayAppTour(){
  appTourIndex=0;appTourActive=true;
- el('appTourWelcome')?.classList.add('hidden');
- el('appTourLayer')?.classList.remove('hidden');
+ el("appTourWelcome")?.classList.add("hidden");
+ el("appTourLayer")?.classList.remove("hidden");
  showAppTourStep();
 }
 function nextAppTourStep(){
@@ -7291,43 +7306,85 @@ function previousAppTourStep(){
  if(appTourIndex<=0)return;
  appTourIndex--;showAppTourStep();
 }
-function showAppTourStep(){
- if(!appTourActive)return;
- document.querySelectorAll('.tour-highlight').forEach(n=>n.classList.remove('tour-highlight'));
+function tourTryAction(){
  const step=APP_TOUR_STEPS[appTourIndex];
- const target=(step.selectors||[]).map(s=>{try{return document.querySelector(s)}catch(_){return null}}).find(Boolean);
- if(!target){
-   const spot=el('appTourSpotlight'); if(spot)spot.style.display='none';
- }else{
-   target.classList.add('tour-highlight');
- }
- const rect=target ? target.getBoundingClientRect() : {
-   left:Math.max(14,(window.innerWidth-120)/2),
-   top:Math.max(70,window.innerHeight-110),
-   width:120,height:52,bottom:Math.max(122,window.innerHeight-58)
- };
- const spotNode=el('appTourSpotlight'); if(spotNode)spotNode.style.display=target?'block':'none';
- const pad=7,spot=el('appTourSpotlight'),card=el('appTourCard');
- if(spot){
-   spot.style.left=Math.max(4,rect.left-pad)+'px';
-   spot.style.top=Math.max(4,rect.top-pad)+'px';
-   spot.style.width=Math.min(window.innerWidth-8,rect.width+pad*2)+'px';
-   spot.style.height=(rect.height+pad*2)+'px';
- }
- home2Set('appTourStepCount',`${appTourIndex+1} of ${APP_TOUR_STEPS.length}`);
- home2Set('appTourIcon',step.icon);
- home2Set('appTourTitle',step.title);
- home2Set('appTourText',step.text);
- const back=el('appTourBack');if(back)back.style.visibility=appTourIndex===0?'hidden':'visible';
- const next=el('appTourNext');if(next)next.textContent=appTourIndex===APP_TOUR_STEPS.length-1?'Finish':'Next';
- if(card){
-   const cardW=Math.min(340,window.innerWidth-28);
-   let left=Math.min(Math.max(14,rect.left+rect.width/2-cardW/2),window.innerWidth-cardW-14);
-   let top=rect.top-230;
-   if(top<14)top=Math.min(window.innerHeight-250,rect.bottom+18);
-   card.style.left=left+'px';card.style.top=Math.max(14,top)+'px';
+ if(step?.action==="add"){
+   // Temporarily hide guide so the real Add Item modal can be used.
+   el("appTourLayer")?.classList.add("hidden");
+   try{openClothingModal()}catch(e){console.warn(e)}
+   setTimeout(()=>{
+     const modal=document.querySelector(".modal:not(.hidden), .modal-overlay:not(.hidden), #clothingModal:not(.hidden)");
+     if(!modal){
+       el("appTourLayer")?.classList.remove("hidden");
+       showAppTourStep(false);
+     }
+   },250);
  }
 }
+function resumeAppTour(){
+ if(!appTourActive)return;
+ document.querySelectorAll(".modal").forEach(()=>{});
+ el("appTourLayer")?.classList.remove("hidden");
+ showAppTourStep(false);
+}
+function showAppTourStep(navigate=true){
+ if(!appTourActive)return;
+ document.querySelectorAll(".tour-highlight").forEach(n=>n.classList.remove("tour-highlight"));
+ const step=APP_TOUR_STEPS[appTourIndex];
+ if(navigate)tourOpenPage(step);
+
+ setTimeout(()=>{
+   const target=tourFindTarget(step);
+   if(target){
+     try{target.scrollIntoView({behavior:"smooth",block:"center",inline:"nearest"})}catch(_){}
+   }
+   setTimeout(()=>positionAdvancedTour(step,target),180);
+ },220);
+}
+function positionAdvancedTour(step,target){
+ if(!appTourActive)return;
+ const spot=el("appTourSpotlight"),card=el("appTourCard");
+ const rect=target?target.getBoundingClientRect():{left:18,top:90,width:Math.min(300,innerWidth-36),height:70,bottom:160};
+ if(target)target.classList.add("tour-highlight");
+ if(spot){
+   spot.style.display=target?"block":"none";
+   if(target){
+     const pad=7;
+     spot.style.left=Math.max(4,rect.left-pad)+"px";
+     spot.style.top=Math.max(4,rect.top-pad)+"px";
+     spot.style.width=Math.min(innerWidth-8,rect.width+pad*2)+"px";
+     spot.style.height=(rect.height+pad*2)+"px";
+   }
+ }
+ home2Set("appTourStepCount",`${appTourIndex+1} of ${APP_TOUR_STEPS.length}`);
+ home2Set("appTourIcon",step.icon);
+ home2Set("appTourTitle",step.title);
+ home2Set("appTourText",step.text);
+ const back=el("appTourBack");if(back)back.style.visibility=appTourIndex===0?"hidden":"visible";
+ const next=el("appTourNext");if(next)next.textContent=appTourIndex===APP_TOUR_STEPS.length-1?"Finish":"Next";
+
+ let action=el("appTourAction");
+ if(!action&&card){
+   action=document.createElement("button");
+   action.id="appTourAction";action.className="tour-action";
+   action.onclick=tourTryAction;
+   const actions=card.querySelector(".tour-card-actions");
+   if(actions)actions.insertBefore(action,actions.lastElementChild);
+ }
+ if(action){
+   action.textContent=step.actionLabel||"";
+   action.style.display=step.actionLabel?"inline-block":"none";
+ }
+
+ if(card){
+   const cardW=Math.min(340,innerWidth-28);
+   let left=Math.min(Math.max(14,rect.left+rect.width/2-cardW/2),innerWidth-cardW-14);
+   let top=rect.bottom+15;
+   if(top+260>innerHeight)top=Math.max(14,rect.top-270);
+   card.style.left=left+"px";card.style.top=top+"px";
+ }
+}
+
 window.addEventListener('resize',()=>{if(appTourActive)showAppTourStep()});
 
 
@@ -7344,6 +7401,9 @@ window.replayAppTour=replayAppTour;
 window.nextAppTourStep=nextAppTourStep;
 window.previousAppTourStep=previousAppTourStep;
 
+
+window.tourTryAction=tourTryAction;
+window.resumeAppTour=resumeAppTour;
 </script>
 
 <div id="wearHistoryModal" class="modal hidden">
