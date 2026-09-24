@@ -902,7 +902,7 @@ body{
 
 .clothing-photo-clickable{cursor:zoom-in}
 .item-viewer-box{width:min(760px,96vw)!important;max-height:94vh!important;padding:18px!important}
-.viewer-photo-wrap{width:100%;height:min(64vh,620px);border-radius:18px;overflow:hidden;background:#0c0c0b;display:flex;align-items:center;justify-content:center;border:1px solid #4b443c}
+.viewer-photo-wrap{width:100%;height:min(64vh,620px);border-radius:18px;overflow:hidden;background:#ffffff!important;display:flex;align-items:center;justify-content:center;border:1px solid #4b443c}
 .viewer-photo-wrap img{width:100%;height:100%;object-fit:contain}
 .viewer-photo-placeholder{font-size:90px}
 .viewer-details{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
@@ -1602,6 +1602,20 @@ body{
 .modal img.clothing-photo{
   background:#ffffff !important;
   background-color:#ffffff !important;
+  object-fit:contain !important;
+}
+
+
+/* Exact opened clothing viewer */
+#viewerPhotoWrap,
+#itemViewerModal #viewerPhotoWrap,
+#itemViewerModal .viewer-photo-wrap{
+  background:#ffffff !important;
+  background-color:#ffffff !important;
+}
+#viewerPhotoWrap img,
+#itemViewerModal .viewer-photo-wrap img{
+  background:#ffffff !important;
   object-fit:contain !important;
 }
 
