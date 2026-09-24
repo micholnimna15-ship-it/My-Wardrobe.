@@ -263,6 +263,12 @@ body{
 
 
 
+/* ===== OUTFIT INTELLIGENCE ACTIONS ===== */
+.ai-outfit-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:15px;border-top:1px solid var(--line)}
+.ai-outfit-actions button{flex:1;min-width:150px}
+.ai-outfit-actions .tryon-link{background:#d2ad7b!important;color:#15120f!important;border-color:#d2ad7b!important;font-weight:800}
+.ai-outfit-count{margin-top:10px;color:var(--muted);font-size:12px}
+
 /* ===== SHOP AI FEATURE MENU + UPLOADED ITEM STYLING ===== */
 .shop-feature-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
 .shop-feature-card{width:100%;text-align:left;border:1px solid var(--line);border-radius:22px;padding:18px;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(249,246,255,.94));box-shadow:var(--shadow);transition:.18s ease}
@@ -2727,6 +2733,7 @@ const MULTI_SCAN_API_URL=SUPABASE_URL+"/functions/v1/scan-multiple-clothes";
 const EXTRACT_CLOTHING_API_URL=SUPABASE_URL+"/functions/v1/extract-clothing-item";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
+let currentAIOutfit=null;
 let outfitHistory=[];
 let outfitCalendarCursor=new Date();
 outfitCalendarCursor=new Date(outfitCalendarCursor.getFullYear(),outfitCalendarCursor.getMonth(),1);
@@ -6029,6 +6036,49 @@ function shopAI2BudgetNumber(){const m=String(el("shopBudget")?.value||"").repla
 function shopAI2ProductPriceNumber(p){if(p?.extractedPrice!=null&&Number.isFinite(Number(p.extractedPrice)))return Number(p.extractedPrice);const m=String(p?.price||"").replace(/,/g,"").match(/([0-9]+(?:\.[0-9]+)?)/);return m?Number(m[1]):null}
 function shopAI2RankProducts(products){const budget=shopAI2BudgetNumber(),stores=getSelectedStores?.()||[];return [...(products||[])].sort((a,b)=>{const ap=shopAI2ProductPriceNumber(a),bp=shopAI2ProductPriceNumber(b);const score=p=>{const pp=shopAI2ProductPriceNumber(p);return(stores.length&&productMatchesSelectedStore(p,stores)?3:0)+(budget!=null&&pp!=null&&pp<=budget?2:0)+(Number(p.rating||0)>=4?1:0)};return score(b)-score(a)})}
 
+function getAIOutfitWardrobeIds(outfit=currentAIOutfit){
+ const valid=new Set((clothingItems||[]).map(i=>String(i.id)));
+ return [...new Set((outfit?.wardrobeItemIds||[]).map(String).filter(id=>valid.has(id)))];
+}
+function renderAIOutfitActions(outfit){
+ const ids=getAIOutfitWardrobeIds(outfit);
+ if(!ids.length)return "";
+ return `<div class="ai-outfit-actions">
+  <button type="button" class="secondary" onclick="saveAIOutfitAsLook()">♡ Save to My Looks</button>
+  <button type="button" class="secondary tryon-link" onclick="sendAIOutfitToTryOn()">✦ Try This Outfit On</button>
+ </div><div class="ai-outfit-count">${ids.length} wardrobe piece${ids.length===1?"":"s"} selected by AI</div>`;
+}
+async function saveAIOutfitAsLook(){
+ const ids=getAIOutfitWardrobeIds();
+ if(!ids.length)return alert("Create an AI outfit first.");
+ if(!currentUser)return alert("Please log in again.");
+ const defaultName=currentAIOutfit?.outfitName||`${selectedOccasion||"AI"} outfit`;
+ const name=(prompt("Name this look:",defaultName)||"").trim();
+ if(!name)return;
+ const r=await supabaseClient.from("saved_looks").insert({user_id:currentUser.id,name}).select().single();
+ if(r.error)return alert(r.error.message);
+ const rows=ids.map(id=>({look_id:r.data.id,clothing_item_id:id}));
+ const ir=await supabaseClient.from("look_items").insert(rows);
+ if(ir.error){await supabaseClient.from("saved_looks").delete().eq("id",r.data.id);return alert(ir.error.message)}
+ await loadAllData();renderLooks();
+ alert(`Saved “${name}” to My Looks.`);
+}
+function sendAIOutfitToTryOn(){
+ const ids=getAIOutfitWardrobeIds();
+ if(!ids.length)return alert("Create an AI outfit first.");
+ const usable=ids.filter(id=>clothingItems.find(i=>String(i.id)===String(id))?.displayPhoto);
+ if(!usable.length)return alert("The selected wardrobe pieces need photos before Virtual Try-On can use them.");
+ showPage("tryon");
+ tryOnMode=usable.length>1?"outfit":"single";
+ tryOnSelectedItemId=tryOnMode==="single"?usable[0]:null;
+ tryOnSelectedItemIds=tryOnMode==="outfit"?usable.slice(0,4):[];
+ el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single");
+ el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
+ if(el("tryOnModeHelp"))el("tryOnModeHelp").textContent=tryOnMode==="single"?"Your AI-selected wardrobe item is ready. Add your photo to try it on.":"Your AI-selected outfit is ready. Add your photo to generate the Virtual Try-On.";
+ renderVirtualTryOnItems();renderTryOnOutfitSummary();updateTryOnButton();
+ el("tryOnPage")?.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
 async function createAIOutfit(){
  if(!selectedOccasion)return alert("Choose an occasion first.");
  if(!clothingItems.length)return alert("Add some clothes to your wardrobe first.");
@@ -6037,12 +6087,14 @@ async function createAIOutfit(){
 
  const box=el("shoppingResults");
  const button=el("createOutfitButton");
+ currentAIOutfit=null;
  button.disabled=true;
  button.textContent="Creating your outfit…";
  box.innerHTML='<div class="loading-box"><b>AI is checking your wardrobe first…</b><br><span class="muted">It will only shop for pieces that are genuinely missing or useful.</span></div>';
 
  try{
   const outfit=await callStyleAI();
+  currentAIOutfit=outfit;
   // Charge one credit only after the AI successfully creates an outfit.
   await useAICredit();
   const missing=Array.isArray(outfit.missingItems)?outfit.missingItems.slice(0,2):[];
@@ -6052,6 +6104,7 @@ async function createAIOutfit(){
    <div class="ai-outfit-explanation">${escapeHtml(outfit.explanation||"")}</div>
    <div class="section-head"><h2>From your wardrobe</h2></div>
    ${renderAIWardrobeItems(outfit.wardrobeItemIds)}
+   ${renderAIOutfitActions(outfit)}
   </div>`;
 
   if(outfit.completeFromWardrobe||!missing.length){
