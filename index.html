@@ -1484,7 +1484,6 @@ body{
 .home2-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:13px}
 .home2-kicker{font-size:10px;letter-spacing:2.4px;color:#b99a72;margin-bottom:6px}
 .home2-head h2{margin:0;color:#f4efe8;font:400 31px Georgia,"Times New Roman",serif}
-.home2-link{border:0;background:transparent;color:#d2ad7b;padding:7px 0;cursor:pointer}
 .home2-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .home2-card{min-height:174px;text-align:left;border:1px solid #4b443c;background:linear-gradient(145deg,#1b1916,#121210);border-radius:18px;padding:17px;color:#f2ece5;cursor:pointer;transition:.15s ease}
 .home2-card:hover{border-color:#8d765d;transform:translateY(-1px)}
@@ -1498,10 +1497,6 @@ body{
 .home2-progress div{height:100%;width:0;background:#d2ad7b;border-radius:999px;transition:width .25s ease}
 .home2-alert{margin-top:12px;border:1px solid #755b40;background:#211b15;border-radius:14px;padding:13px 15px;color:#dfbf96;font-size:12px;line-height:1.5;cursor:pointer}
 .home2-alert strong{color:#f2dfc7}
-.home2-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
-.home2-quick button{border:1px solid #403a33;background:#151412;color:#cfc4b8;border-radius:12px;padding:10px 7px;font-size:11px;cursor:pointer}
-.home2-quick button:hover{border-color:#7c684f;color:#f2e7d8}
-.home2-quick span{display:block;font-size:18px;margin-bottom:4px}
 @media(max-width:850px){.home2-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home2-quick{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:560px){.home2-head h2{font-size:27px}.home2-grid{grid-template-columns:1fr 1fr;gap:9px}.home2-card{min-height:158px;padding:14px}.home2-value{font-size:17px}.home2-quick{grid-template-columns:repeat(3,1fr)}}
 
@@ -1590,7 +1585,6 @@ body{
             <div class="home2-kicker">TODAY AT A GLANCE</div>
             <h2>Your day, styled.</h2>
           </div>
-          <button class="home2-link" onclick="showPage('planner')">Open Planner →</button>
         </div>
 
         <div class="home2-grid">
@@ -1626,20 +1620,11 @@ body{
         </div>
 
         <div id="home2Alert" class="home2-alert hidden"></div>
-
-        <div class="home2-quick">
-          <button onclick="openClothingModal()"><span>＋</span>Add Item</button>
-          <button onclick="showPage('planner')"><span>📅</span>Plan Outfit</button>
-          <button onclick="showPage('laundry')"><span>🧺</span>Laundry</button>
-          <button onclick="showPage('travel')"><span>✈️</span>Travel</button>
-          <button onclick="showPage('shop')"><span>✨</span>Shop AI</button>
-        </div>
       </section>
 
       <section class="snapshot-section">
         <div class="snapshot-head">
           <h2>Your Wardrobe Snapshot</h2>
-          <button class="snapshot-link" onclick="showPage('me')">View details →</button>
         </div>
         <div class="snapshot-grid">
           <button class="snapshot-card" onclick="showPage('looks')">
