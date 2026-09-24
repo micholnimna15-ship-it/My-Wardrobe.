@@ -1430,6 +1430,15 @@ body{
 .magazine-colour-chip{border:1px solid #51483f;background:#211e1a;color:#e9dfd4;border-radius:999px;padding:8px 11px;font-size:12px}
 @media(max-width:560px){.magazine-item-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+/* ===== INTERACTIVE FORGOTTEN PIECES ===== */
+.magazine-forgotten-card{position:relative}
+.magazine-forgotten-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 9px 9px}
+.magazine-forgotten-actions button{border:1px solid #51483f;background:#211e1a;color:#e8ded3;border-radius:9px;padding:8px 6px;font-size:10px;cursor:pointer}
+.magazine-forgotten-actions button:hover{border-color:#d2ad7b;color:#d2ad7b}
+.magazine-forgotten-actions .wide{grid-column:1/-1}
+.magazine-disposition{margin:0 9px 9px;padding:8px;border-radius:9px;background:#211e1a;color:#bcae9f;font-size:10px;text-align:center}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -6026,6 +6035,91 @@ function magazineItemCard(item,subtitle=""){
  return `<div class="magazine-item-card">${photo}<div class="magazine-item-body"><strong>${escapeHtml(item.name||"Unnamed item")}</strong><span>${escapeHtml(subtitle)}</span></div></div>`;
 }
 
+
+function openForgottenItemInWardrobe(itemId){
+ const item=(clothingItems||[]).find(x=>String(x.id)===String(itemId));
+ if(!item)return alert("This item could not be found.");
+ closeStyleMagazine();
+ showPage("wardrobe");
+ setTimeout(()=>{
+  if(typeof openCategory==="function" && item.category_id)openCategory(item.category_id);
+ },120);
+}
+
+function addForgottenItemToLook(itemId){
+ const item=(clothingItems||[]).find(x=>String(x.id)===String(itemId));
+ if(!item)return alert("This item could not be found.");
+ closeStyleMagazine();
+ showPage("looks");
+ setTimeout(()=>{
+  if(typeof openManualLookBuilder==="function"){
+   openManualLookBuilder();
+   setTimeout(()=>{
+    const checkbox=document.querySelector(`input[data-item-id="${CSS.escape(String(itemId))}"]`);
+    if(checkbox && !checkbox.checked){
+     checkbox.click();
+    }
+   },180);
+  }else{
+   alert("Open Create Look and select "+(item.name||"this item")+".");
+  }
+ },120);
+}
+
+function setMagazineDisposition(itemId,status){
+ try{
+  const key="mywardrobe_magazine_dispositions";
+  const data=JSON.parse(localStorage.getItem(key)||"{}");
+  data[String(itemId)]={status,updated_at:new Date().toISOString()};
+  localStorage.setItem(key,JSON.stringify(data));
+  openStyleMagazine();
+ }catch(err){
+  console.error(err);
+ }
+}
+
+function getMagazineDispositions(){
+ try{
+  return JSON.parse(localStorage.getItem("mywardrobe_magazine_dispositions")||"{}");
+ }catch{
+  return {};
+ }
+}
+
+function clearMagazineDisposition(itemId){
+ const key="mywardrobe_magazine_dispositions";
+ const data=getMagazineDispositions();
+ delete data[String(itemId)];
+ localStorage.setItem(key,JSON.stringify(data));
+ openStyleMagazine();
+}
+
+function forgottenMagazineCard(x){
+ const item=x.item;
+ const disposition=getMagazineDispositions()[String(item.id)];
+ const subtitle=x.lastDate?`Last recorded ${x.lastDate}`:"Not in recorded outfit history";
+ const photo=item.displayPhoto
+  ?`<img src="${item.displayPhoto}" alt="${escapeHtml(item.name||"Wardrobe item")}">`
+  :`<div class="magazine-item-placeholder">👕</div>`;
+
+ return `<div class="magazine-item-card magazine-forgotten-card">
+   ${photo}
+   <div class="magazine-item-body">
+    <strong>${escapeHtml(item.name||"Unnamed item")}</strong>
+    <span>${escapeHtml(subtitle)}</span>
+   </div>
+   ${disposition
+    ?`<div class="magazine-disposition">Marked: ${disposition.status==="sell"?"Sell":"Donate"} · <button class="small-btn" style="margin-left:5px;padding:3px 6px" onclick="clearMagazineDisposition('${item.id}')">Undo</button></div>`
+    :`<div class="magazine-forgotten-actions">
+       <button onclick="openForgottenItemInWardrobe('${item.id}')">👕 Wear Again</button>
+       <button onclick="addForgottenItemToLook('${item.id}')">✨ Add to Look</button>
+       <button onclick="setMagazineDisposition('${item.id}','sell')">💰 Sell</button>
+       <button onclick="setMagazineDisposition('${item.id}','donate')">♡ Donate</button>
+      </div>`
+   }
+  </div>`;
+}
+
 function openStyleMagazine(){
  const modal=el("styleMagazineModal");
  if(!modal){console.error("styleMagazineModal not found");return;}
@@ -6128,17 +6222,14 @@ function openStyleMagazine(){
   }).slice(0,6);
 
   el("magForgottenItems").innerHTML=forgotten.length
-   ?forgotten.map(x=>magazineItemCard(
-      x.item,
-      x.lastDate?`Last recorded ${x.lastDate}`:"Not in recorded outfit history"
-    )).join("")
+   ?forgotten.map(x=>forgottenMagazineCard(x)).join("")
    :'<div class="stats-empty">Nothing looks forgotten right now — your recorded wardrobe is getting good use.</div>';
 
   el("magDNAStory").textContent=dna.summary;
 
   let nextText="Keep recording what you wear so next month's edition can show stronger patterns.";
   if(forgotten.length){
-   nextText=`Try bringing ${forgotten[0].item.name||"a forgotten piece"} back into a new Look next month.`;
+   nextText=`Try bringing ${forgotten[0].item.name||"a forgotten piece"} back into rotation, or mark pieces you no longer want to keep.`;
   }else if((savedLooks||[]).length){
    nextText="Try creating a new combination from pieces you already own.";
   }
