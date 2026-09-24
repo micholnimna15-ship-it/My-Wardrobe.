@@ -1501,19 +1501,6 @@ body{
 @media(max-width:560px){.home2-head h2{font-size:27px}.home2-grid{grid-template-columns:1fr 1fr;gap:9px}.home2-card{min-height:158px;padding:14px}.home2-value{font-size:17px}.home2-quick{grid-template-columns:repeat(3,1fr)}}
 
 
-/* ===== FIRST-TIME APP TOUR ===== */
-.tour-overlay{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.76);backdrop-filter:blur(3px)}
-.tour-welcome-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 34px));background:linear-gradient(145deg,#1c1a17,#11110f);border:1px solid #6b5945;border-radius:24px;padding:34px 28px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55)}
-.tour-spark{font-size:28px;color:#d2ad7b;margin-bottom:14px}.tour-eyebrow{font-size:10px;letter-spacing:2.8px;color:#b99a72}.tour-welcome-card h2{font:400 34px Georgia,"Times New Roman",serif;color:#f5efe8;margin:7px 0 12px}.tour-welcome-card p{color:#b8ada1;font-size:13px;line-height:1.65;margin:0 0 24px}
-.tour-primary,.tour-secondary{width:100%;border-radius:12px;padding:12px 15px;cursor:pointer}.tour-primary{border:1px solid #a48661;background:#d2ad7b;color:#17130f;font-weight:700}.tour-secondary{margin-top:9px;border:1px solid #484039;background:#171613;color:#bdb2a6}
-.tour-spotlight{position:fixed;border:2px solid #d2ad7b;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.72),0 0 30px rgba(210,173,123,.25);pointer-events:none;transition:all .22s ease;z-index:10051}
-.tour-card{position:fixed;width:min(340px,calc(100vw - 28px));background:#191714;border:1px solid #6a5946;border-radius:18px;padding:18px;z-index:10052;box-shadow:0 18px 60px rgba(0,0,0,.5);transition:top .22s ease,left .22s ease}
-.tour-card-top{display:flex;justify-content:space-between;align-items:center;color:#998d81;font-size:10px;letter-spacing:1px}.tour-card-top button{border:0;background:transparent;color:#c8b49a;cursor:pointer;font-size:11px}.tour-card-icon{font-size:24px;margin:16px 0 8px}.tour-card h3{font:500 22px Georgia,"Times New Roman",serif;color:#f4eee7;margin:0 0 8px}.tour-card p{color:#b9aea2;font-size:12px;line-height:1.55;margin:0 0 18px}
-.tour-card-actions{display:flex;justify-content:space-between;gap:8px}.tour-card-actions button{border-radius:10px;padding:9px 14px;cursor:pointer}.tour-back{border:1px solid #49423a;background:#171613;color:#bdb2a6}.tour-next{margin-left:auto;border:1px solid #9a7b58;background:#d2ad7b;color:#17130f;font-weight:700}.tour-action{border:1px solid #6f5b45;background:#211b15;color:#e0bd91!important}
-.tour-highlight{position:relative;z-index:10053!important}
-@media(max-width:600px){.tour-card{width:calc(100vw - 24px)}.tour-welcome-card{padding:29px 22px}}
-
-
 /* ===== PROFILE APP ACTIONS ===== */
 .me-card .secondary-btn,
 .me-card .app-logout-btn{
@@ -1549,6 +1536,20 @@ body{
   border-color:#d46a65;
   transform:translateY(-1px);
 }
+
+
+/* ===== GUIDED ONBOARDING V3 ===== */
+.guide-welcome{position:fixed;inset:0;z-index:12000;background:rgba(4,4,3,.82);backdrop-filter:blur(7px)}
+.guide-welcome-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100vw - 30px));padding:34px 30px;border:1px solid #6b5842;border-radius:25px;background:linear-gradient(145deg,#1c1a17,#0f0f0d);box-shadow:0 28px 90px rgba(0,0,0,.65);text-align:center}
+.guide-mark{font-size:29px;color:#d2ad7b;margin-bottom:13px}.guide-kicker{font-size:9px;letter-spacing:2.7px;color:#b79266}.guide-welcome-card h2{font:400 32px/1.15 Georgia,serif;color:#f5efe7;margin:9px 0 12px}.guide-welcome-card p{font-size:13px;line-height:1.65;color:#b9aea1;margin:0 0 23px}
+.guide-start,.guide-skip-welcome{width:100%;min-height:48px;border-radius:13px;cursor:pointer}.guide-start{border:1px solid #a78762;background:#d2ad7b;color:#17130f;font-weight:800}.guide-skip-welcome{margin-top:9px;border:1px solid #474038;background:#171613;color:#c5baae}
+.guide-dimmer{position:fixed;inset:0;z-index:11990;background:rgba(0,0,0,.63);pointer-events:none}
+.guide-spotlight{position:fixed;z-index:11991;border:2px solid #d2ad7b;border-radius:15px;box-shadow:0 0 0 5px rgba(210,173,123,.08),0 0 26px rgba(210,173,123,.22);pointer-events:none;transition:.22s ease}
+.guide-coach{position:fixed;z-index:12001;width:min(330px,calc(100vw - 24px));padding:17px;border:1px solid #6b5945;border-radius:18px;background:#191714;box-shadow:0 18px 65px rgba(0,0,0,.58)}
+.guide-top{display:flex;align-items:center;justify-content:space-between;color:#a09283;font-size:10px;letter-spacing:.8px}.guide-top button{border:0;background:transparent;color:#cbb18f;cursor:pointer;font-size:10px}.guide-icon{font-size:23px;margin:14px 0 7px}.guide-coach h3{font:500 21px Georgia,serif;color:#f5efe8;margin:0 0 7px}.guide-coach p{font-size:12px;line-height:1.55;color:#bdb1a5;margin:0}.guide-hint{margin-top:11px;padding:9px 10px;border-radius:10px;background:#211b14;border:1px solid #5f4d38;color:#d5b58d;font-size:11px;line-height:1.45}
+.guide-actions{display:flex;align-items:center;gap:7px;margin-top:16px}.guide-actions button{border-radius:10px;padding:9px 12px;cursor:pointer;font-size:11px}.guide-back,.guide-skip-step{border:1px solid #464038;background:#151412;color:#bdb2a6}.guide-next{margin-left:auto;border:1px solid #9a7b58;background:#d2ad7b;color:#17130f;font-weight:800}
+.guide-live-target{position:relative!important;z-index:11999!important;pointer-events:auto!important}
+@media(max-width:600px){.guide-coach{width:calc(100vw - 20px)}.guide-welcome-card{padding:28px 21px}}
 
 </style>
 
@@ -7273,174 +7274,146 @@ function renderPairedStyleCard(title,items){
 }
 
 
-/* =========================================================
-   FIRST-TIME NAVIGATION TOUR
-========================================================= */
-let appTourIndex=0;
-let appTourActive=false;
 
-const APP_TOUR_STEPS=[
- {page:"home",selectors:["#homePage .home2-dashboard","#homePage"],icon:"🏠",title:"Home",text:"This is your daily overview. You can see planned outfits, laundry attention and upcoming travel here."},
- {page:"wardrobe",selectors:["#wardrobePage button[onclick*='openClothingModal']","#wardrobePage .category-grid","#wardrobePage"],icon:"👕",title:"Add your first item",text:"This is your Wardrobe. Use Add Item to photograph or upload clothing, then organise it into your own categories.",actionLabel:"Try Add Item",action:"add"},
- {page:"looks",selectors:["#looksPage button","#looksPage"],icon:"💗",title:"Create a Look",text:"Combine wardrobe pieces into complete outfits and save your favourite combinations here."},
- {page:"planner",selectors:["#plannerPage button","#plannerPage"],icon:"📅",title:"Plan an Outfit",text:"Choose a date, occasion and wardrobe pieces. Planner can also warn you when something you need is still in Laundry."},
- {page:"laundry",selectors:["#laundryPage .laundry-board","#laundryPage"],icon:"🧺",title:"Manage Laundry",text:"Move clothing through Waiting, Washing, Drying and Ready. Outdoor drying can also use your saved location for rain alerts."},
- {page:"travel",selectors:["#travelPage button","#travelPage"],icon:"✈️",title:"Pack for Travel",text:"Create a trip, choose wardrobe items and tick them off as you pack. Laundry conflicts are shown before departure."},
- {page:"shop",selectors:["#shopPage .shop-feature-grid","#shopPage"],icon:"✨",title:"Shop AI",text:"Choose an occasion, match with what you already own, or find missing pieces online. Your profile, fit, budget and preferred stores help personalise results."},
- {page:"profile",selectors:["#profilePage","#profileModal",".profile-panel"],icon:"👤",title:"Profile & My Fit",text:"Keep your sizes, fit preferences and shopping profile up to date. You can replay this guided tour from here anytime."}
+
+/* =========================================================
+   GUIDED ONBOARDING V3 — REAL PAGE WALKTHROUGH
+========================================================= */
+let guidedActive=false;
+let guidedIndex=0;
+let guidedObserver=null;
+
+const GUIDED_STEPS=[
+ {page:"home",icon:"🏠",title:"Your Home",text:"Home brings together today's outfit, upcoming plans, Laundry and Travel. We'll now set up the important parts of your wardrobe.",selectors:["#homePage .home2-dashboard","#homePage"],mode:"info"},
+ {page:"wardrobe",icon:"🗂️",title:"Create a category",text:"Start by organising your wardrobe. Create a category such as Shirts, Pants, Shoes or Dresses.",selectors:["#wardrobePage [onclick*='Category']","#wardrobePage button"],mode:"category",hint:"Tap the highlighted category button and create one. The guide will continue when it detects your new category."},
+ {page:"wardrobe",icon:"👕",title:"Add your first clothing item",text:"Now add a real item to your wardrobe. You can upload a photo and use the clothing extraction tools you've built into My Wardrobe.",selectors:["#wardrobePage [onclick*='openClothingModal']","#wardrobePage [onclick*='Clothing']","#wardrobePage button"],mode:"item",hint:"Tap the highlighted Add Item button. After the item is saved, come back here and the guide can continue."},
+ {page:"looks",icon:"💗",title:"Build a Look",text:"Looks lets you combine your wardrobe pieces into saved outfits. Use this whenever you find a combination you want to wear again.",selectors:["#looksPage button","#looksPage"],mode:"info"},
+ {page:"planner",icon:"📅",title:"Plan what to wear",text:"Planner connects outfits to dates and occasions. It can also help catch clothing that is still in Laundry before you need it.",selectors:["#plannerPage button","#plannerPage"],mode:"info"},
+ {page:"laundry",icon:"🧺",title:"Track Laundry",text:"Move items through Waiting, Washing, Drying and Ready. Outdoor drying can also use your weather and rain-alert system.",selectors:["#laundryPage .laundry-board","#laundryPage"],mode:"info"},
+ {page:"travel",icon:"✈️",title:"Prepare for Travel",text:"Create trips and packing lists here. My Wardrobe can show packing progress and warn when something you need is still in Laundry.",selectors:["#travelPage button","#travelPage"],mode:"info"},
+ {page:"shop",icon:"✨",title:"Use Shop AI",text:"Shop AI starts with what you already own. Choose an occasion, match your wardrobe, or search for missing pieces online using your fit, budget and store preferences.",selectors:["#shopPage .shop-feature-grid","#shopPage"],mode:"info"},
+ {page:"profile",icon:"👤",title:"You're ready",text:"Keep My Fit and shopping preferences updated in Profile. You can restart this guided setup from here whenever you want.",selectors:["#profilePage","#profileModal",".me-page"],mode:"finish"}
 ];
 
-function appTourStorageKey(){
- const uid=currentUser?.id||"guest";
- return `mywardrobe_onboarding_v2_${uid}`;
-}
-function hasCompletedAppTour(){return localStorage.getItem(appTourStorageKey())==="1"}
+function guidedStorageKey(){return `mywardrobe_guided_v3_${currentUser?.id||"guest"}`}
+function guidedCompleted(){return localStorage.getItem(guidedStorageKey())==="1"}
+
 function maybeShowFirstTimeTour(){
- if(!currentUser||hasCompletedAppTour())return;
- setTimeout(()=>el("appTourWelcome")?.classList.remove("hidden"),450);
+ if(!currentUser||guidedCompleted()||guidedActive)return;
+ setTimeout(()=>el("guidedWelcome")?.classList.remove("hidden"),500);
 }
-function tourFindTarget(step){
- for(const s of (step.selectors||[])){try{const n=document.querySelector(s);if(n&&n.offsetParent!==null)return n}catch(_){}}
+function startGuidedOnboarding(){
+ el("guidedWelcome")?.classList.add("hidden");
+ guidedActive=true;guidedIndex=0;
+ el("guidedDimmer")?.classList.remove("hidden");
+ el("guidedCoach")?.classList.remove("hidden");
+ renderGuidedStep();
+}
+function skipGuidedOnboarding(){
+ localStorage.setItem(guidedStorageKey(),"1");
+ stopGuidedObserver();
+ guidedActive=false;
+ clearGuidedTarget();
+ ["guidedWelcome","guidedDimmer","guidedSpotlight","guidedCoach"].forEach(id=>el(id)?.classList.add("hidden"));
+ try{showPage("home")}catch(_){}
+}
+function replayAppTour(){
+ localStorage.removeItem(guidedStorageKey());
+ guidedActive=true;guidedIndex=0;
+ el("guidedWelcome")?.classList.add("hidden");
+ el("guidedDimmer")?.classList.remove("hidden");
+ el("guidedCoach")?.classList.remove("hidden");
+ renderGuidedStep();
+}
+function guidedNext(){
+ if(guidedIndex>=GUIDED_STEPS.length-1){skipGuidedOnboarding();return}
+ guidedIndex++;renderGuidedStep();
+}
+function guidedBack(){
+ if(guidedIndex<=0)return;
+ guidedIndex--;renderGuidedStep();
+}
+function stopGuidedObserver(){if(guidedObserver){guidedObserver.disconnect();guidedObserver=null}}
+function clearGuidedTarget(){document.querySelectorAll(".guide-live-target").forEach(n=>n.classList.remove("guide-live-target"))}
+function guidedFind(step){
+ for(const s of step.selectors||[]){try{const n=document.querySelector(s);if(n&&n.offsetParent!==null)return n}catch(_){}}
  return null;
 }
-function tourOpenPage(step){
+function guidedOpen(step){
  try{
-   if(step.page==="profile"){
-     if(typeof openProfile==="function")openProfile();
-     else if(typeof openProfileModal==="function")openProfileModal();
-     else if(typeof showPage==="function")showPage("profile");
-   }else if(typeof showPage==="function"){
-     showPage(step.page);
-   }
- }catch(e){console.warn("Tour page navigation:",e)}
+  if(step.page==="profile"){
+   if(typeof openProfile==="function")openProfile();
+   else if(typeof openProfileModal==="function")openProfileModal();
+   else if(typeof showPage==="function")showPage("profile");
+  }else if(typeof showPage==="function")showPage(step.page);
+ }catch(e){console.warn("guided navigation",e)}
 }
-function startAppTour(){
- el("appTourWelcome")?.classList.add("hidden");
- appTourIndex=0;appTourActive=true;
- el("appTourLayer")?.classList.remove("hidden");
- showAppTourStep();
-}
-function finishAppTour(){
- localStorage.setItem(appTourStorageKey(),"1");
- appTourActive=false;
- document.querySelectorAll(".tour-highlight").forEach(n=>n.classList.remove("tour-highlight"));
- el("appTourWelcome")?.classList.add("hidden");
- el("appTourLayer")?.classList.add("hidden");
- try{if(typeof showPage==="function")showPage("home")}catch(_){}
-}
-function skipAppTour(){finishAppTour()}
-function replayAppTour(){
- appTourIndex=0;appTourActive=true;
- el("appTourWelcome")?.classList.add("hidden");
- el("appTourLayer")?.classList.remove("hidden");
- showAppTourStep();
-}
-function nextAppTourStep(){
- if(appTourIndex>=APP_TOUR_STEPS.length-1){finishAppTour();return}
- appTourIndex++;showAppTourStep();
-}
-function previousAppTourStep(){
- if(appTourIndex<=0)return;
- appTourIndex--;showAppTourStep();
-}
-function tourTryAction(){
- const step=APP_TOUR_STEPS[appTourIndex];
- if(step?.action==="add"){
-   // Temporarily hide guide so the real Add Item modal can be used.
-   el("appTourLayer")?.classList.add("hidden");
-   try{openClothingModal()}catch(e){console.warn(e)}
-   setTimeout(()=>{
-     const modal=document.querySelector(".modal:not(.hidden), .modal-overlay:not(.hidden), #clothingModal:not(.hidden)");
-     if(!modal){
-       el("appTourLayer")?.classList.remove("hidden");
-       showAppTourStep(false);
-     }
-   },250);
- }
-}
-function resumeAppTour(){
- if(!appTourActive)return;
- document.querySelectorAll(".modal").forEach(()=>{});
- el("appTourLayer")?.classList.remove("hidden");
- showAppTourStep(false);
-}
-function showAppTourStep(navigate=true){
- if(!appTourActive)return;
- document.querySelectorAll(".tour-highlight").forEach(n=>n.classList.remove("tour-highlight"));
- const step=APP_TOUR_STEPS[appTourIndex];
- if(navigate)tourOpenPage(step);
-
+function renderGuidedStep(){
+ if(!guidedActive)return;
+ stopGuidedObserver();clearGuidedTarget();
+ const step=GUIDED_STEPS[guidedIndex];
+ guidedOpen(step);
  setTimeout(()=>{
-   const target=tourFindTarget(step);
-   if(target){
-     try{target.scrollIntoView({behavior:"smooth",block:"center",inline:"nearest"})}catch(_){}
-   }
-   setTimeout(()=>positionAdvancedTour(step,target),180);
- },220);
+  const target=guidedFind(step);
+  if(target){target.classList.add("guide-live-target");try{target.scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}}
+  setTimeout(()=>positionGuidedCoach(step,target),180);
+  watchGuidedAction(step);
+ },230);
 }
-function positionAdvancedTour(step,target){
- if(!appTourActive)return;
- const spot=el("appTourSpotlight"),card=el("appTourCard");
- const rect=target?target.getBoundingClientRect():{left:18,top:90,width:Math.min(300,innerWidth-36),height:70,bottom:160};
- if(target)target.classList.add("tour-highlight");
+function positionGuidedCoach(step,target){
+ const spot=el("guidedSpotlight"),coach=el("guidedCoach");
+ home2Set("guidedProgress",`Step ${guidedIndex+1} of ${GUIDED_STEPS.length}`);
+ home2Set("guidedIcon",step.icon);home2Set("guidedTitle",step.title);home2Set("guidedText",step.text);
+ const hint=el("guidedHint");
+ if(hint){hint.textContent=step.hint||"";hint.classList.toggle("hidden",!step.hint)}
+ const back=el("guidedBack");if(back)back.style.visibility=guidedIndex===0?"hidden":"visible";
+ const next=el("guidedNext");if(next)next.textContent=step.mode==="finish"?"Finish":"Next";
+ const skipStep=el("guidedSkipStep");if(skipStep)skipStep.style.display=(step.mode==="category"||step.mode==="item")?"inline-block":"none";
+
+ if(!target){spot?.classList.add("hidden");centerCoach();return}
+ const r=target.getBoundingClientRect(),pad=7;
  if(spot){
-   spot.style.display=target?"block":"none";
-   if(target){
-     const pad=7;
-     spot.style.left=Math.max(4,rect.left-pad)+"px";
-     spot.style.top=Math.max(4,rect.top-pad)+"px";
-     spot.style.width=Math.min(innerWidth-8,rect.width+pad*2)+"px";
-     spot.style.height=(rect.height+pad*2)+"px";
-   }
+  spot.classList.remove("hidden");
+  spot.style.left=Math.max(4,r.left-pad)+"px";spot.style.top=Math.max(4,r.top-pad)+"px";
+  spot.style.width=Math.min(innerWidth-8,r.width+pad*2)+"px";spot.style.height=(r.height+pad*2)+"px";
  }
- home2Set("appTourStepCount",`${appTourIndex+1} of ${APP_TOUR_STEPS.length}`);
- home2Set("appTourIcon",step.icon);
- home2Set("appTourTitle",step.title);
- home2Set("appTourText",step.text);
- const back=el("appTourBack");if(back)back.style.visibility=appTourIndex===0?"hidden":"visible";
- const next=el("appTourNext");if(next)next.textContent=appTourIndex===APP_TOUR_STEPS.length-1?"Finish":"Next";
-
- let action=el("appTourAction");
- if(!action&&card){
-   action=document.createElement("button");
-   action.id="appTourAction";action.className="tour-action";
-   action.onclick=tourTryAction;
-   const actions=card.querySelector(".tour-card-actions");
-   if(actions)actions.insertBefore(action,actions.lastElementChild);
- }
- if(action){
-   action.textContent=step.actionLabel||"";
-   action.style.display=step.actionLabel?"inline-block":"none";
- }
-
- if(card){
-   const cardW=Math.min(340,innerWidth-28);
-   let left=Math.min(Math.max(14,rect.left+rect.width/2-cardW/2),innerWidth-cardW-14);
-   let top=rect.bottom+15;
-   if(top+260>innerHeight)top=Math.max(14,rect.top-270);
-   card.style.left=left+"px";card.style.top=top+"px";
+ if(coach){
+  const w=Math.min(330,innerWidth-24);
+  let left=Math.min(Math.max(12,r.left+r.width/2-w/2),innerWidth-w-12);
+  let top=r.bottom+15;
+  if(top+260>innerHeight)top=Math.max(12,r.top-275);
+  coach.style.left=left+"px";coach.style.top=top+"px";
  }
 }
-
-window.addEventListener('resize',()=>{if(appTourActive)showAppTourStep()});
-
-
-document.addEventListener('click',(e)=>{
- const nav=e.target.closest('[data-page="home"]');
- if(nav)setTimeout(maybeShowFirstTimeTour,300);
-});
-setTimeout(()=>{if(currentUser)maybeShowFirstTimeTour()},1200);
-
-
-window.startAppTour=startAppTour;
-window.skipAppTour=skipAppTour;
+function centerCoach(){
+ const coach=el("guidedCoach");if(!coach)return;
+ coach.style.left="50%";coach.style.top="50%";coach.style.transform="translate(-50%,-50%)";
+}
+function watchGuidedAction(step){
+ if(step.mode!=="category"&&step.mode!=="item")return;
+ const initialCategories=(categories||[]).length;
+ const initialItems=(clothingItems||[]).length;
+ guidedObserver=new MutationObserver(()=>{
+  if(!guidedActive)return;
+  if(step.mode==="category"&&(categories||[]).length>initialCategories){
+   stopGuidedObserver();setTimeout(guidedNext,550);
+  }
+  if(step.mode==="item"&&(clothingItems||[]).length>initialItems){
+   stopGuidedObserver();setTimeout(guidedNext,550);
+  }
+ });
+ guidedObserver.observe(document.body,{childList:true,subtree:true});
+}
+window.addEventListener("resize",()=>{if(guidedActive)renderGuidedStep()});
+window.startGuidedOnboarding=startGuidedOnboarding;
+window.skipGuidedOnboarding=skipGuidedOnboarding;
 window.replayAppTour=replayAppTour;
-window.nextAppTourStep=nextAppTourStep;
-window.previousAppTourStep=previousAppTourStep;
+window.guidedNext=guidedNext;
+window.guidedBack=guidedBack;
 
+// First authenticated launch safety check.
+setTimeout(()=>{if(currentUser)maybeShowFirstTimeTour()},1300);
 
-window.tourTryAction=tourTryAction;
-window.resumeAppTour=resumeAppTour;
 </script>
 
 <div id="wearHistoryModal" class="modal hidden">
@@ -7769,32 +7742,34 @@ window.resumeAppTour=resumeAppTour;
 </div>
 
 
-<!-- ===== FIRST-TIME APP TOUR ===== -->
-<div id="appTourWelcome" class="tour-overlay hidden">
-  <div class="tour-welcome-card">
-    <div class="tour-spark">✦</div>
-    <div class="tour-eyebrow">WELCOME TO</div>
-    <h2>My Wardrobe</h2>
-    <p>Let us show you around. This quick tour introduces the main places to organise, plan and style your wardrobe.</p>
-    <button class="tour-primary" onclick="startAppTour()">Start Tour</button>
-    <button class="tour-secondary" onclick="skipAppTour()">Skip for now</button>
+
+<!-- ===== GUIDED ONBOARDING ===== -->
+<div id="guidedWelcome" class="guide-welcome hidden">
+  <div class="guide-welcome-card">
+    <div class="guide-mark">✦</div>
+    <div class="guide-kicker">WELCOME TO MY WARDROBE</div>
+    <h2>Set up your wardrobe with me.</h2>
+    <p>This guide takes you into the real app and shows you what to do. You can perform the steps yourself or skip anything you don't need.</p>
+    <button class="guide-start" onclick="startGuidedOnboarding()">Start guided setup</button>
+    <button class="guide-skip-welcome" onclick="skipGuidedOnboarding()">Skip for now</button>
   </div>
 </div>
 
-<div id="appTourLayer" class="tour-overlay hidden">
-  <div id="appTourSpotlight" class="tour-spotlight"></div>
-  <div id="appTourCard" class="tour-card">
-    <div class="tour-card-top">
-      <span id="appTourStepCount">1 of 7</span>
-      <button onclick="skipAppTour()">Skip</button>
-    </div>
-    <div id="appTourIcon" class="tour-card-icon">👕</div>
-    <h3 id="appTourTitle">Wardrobe</h3>
-    <p id="appTourText"></p>
-    <div class="tour-card-actions">
-      <button id="appTourBack" class="tour-back" onclick="previousAppTourStep()">Back</button>
-      <button id="appTourNext" class="tour-next" onclick="nextAppTourStep()">Next</button>
-    </div>
+<div id="guidedDimmer" class="guide-dimmer hidden"></div>
+<div id="guidedSpotlight" class="guide-spotlight hidden"></div>
+<div id="guidedCoach" class="guide-coach hidden">
+  <div class="guide-top">
+    <span id="guidedProgress">Step 1</span>
+    <button onclick="skipGuidedOnboarding()">Skip tour</button>
+  </div>
+  <div id="guidedIcon" class="guide-icon">👕</div>
+  <h3 id="guidedTitle"></h3>
+  <p id="guidedText"></p>
+  <div id="guidedHint" class="guide-hint hidden"></div>
+  <div class="guide-actions">
+    <button id="guidedBack" class="guide-back" onclick="guidedBack()">Back</button>
+    <button id="guidedSkipStep" class="guide-skip-step" onclick="guidedNext()">Skip step</button>
+    <button id="guidedNext" class="guide-next" onclick="guidedNext()">Next</button>
   </div>
 </div>
 
