@@ -1638,6 +1638,10 @@ body{
   object-fit:contain !important;
 }
 
+
+/* ===== AUTOMATIC MULTI-SCAN PREVIEW ===== */
+#multiScanResults .photo-frame,
+#multiScanResults .photo-frame img{background:#fff!important;background-color:#fff!important}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4245,7 +4249,7 @@ function renderMultiScanResults(items=multiScanDetectedItems){
   <div class="section-head" style="margin-top:8px">
    <h2>Review ${items.length} item${items.length===1?"":"s"}</h2>
   </div>
-  <div class="notice">Check the items you want to add. You can edit the details and choose one of your real wardrobe categories before saving.</div>
+  <div class="notice">Review the items AI found. Clean previews are prepared automatically. Edit the details, choose the correct category, and select what you want to add.</div>
   ${items.map((item,index)=>{
     if(item.selected===undefined)item.selected=true;
     if(!item.category_id)item.category_id=bestMultiScanCategoryId(item.categorySuggestion);
@@ -4281,16 +4285,14 @@ function renderMultiScanResults(items=multiScanDetectedItems){
       </div>
 
       <div style="margin-top:12px">
-       <button id="multiExtractBtn-${index}" type="button" class="secondary" style="width:100%" onclick="extractMultiScanItem(${index})">
-        ✨ Extract Item
-       </button>
+       ${!item.extractedImage?`<button id="multiExtractBtn-${index}" type="button" class="secondary" style="width:100%" onclick="extractMultiScanItem(${index})">↻ Retry Preview</button>`:""}
        <div id="multiExtractStatus-${index}" class="muted" style="margin-top:8px"></div>
        <div id="multiExtractPreview-${index}" style="margin-top:10px">
         ${item.extractedImage?`
          <div class="photo-frame" style="min-height:190px">
           <img src="${item.extractedImage}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain;background:#fff;border-radius:12px">
          </div>
-         <div class="success-box" style="margin-top:8px">✓ This extracted image will be used when this item is saved.</div>
+         <div class="success-box" style="margin-top:8px">✓ Clean preview ready.</div>
         `:""}
        </div>
       </div>
@@ -4302,10 +4304,7 @@ function renderMultiScanResults(items=multiScanDetectedItems){
     </div>`;
   }).join("")}
 
-  <button id="multiExtractAllButton" type="button" class="secondary" style="width:100%;margin-top:14px" onclick="extractAllSelectedMultiScanItems()">
-   ✨ Extract All Selected
-  </button>
-  <div id="multiExtractAllStatus" class="muted" style="margin-top:8px"></div>
+  
 
   <button id="multiReviewFinalButton" type="button" class="primary" style="margin-top:10px" onclick="openMultiScanFinalPreview()">
    Preview Before Adding
@@ -4496,7 +4495,24 @@ async function scanMultipleClothes(){
   }));
 
   el("multiScanStatus").textContent=`Scan complete — ${multiScanDetectedItems.length} item${multiScanDetectedItems.length===1?"":"s"} detected. Review them below.`;
-  renderMultiScanResults();
+  
+  if(multiScanDetectedItems.length){
+   el("multiScanStatus").textContent=`${multiScanDetectedItems.length} item${multiScanDetectedItems.length===1?"":"s"} found. Preparing clean previews…`;
+   let ready=0;
+   const failed=[];
+   for(let index=0;index<multiScanDetectedItems.length;index++){
+    const item=multiScanDetectedItems[index];
+    el("multiScanStatus").textContent=`Preparing item ${index+1} of ${multiScanDetectedItems.length}: ${item.name||"clothing item"}…`;
+    try{await requestMultiScanExtraction(index);ready++;}
+    catch(extractErr){console.error("Automatic extraction failed:",index,extractErr);failed.push(index);}
+   }
+   renderMultiScanResults();
+   el("multiScanStatus").textContent=failed.length
+    ? `Scan complete — ${ready} clean preview${ready===1?"":"s"} ready. Retry ${failed.length} item${failed.length===1?"":"s"} below.`
+    : `Scan complete — ${ready} item${ready===1?"":"s"} ready to review.`;
+  }else{
+   renderMultiScanResults();
+  }
 
  }catch(err){
   console.error("Multi-clothing scanner:",err);
@@ -4534,7 +4550,7 @@ function openMultiScanFinalPreview(){
 
  const missing=selectedIndexes.filter(index=>!multiScanDetectedItems[index].extractedImage);
  if(missing.length){
-  return alert("Please extract every selected item first. This lets you review each final image before anything is added to your wardrobe.");
+  return alert("One or more clean previews are not ready yet. Tap “Retry Preview” on those items, then continue.");
  }
 
  const wrap=el("multiScanFinalPreview");
