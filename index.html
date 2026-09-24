@@ -1439,6 +1439,22 @@ body{
 .magazine-disposition{margin:0 9px 9px;padding:8px;border-radius:9px;background:#211e1a;color:#bcae9f;font-size:10px;text-align:center}
 .wear-again-preview{display:flex;align-items:center;gap:12px;background:#211e1a;border:1px solid #4b443c;border-radius:14px;padding:12px;margin-bottom:12px}
 .wear-again-preview img{width:74px;height:74px;object-fit:contain;background:#fff;border-radius:11px}
+
+/* ===== OUTFIT PLANNER 2.0 ===== */
+.planner-saved-looks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.planner-saved-look{border:1px solid #4b443c;background:#181713;color:#f2ece5;border-radius:14px;padding:10px;text-align:left;display:flex;align-items:center;gap:10px;cursor:pointer}
+.planner-saved-look:hover,.planner-saved-look.active{border-color:#d2ad7b}
+.planner-saved-look-thumbs{display:flex;min-width:62px}.planner-saved-look-thumbs img,.planner-saved-look-thumb-placeholder{width:34px;height:42px;object-fit:cover;background:#24211d;border:1px solid #4b443c;border-radius:7px;margin-right:-8px}
+.planner-saved-look-thumb-placeholder{display:flex;align-items:center;justify-content:center}
+.planner-selected-preview{display:flex;gap:7px;overflow-x:auto;margin-top:10px;padding-bottom:3px}
+.planner-selected-chip{flex:0 0 auto;display:flex;align-items:center;gap:7px;border:1px solid #4b443c;background:#191815;border-radius:999px;padding:6px 9px 6px 6px;font-size:11px}
+.planner-selected-chip img,.planner-selected-chip .ph{width:29px;height:29px;border-radius:50%;object-fit:cover;background:#24211d;display:flex;align-items:center;justify-content:center}
+.planner-selected-chip.laundry{border-color:#a67c4f;color:#e4c397}
+.calendar-dot.planned{background:#d2ad7b}.calendar-mini-label.planned-label{color:#d2ad7b}
+.calendar-event.planned-event{border-color:#6a5844;background:#1c1915}.calendar-event .laundry-conflict{color:#e0ad72}
+.planned-outfit.has-laundry{border-color:#8b6849!important}.planned-conflict{margin-top:9px;padding:8px 10px;border-radius:10px;background:#2a2118;color:#e0b27c;font-size:12px}
+@media(max-width:620px){.planner-saved-looks{grid-template-columns:1fr}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1894,6 +1910,13 @@ body{
           <div class="field"><label>Plan name</label><input id="plannerName" placeholder="e.g. Saturday dinner"></div>
           <div class="field"><label>Notes (optional)</label><textarea id="plannerNotes" rows="2" placeholder="Dress code, location, anything to remember..."></textarea></div>
 
+          <div class="planner-quick-source">
+            <div class="section-head" style="margin-top:18px">
+              <div><h2 style="margin:0">Start with a Saved Look</h2><div class="muted">Optional — load all pieces from an existing Look.</div></div>
+            </div>
+            <div id="plannerSavedLooks" class="planner-saved-looks"></div>
+          </div>
+
           <div class="section-head" style="margin-top:18px">
             <h2>Choose from my wardrobe</h2>
             <button type="button" class="secondary" onclick="clearPlannerSelection()">Clear</button>
@@ -1913,6 +1936,7 @@ body{
           </div>
 
           <div id="plannerSelectedCount" class="muted" style="margin-top:10px">0 items selected</div>
+          <div id="plannerSelectedPreview" class="planner-selected-preview"></div>
           <div id="plannerLaundryWarning" class="planner-laundry-warning hidden"></div>
 
           <button id="savePlannedOutfitBtn" class="primary" style="margin-top:16px" onclick="savePlannedOutfit()">📅 Save planned outfit</button>
@@ -1948,7 +1972,8 @@ body{
     </div>
     <div id="calendarSelectedEvents"></div>
     <div class="calendar-selected-actions">
-      <button class="primary" style="width:auto" onclick="openWearHistoryForSelectedDate()">I Wore This</button>
+      <button class="primary" style="width:auto" onclick="planOutfitForSelectedDate()">＋ Plan this date</button>
+      <button class="secondary" style="width:auto" onclick="openWearHistoryForSelectedDate()">I Wore This</button>
     </div>
   </div>
 </div>
@@ -2751,7 +2776,7 @@ function showPage(page){
  hideAllPages();clearNavActive();
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems();renderHomeDashboard()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
- if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");loadOutfitHistory();renderOutfitPlanner()}
+ if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");Promise.all([loadOutfitHistory(),loadPlannedOutfits()]).then(()=>{renderOutfitPlanner();renderOutfitCalendar();});}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
  if(page==="travel"){el("travelPage").classList.remove("hidden");el("navTravel").classList.add("active");renderTravelPacking()}
@@ -2868,7 +2893,38 @@ function renderOutfitPlanner(){
  renderPlannedOutfits();
 }
 
+
+function plannerLookItemIds(lookId){
+ return (lookItems||[]).filter(x=>String(x.look_id)===String(lookId)).map(x=>x.clothing_item_id).filter(Boolean);
+}
+function renderPlannerSavedLooks(){
+ const wrap=el("plannerSavedLooks");if(!wrap)return;
+ if(!(savedLooks||[]).length){wrap.innerHTML='<div class="planner-empty">No Saved Looks yet. Choose individual pieces below.</div>';return;}
+ wrap.innerHTML=(savedLooks||[]).map(look=>{
+  const ids=plannerLookItemIds(look.id),items=ids.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+  const active=ids.length&&ids.every(id=>plannerSelectedItemIds.includes(id));
+  const thumbs=items.slice(0,3).map(i=>i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:'<div class="planner-saved-look-thumb-placeholder">👕</div>').join("");
+  return `<button type="button" class="planner-saved-look ${active?"active":""}" onclick="loadSavedLookIntoPlanner('${escapeJs(look.id)}')"><div class="planner-saved-look-thumbs">${thumbs||'<div class="planner-saved-look-thumb-placeholder">✨</div>'}</div><div><strong>${escapeHtml(look.name||"Untitled Look")}</strong><div class="muted">${items.length} piece${items.length===1?"":"s"}</div></div></button>`;
+ }).join("");
+}
+function loadSavedLookIntoPlanner(lookId){
+ const ids=plannerLookItemIds(lookId).filter(id=>clothingItems.some(i=>String(i.id)===String(id)));
+ if(!ids.length)return alert("This Look has no wardrobe items to load.");
+ plannerSelectedItemIds=[...new Set(ids)];renderPlannerWardrobeItems();updatePlannerSelectedCount();
+}
+function renderPlannerSelectedPreview(){
+ const wrap=el("plannerSelectedPreview");if(!wrap)return;
+ const items=plannerSelectedItemIds.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+ wrap.innerHTML=items.map(i=>`<div class="planner-selected-chip ${i.laundry_status?"laundry":""}">${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:'<span class="ph">👕</span>'}<span>${escapeHtml(i.name||"Item")}${i.laundry_status?" · 🧺":""}</span></div>`).join("");
+}
+function planOutfitForSelectedDate(){
+ if(!outfitCalendarSelectedDate)return;
+ if(el("plannerDate"))el("plannerDate").value=outfitCalendarSelectedDate;
+ window.scrollTo({top:0,behavior:"smooth"});setTimeout(()=>el("plannerName")?.focus(),350);
+}
 function renderPlannerWardrobeItems(){
+ renderPlannerSavedLooks();
+ renderPlannerSelectedPreview();
  renderPlannerCategories();
  if(plannerActiveCategoryId)renderPlannerCategoryItems(plannerActiveCategoryId);
  updatePlannerSelectedCount();
@@ -2929,6 +2985,8 @@ function renderPlannerCategoryItems(categoryId){
  updatePlannerSelectedCount();
 }
 function updatePlannerSelectedCount(){
+ renderPlannerSelectedPreview();
+ renderPlannerSavedLooks();
  const count=el("plannerSelectedCount");
  if(count)count.textContent=plannerSelectedItemIds.length+" item"+(plannerSelectedItemIds.length===1?"":"s")+" selected";
  const warning=el("plannerLaundryWarning");
@@ -3008,6 +3066,7 @@ async function savePlannedOutfit(){
  await loadPlannedOutfits();
  renderPlannerWardrobeItems();
  renderPlannedOutfits();
+ renderOutfitCalendar();
  alert("Outfit planned ✓");
 }
 
@@ -3029,7 +3088,7 @@ function renderPlannedOutfits(){
    const thumbs=items.map(i=>i.displayPhoto
      ? `<img src="${escapeHtml(i.displayPhoto)}" title="${escapeHtml(i.name||"Item")}" alt="">`
      : `<div class="planned-thumb-placeholder">👕</div>`).join("");
-   return `<div class="planned-outfit">
+   return `<div class="planned-outfit ${items.some(i=>i.laundry_status)?"has-laundry":""}">
      <div class="planned-outfit-top">
        <div>
          <div class="planned-date">📅 ${escapeHtml(plannerPrettyDate(p.date))}</div>
@@ -3039,7 +3098,8 @@ function renderPlannedOutfits(){
        <span class="planner-date-badge">${items.length} item${items.length===1?"":"s"}</span>
      </div>
      <div class="planned-thumbs">${thumbs||'<span class="muted">Items no longer in wardrobe</span>'}</div>
-     <div class="planned-actions">
+     ${items.some(i=>i.laundry_status)?`<div class="planned-conflict">🧺 ${escapeHtml(items.filter(i=>i.laundry_status).map(i=>i.name||"Item").join(", "))} ${items.filter(i=>i.laundry_status).length===1?"is":"are"} currently in Laundry.</div>`:""}
+      <div class="planned-actions">
        <button class="small-btn" onclick="editPlannedOutfit('${p.id}')">Edit</button>
        <button class="small-btn danger" onclick="deletePlannedOutfit('${p.id}')">Delete</button>
      </div>
@@ -5778,6 +5838,7 @@ function renderOutfitCalendar(){
     const iso=localDateISO(date);
     const outside=date.getMonth()!==month;
     const worn=(outfitHistory||[]).filter(x=>x.worn_date===iso);
+    const planned=(plannedOutfits||[]).filter(x=>x.date===iso);
     const isSelected=iso===outfitCalendarSelectedDate;
     const isToday=iso===today;
     const firstEntry=worn[0];
@@ -5788,11 +5849,12 @@ function renderOutfitCalendar(){
         class="calendar-day ${outside?"outside":""} ${isSelected?"selected":""} ${isToday?"today":""}"
         onclick="selectOutfitCalendarDate('${iso}')">
         <span class="calendar-date">${date.getDate()}</span>
-        ${worn.length?`
+        ${(worn.length||planned.length)?`
           <div class="calendar-markers">
-            ${worn.slice(0,4).map(()=>'<span class="calendar-dot worn"></span>').join("")}
+            ${worn.slice(0,3).map(()=>'<span class="calendar-dot worn"></span>').join("")}
+            ${planned.slice(0,3).map(()=>'<span class="calendar-dot planned"></span>').join("")}
           </div>
-          <div class="calendar-mini-label">${escapeHtml(look?.name||"Worn outfit")}</div>
+          <div class="calendar-mini-label ${!worn.length&&planned.length?"planned-label":""}">${escapeHtml(worn.length?(look?.name||"Worn outfit"):(planned[0]?.name||"Planned outfit"))}</div>
         `:""}
       </button>`;
   }
@@ -5801,25 +5863,17 @@ function renderOutfitCalendar(){
 }
 
 function renderSelectedCalendarDate(){
-  const title=el("calendarSelectedDate");
-  const box=el("calendarSelectedEvents");
-  if(!title||!box) return;
-  title.textContent=formatCalendarDateLong(outfitCalendarSelectedDate);
-
-  const entries=(outfitHistory||[]).filter(x=>x.worn_date===outfitCalendarSelectedDate);
-  if(!entries.length){
-    box.innerHTML='<div class="history-empty" style="margin-top:12px">Nothing recorded for this date yet.</div>';
-    return;
-  }
-
-  box.innerHTML=entries.map(entry=>{
-    const look=(savedLooks||[]).find(x=>String(x.id)===String(entry.look_id));
-    return `<div class="calendar-event">
-      <strong>${escapeHtml(look?.name||"Saved look")}</strong>
-      <small>● Wore this${entry.occasion?" · "+escapeHtml(entry.occasion):""}</small>
-      ${entry.notes?`<small>${escapeHtml(entry.notes)}</small>`:""}
-    </div>`;
-  }).join("");
+ const title=el("calendarSelectedDate"),box=el("calendarSelectedEvents");if(!title||!box)return;
+ title.textContent=formatCalendarDateLong(outfitCalendarSelectedDate);
+ const entries=(outfitHistory||[]).filter(x=>x.worn_date===outfitCalendarSelectedDate);
+ const plans=(plannedOutfits||[]).filter(x=>x.date===outfitCalendarSelectedDate);
+ if(!entries.length&&!plans.length){box.innerHTML='<div class="history-empty" style="margin-top:12px">Nothing planned or recorded for this date yet.</div>';return;}
+ const plannedHtml=plans.map(plan=>{
+  const items=(plan.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean),laundry=items.filter(i=>i.laundry_status);
+  return `<div class="calendar-event planned-event"><strong>${escapeHtml(plan.name||plan.occasion||"Planned outfit")}</strong><small>◆ Planned${plan.occasion?" · "+escapeHtml(plan.occasion):""}</small>${plan.notes?`<small>${escapeHtml(plan.notes)}</small>`:""}${laundry.length?`<small class="laundry-conflict">🧺 ${escapeHtml(laundry.map(i=>i.name||"Item").join(", "))} ${laundry.length===1?"is":"are"} in Laundry</small>`:""}<button class="small-btn" style="margin-top:7px" onclick="editPlannedOutfit('${plan.id}')">Edit plan</button></div>`;
+ }).join("");
+ const wornHtml=entries.map(entry=>{const look=(savedLooks||[]).find(x=>String(x.id)===String(entry.look_id));return `<div class="calendar-event"><strong>${escapeHtml(look?.name||"Saved look")}</strong><small>● Wore this${entry.occasion?" · "+escapeHtml(entry.occasion):""}</small>${entry.notes?`<small>${escapeHtml(entry.notes)}</small>`:""}</div>`;}).join("");
+ box.innerHTML=plannedHtml+wornHtml;
 }
 
 function openWearHistoryForSelectedDate(){
