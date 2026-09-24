@@ -1394,6 +1394,19 @@ body{
 .laundry-care-form textarea{min-height:80px;resize:vertical}
 .laundry-care-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
+
+/* ===== MULTI-SCAN FINAL PREVIEW ===== */
+.multi-final-preview{margin-top:16px;border-top:1px solid #4b443c;padding-top:16px}
+.multi-final-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.multi-final-preview-head h3{margin:0;font:400 23px Georgia,"Times New Roman",serif;color:#f4efe8}
+.multi-final-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.multi-final-card{border:1px solid #4b443c;border-radius:16px;background:#181713;padding:12px}
+.multi-final-image{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;border-radius:12px;display:block}
+.multi-final-card .field{margin:9px 0}
+.multi-final-check{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:13px;color:#d9d0c6}
+.multi-final-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+@media(max-width:520px){.multi-final-grid{grid-template-columns:1fr}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3779,7 +3792,7 @@ function renderMultiScanResults(items=multiScanDetectedItems){
        <div id="multiExtractPreview-${index}" style="margin-top:10px">
         ${item.extractedImage?`
          <div class="photo-frame" style="min-height:190px">
-          <img src="${item.extractedImage}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain">
+          <img src="${item.extractedImage}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain;background:#fff;border-radius:12px">
          </div>
          <div class="success-box" style="margin-top:8px">✓ This extracted image will be used when this item is saved.</div>
         `:""}
@@ -3798,7 +3811,13 @@ function renderMultiScanResults(items=multiScanDetectedItems){
   </button>
   <div id="multiExtractAllStatus" class="muted" style="margin-top:8px"></div>
 
-  <button id="multiScanSaveButton" type="button" class="primary" style="margin-top:10px" onclick="saveMultiScanItems()">
+  <button id="multiReviewFinalButton" type="button" class="primary" style="margin-top:10px" onclick="openMultiScanFinalPreview()">
+   Preview Before Adding
+  </button>
+
+  <div id="multiScanFinalPreview" class="multi-final-preview hidden"></div>
+
+  <button id="multiScanSaveButton" type="button" class="primary hidden" style="margin-top:12px" onclick="saveMultiScanItems()">
    Add Selected to Wardrobe
   </button>
   <div id="multiScanSaveStatus" class="muted" style="margin-top:10px"></div>
@@ -3906,17 +3925,17 @@ async function extractMultiScanItem(index){
  const preview=el(`multiExtractPreview-${index}`);
 
  if(btn){btn.disabled=true;btn.textContent="Extracting…";}
- if(status)status.textContent="AI is isolating this garment from the original photo…";
+ if(status)status.textContent="AI is isolating this garment and preparing a clean white-background preview…";
  if(preview)preview.innerHTML="";
 
  try{
   const image=await requestMultiScanExtraction(index);
 
-  if(status)status.textContent="Extraction complete. This image will be used when you save the item.";
+  if(status)status.textContent="Extraction complete. Review the white-background image before adding it to your wardrobe.";
   if(preview){
    preview.innerHTML=`
     <div class="photo-frame" style="min-height:190px">
-     <img src="${image}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain">
+     <img src="${image}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain;background:#fff;border-radius:12px">
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px">
      <button type="button" class="secondary" onclick="extractMultiScanItem(${index})">↻ Retry</button>
@@ -4001,9 +4020,125 @@ async function dataUrlToBlob(dataUrl){
  return new Blob([bytes],{type:mime});
 }
 
+
+function syncMultiFinalField(index,key,value){
+ const item=multiScanDetectedItems[index];
+ if(!item)return;
+ item[key]=value;
+ const original=el(`multiItem${key==="category_id"?"Category":key.charAt(0).toUpperCase()+key.slice(1)}-${index}`);
+ if(original)original.value=value;
+}
+
+function openMultiScanFinalPreview(){
+ const selectedIndexes=multiScanDetectedItems
+  .map((item,index)=>item?.selected?index:-1)
+  .filter(index=>index>=0);
+
+ if(!selectedIndexes.length)return alert("Select at least one item first.");
+
+ const missing=selectedIndexes.filter(index=>!multiScanDetectedItems[index].extractedImage);
+ if(missing.length){
+  return alert("Please extract every selected item first. This lets you review each final image before anything is added to your wardrobe.");
+ }
+
+ const wrap=el("multiScanFinalPreview");
+ if(!wrap)return;
+
+ const categoryOptions=categories.map(c=>
+  `<option value="${c.id}">${escapeMultiScanHtml(c.name||"Category")}</option>`
+ ).join("");
+
+ wrap.innerHTML=`
+  <div class="multi-final-preview-head">
+   <h3>Final Preview</h3>
+   <span class="muted">${selectedIndexes.length} item${selectedIndexes.length===1?"":"s"}</span>
+  </div>
+  <div class="notice">Nothing has been added yet. Check every image and detail below. The image shown here is the image that will be saved.</div>
+  <div class="multi-final-grid">
+   ${selectedIndexes.map(index=>{
+    const item=multiScanDetectedItems[index];
+    return `
+     <div class="multi-final-card">
+      <label class="multi-final-check">
+       <input type="checkbox" checked onchange="multiScanDetectedItems[${index}].selected=this.checked;updateMultiScanSelectedCount()">
+       Add this item
+      </label>
+
+      <img class="multi-final-image" src="${item.extractedImage}" alt="${escapeMultiScanHtml(item.name||"Extracted garment")}">
+
+      <div class="field">
+       <label>Name</label>
+       <input value="${escapeMultiScanHtml(item.name||"")}" oninput="syncMultiFinalField(${index},'name',this.value)">
+      </div>
+
+      <div class="field">
+       <label>Category</label>
+       <select id="multiFinalCategory-${index}" onchange="syncMultiFinalField(${index},'category_id',this.value)">
+        ${categoryOptions}
+       </select>
+      </div>
+
+      <div class="field">
+       <label>Colour</label>
+       <input value="${escapeMultiScanHtml(item.color||"")}" oninput="syncMultiFinalField(${index},'color',this.value)">
+      </div>
+
+      <div class="field">
+       <label>Brand</label>
+       <input value="${escapeMultiScanHtml(item.brand||"")}" oninput="syncMultiFinalField(${index},'brand',this.value)">
+      </div>
+
+      <div class="multi-final-actions">
+       <button type="button" class="secondary" onclick="retryMultiScanFromFinal(${index})">↻ Retry Image</button>
+       <button type="button" class="secondary" onclick="scrollToMultiScanReview(${index})">Edit Details</button>
+      </div>
+     </div>`;
+   }).join("")}
+  </div>
+  <div class="success-box" style="margin-top:14px">✓ Review complete? Use the button below to add only the checked items to your wardrobe.</div>`;
+
+ selectedIndexes.forEach(index=>{
+  const select=el(`multiFinalCategory-${index}`);
+  if(select)select.value=multiScanDetectedItems[index].category_id||"";
+ });
+
+ wrap.classList.remove("hidden");
+ const saveBtn=el("multiScanSaveButton");
+ if(saveBtn){
+  saveBtn.classList.remove("hidden");
+  saveBtn.textContent=`Add ${selectedIndexes.length} Item${selectedIndexes.length===1?"":"s"} to Wardrobe`;
+ }
+ wrap.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+async function retryMultiScanFromFinal(index){
+ const item=multiScanDetectedItems[index];
+ if(!item)return;
+ const wrap=el("multiScanFinalPreview");
+ if(wrap)wrap.classList.add("hidden");
+ const saveBtn=el("multiScanSaveButton");
+ if(saveBtn)saveBtn.classList.add("hidden");
+
+ try{
+  const image=await requestMultiScanExtraction(index);
+  item.extractedImage=image;
+  openMultiScanFinalPreview();
+ }catch(err){
+  alert("Could not retry extraction: "+(err?.message||String(err)));
+ }
+}
+
+function scrollToMultiScanReview(index){
+ const card=el(`multiItemCard-${index}`)||el(`multiExtractBtn-${index}`);
+ if(card)card.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
 async function saveMultiScanItems(){
  const selected=multiScanDetectedItems.filter(x=>x.selected);
  if(!selected.length)return alert("Select at least one item.");
+ if(selected.some(item=>!item.extractedImage)){
+  return alert("Every selected item needs a final extracted image before it can be added.");
+ }
 
  for(const item of selected){
   if(!String(item.name||"").trim())return alert("Every selected item needs a name.");
@@ -4018,29 +4153,13 @@ async function saveMultiScanItems(){
  const insertedIds=[];
 
  try{
-  let originalPhotoPath=null;
-
-  // Upload the original only if at least one selected item has no extraction.
-  if(selected.some(item=>!item.extractedImage)){
-   if(!multiScanSelectedFile)throw new Error("The original scan photo is missing.");
-   if(status)status.textContent="Uploading original photo for items without extraction…";
-   const ext=(multiScanSelectedFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
-   originalPhotoPath=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
-   const upload=await supabaseClient.storage.from("wardrobe-photos").upload(
-    originalPhotoPath,
-    multiScanSelectedFile,
-    {upsert:false}
-   );
-   if(upload.error)throw new Error("Original photo upload failed: "+upload.error.message);
-   uploadedPaths.push(originalPhotoPath);
-  }
 
   let saved=0;
 
   for(const item of selected){
    if(status)status.textContent=`Adding ${saved+1} of ${selected.length}: ${item.name||"item"}…`;
 
-   let photoPath=originalPhotoPath;
+   let photoPath=null;
 
    if(item.extractedImage){
     const blob=await dataUrlToBlob(item.extractedImage);
