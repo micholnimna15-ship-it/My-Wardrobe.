@@ -1813,25 +1813,6 @@ img[data-clothing-image="true"]{
   margin-top:10px;color:#b7aa9c;font-size:12px;
 }
 
-
-/* ===== FINAL PRODUCTION SAFETY OVERRIDES ===== */
-/* Permanent product/clothing canvas: never theme these image surfaces away from white. */
-.clothing-photo,.product-image,.ai-piece img,.look-picker-photo,.look-picker-placeholder,
-.laundry-thumb,.recent-card img,.recent-placeholder,.planned-thumb-wrap img,
-.planned-thumb-placeholder,.planner-detail-item img,.travel-item img,.travel-item .ph,
-.travel-ai-item img,.travel-ai-item .ph,.travel-day-chip img,.tryon-item img,
-.tryon-card img,.tryon-wardrobe-item img,.tryon-category-item img,.upload-preview img,
-.photo-frame img,img[data-clothing-image="true"]{
-  background:#fff!important;
-}
-.clothing-photo,.product-image,.ai-piece img,.look-picker-photo,.laundry-thumb,
-.recent-card img,.planned-thumb-wrap img,.planner-detail-item img,.travel-item img,
-.travel-ai-item img,.travel-day-chip img,.tryon-item img,.tryon-card img,
-.tryon-wardrobe-item img,.tryon-category-item img{
-  object-fit:contain!important;
-}
-button:disabled{cursor:not-allowed;opacity:.58}
-
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2856,9 +2837,6 @@ const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const VIRTUAL_TRY_ON_API_URL=SUPABASE_URL+"/functions/v1/virtual-try-on";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
-// LIVE CUSTOMER PAYMENTS ARE INTENTIONALLY PAUSED.
-// Change only after you are ready to accept real customer payments.
-const PAYMENTS_ENABLED=false;
 const MULTI_SCAN_API_URL=SUPABASE_URL+"/functions/v1/scan-multiple-clothes";
 const EXTRACT_CLOTHING_API_URL=SUPABASE_URL+"/functions/v1/extract-clothing-item";
 
@@ -3019,18 +2997,10 @@ async function useAICredit(){
 
 function openBuyCreditsModal(){
  if(!currentUser)return alert("Please log in first.");
- if(!PAYMENTS_ENABLED){
-   alert("AI Credit purchases are temporarily unavailable.");
-   return;
- }
  el("checkoutStatus").textContent="";
  el("buyCreditsModal").classList.remove("hidden");
 }
 async function buyCredits(packageKey,button){
- if(!PAYMENTS_ENABLED){
-   if(el("checkoutStatus"))el("checkoutStatus").textContent="AI Credit purchases are temporarily unavailable.";
-   return;
- }
  const allowed=["25","75","200"];
  if(!allowed.includes(String(packageKey)))return alert("Invalid credit package.");
  const originalText=button?.textContent||"Buy";
@@ -5223,76 +5193,52 @@ function base64ToFile(base64,mimeType="image/png",name="ai-cleaned.png"){
 }
 
 async function cleanClothingPhoto(){
- if(!selectedClothingFile){
-  return alert("Choose a clothing photo first.");
- }
-
+ if(!selectedClothingFile)return alert("Choose a clothing photo first.");
  const btn=el("cleanPhotoButton");
- btn.disabled=true;
- btn.textContent="✨ Cleaning…";
- el("cleanPhotoStatus").textContent="AI is cleaning your clothing photo. Please wait…";
-
+ btn.disabled=true;btn.textContent="✨ Cleaning…";
+ el("cleanPhotoStatus").textContent="AI is cleaning your clothing photo…";
  try{
-  const dataUrl=await fileToDataUrl(selectedClothingFile);
-  const imageBase64=dataUrl.split(",")[1];
-  const mimeType=selectedClothingFile.type||"image/jpeg";
+   const session=(await supabaseClient.auth.getSession()).data.session;
+   if(!session)throw new Error("Please log in again.");
 
-  const {data:{session}}=await supabaseClient.auth.getSession();
+   const imageDataUrl=await fileToDataURL(selectedClothingFile);
+   const imageBase64=String(imageDataUrl).split(",")[1];
+   if(!imageBase64)throw new Error("Could not read the selected photo.");
 
-  if(!session){
-   throw new Error("Your session has expired. Please sign in again.");
-  }
+   const response=await fetch(CLEAN_API_URL,{
+     method:"POST",
+     headers:{
+       "Content-Type":"application/json",
+       "Authorization":"Bearer "+session.access_token,
+       "apikey":SUPABASE_PUBLISHABLE_KEY
+     },
+     body:JSON.stringify({
+       imageBase64,
+       mimeType:selectedClothingFile.type||"image/jpeg"
+     })
+   });
 
-  const response=await fetch(CLEAN_API_URL,{
-   method:"POST",
-   headers:{
-    "Content-Type":"application/json",
-    "Authorization":`Bearer ${session.access_token}`,
-    "apikey":SUPABASE_PUBLISHABLE_KEY
-   },
-   body:JSON.stringify({
-    imageBase64,
-    mimeType
-   })
-  });
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok||!data.success){
+     throw new Error(data.error||"AI clothing cleaner failed.");
+   }
+   if(!data.imageBase64)throw new Error("No cleaned image was returned.");
 
-  let data;
-  try{
-   data=await response.json();
-  }catch(_){
-   throw new Error("The clean-clothing function returned an invalid response.");
-  }
+   cleanedClothingFile=base64ToFile(
+     data.imageBase64,
+     data.mimeType||"image/png",
+     "ai-cleaned.png"
+   );
 
-  if(!response.ok||!data?.success){
-   throw new Error(data?.error||"AI clothing cleaning failed.");
-  }
-
-  if(!data.imageBase64){
-   throw new Error("The AI did not return a cleaned image.");
-  }
-
-  cleanedClothingFile=base64ToFile(
-   data.imageBase64,
-   data.mimeType||"image/png",
-   "ai-cleaned.png"
-  );
-
-  const cleanedUrl=URL.createObjectURL(cleanedClothingFile);
-
-  el("cleanedPhotoFrame").innerHTML=
-   `<img src="${cleanedUrl}" alt="AI cleaned clothing photo">`;
-
-  el("cleanPhotoStatus").textContent=
-   "✨ Cleaning complete. Review the result, then tap Save Item.";
-
+   const cleanedUrl=URL.createObjectURL(cleanedClothingFile);
+   el("cleanedPhotoFrame").innerHTML=`<img src="${cleanedUrl}" alt="AI cleaned clothing photo">`;
+   el("cleanPhotoStatus").textContent="Done. Review the cleaned photo, then press Save Item.";
  }catch(err){
-  console.error("Clean with AI error:",err);
-  cleanedClothingFile=null;
-  el("cleanPhotoStatus").textContent=
-   "Could not clean photo: "+(err?.message||"Unknown error");
+   console.error("Clean clothing error:",err);
+   cleanedClothingFile=null;
+   el("cleanPhotoStatus").textContent="Could not clean photo: "+(err?.message||"Unknown error");
  }finally{
-  btn.disabled=false;
-  btn.textContent="✨ Clean with AI";
+   btn.disabled=false;btn.textContent="✨ Clean with AI";
  }
 }
 
