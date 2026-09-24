@@ -7243,13 +7243,13 @@ let appTourIndex=0;
 let appTourActive=false;
 
 const APP_TOUR_STEPS=[
- {selector:'[data-page="wardrobe"]',icon:'👕',title:'Your Wardrobe',text:'Add and organise your clothes here. Create categories and keep your wardrobe in one place.'},
- {selector:'[data-page="looks"]',icon:'💗',title:'Looks',text:'Build and save complete outfits using pieces from your wardrobe.'},
- {selector:'[data-page="planner"]',icon:'📅',title:'Outfit Planner',text:'Plan what you want to wear on future dates and keep upcoming outfits organised.'},
- {selector:'[data-page="shop"]',icon:'✨',title:'Shop AI',text:'Get personalised styling help, match your wardrobe and find missing pieces online.'},
- {selector:'[data-page="laundry"]',icon:'🧺',title:'Laundry',text:'Track clothes through waiting, washing, drying and ready stages, including outdoor drying alerts.'},
- {selector:'[data-page="travel"]',icon:'✈️',title:'Travel',text:'Create trips, build packing lists and see whether something you need is still in Laundry.'},
- {selector:'#profileBtn',icon:'👤',title:'Your Profile',text:'Manage your profile, My Fit and shopping preferences here. You can also replay this tour anytime.'}
+ {selectors:["[onclick*=\"wardrobe\"]","#wardrobeNav"],icon:"👕",title:"Your Wardrobe",text:"Add and organise your clothes here. Create categories and keep your wardrobe in one place."},
+ {selectors:["[onclick*=\"looks\"]","#looksNav"],icon:"💗",title:"Looks",text:"Build and save complete outfits using pieces from your wardrobe."},
+ {selectors:["[onclick*=\"planner\"]","#plannerNav"],icon:"📅",title:"Outfit Planner",text:"Plan what you want to wear on future dates and keep upcoming outfits organised."},
+ {selectors:["[onclick*=\"shop\"]","#shopNav"],icon:"✨",title:"Shop AI",text:"Get personalised styling help, match your wardrobe and find missing pieces online."},
+ {selectors:["[onclick*=\"laundry\"]","#laundryNav"],icon:"🧺",title:"Laundry",text:"Track clothes through waiting, washing, drying and ready stages, including outdoor drying alerts."},
+ {selectors:["[onclick*=\"travel\"]","#travelNav"],icon:"✈️",title:"Travel",text:"Create trips, build packing lists and see whether something you need is still in Laundry."},
+ {selectors:["#profileBtn",".profile-btn",".profile-avatar","[onclick*=\"profile\"]"],icon:"👤",title:"Your Profile",text:"Manage your profile, My Fit and shopping preferences here. You can also replay this tour anytime."}
 ];
 
 function appTourStorageKey(){
@@ -7295,10 +7295,18 @@ function showAppTourStep(){
  if(!appTourActive)return;
  document.querySelectorAll('.tour-highlight').forEach(n=>n.classList.remove('tour-highlight'));
  const step=APP_TOUR_STEPS[appTourIndex];
- const target=document.querySelector(step.selector);
- if(!target){nextAppTourStep();return}
- target.classList.add('tour-highlight');
- const rect=target.getBoundingClientRect();
+ const target=(step.selectors||[]).map(s=>{try{return document.querySelector(s)}catch(_){return null}}).find(Boolean);
+ if(!target){
+   const spot=el('appTourSpotlight'); if(spot)spot.style.display='none';
+ }else{
+   target.classList.add('tour-highlight');
+ }
+ const rect=target ? target.getBoundingClientRect() : {
+   left:Math.max(14,(window.innerWidth-120)/2),
+   top:Math.max(70,window.innerHeight-110),
+   width:120,height:52,bottom:Math.max(122,window.innerHeight-58)
+ };
+ const spotNode=el('appTourSpotlight'); if(spotNode)spotNode.style.display=target?'block':'none';
  const pad=7,spot=el('appTourSpotlight'),card=el('appTourCard');
  if(spot){
    spot.style.left=Math.max(4,rect.left-pad)+'px';
@@ -7328,6 +7336,13 @@ document.addEventListener('click',(e)=>{
  if(nav)setTimeout(maybeShowFirstTimeTour,300);
 });
 setTimeout(()=>{if(currentUser)maybeShowFirstTimeTour()},1200);
+
+
+window.startAppTour=startAppTour;
+window.skipAppTour=skipAppTour;
+window.replayAppTour=replayAppTour;
+window.nextAppTourStep=nextAppTourStep;
+window.previousAppTourStep=previousAppTourStep;
 
 </script>
 
