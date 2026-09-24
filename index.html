@@ -1813,6 +1813,25 @@ img[data-clothing-image="true"]{
   margin-top:10px;color:#b7aa9c;font-size:12px;
 }
 
+
+/* ===== FINAL PRODUCTION SAFETY OVERRIDES ===== */
+/* Permanent product/clothing canvas: never theme these image surfaces away from white. */
+.clothing-photo,.product-image,.ai-piece img,.look-picker-photo,.look-picker-placeholder,
+.laundry-thumb,.recent-card img,.recent-placeholder,.planned-thumb-wrap img,
+.planned-thumb-placeholder,.planner-detail-item img,.travel-item img,.travel-item .ph,
+.travel-ai-item img,.travel-ai-item .ph,.travel-day-chip img,.tryon-item img,
+.tryon-card img,.tryon-wardrobe-item img,.tryon-category-item img,.upload-preview img,
+.photo-frame img,img[data-clothing-image="true"]{
+  background:#fff!important;
+}
+.clothing-photo,.product-image,.ai-piece img,.look-picker-photo,.laundry-thumb,
+.recent-card img,.planned-thumb-wrap img,.planner-detail-item img,.travel-item img,
+.travel-ai-item img,.travel-day-chip img,.tryon-item img,.tryon-card img,
+.tryon-wardrobe-item img,.tryon-category-item img{
+  object-fit:contain!important;
+}
+button:disabled{cursor:not-allowed;opacity:.58}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2837,6 +2856,9 @@ const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const VIRTUAL_TRY_ON_API_URL=SUPABASE_URL+"/functions/v1/virtual-try-on";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
+// LIVE CUSTOMER PAYMENTS ARE INTENTIONALLY PAUSED.
+// Change only after you are ready to accept real customer payments.
+const PAYMENTS_ENABLED=false;
 const MULTI_SCAN_API_URL=SUPABASE_URL+"/functions/v1/scan-multiple-clothes";
 const EXTRACT_CLOTHING_API_URL=SUPABASE_URL+"/functions/v1/extract-clothing-item";
 
@@ -2997,10 +3019,18 @@ async function useAICredit(){
 
 function openBuyCreditsModal(){
  if(!currentUser)return alert("Please log in first.");
+ if(!PAYMENTS_ENABLED){
+   alert("AI Credit purchases are temporarily unavailable.");
+   return;
+ }
  el("checkoutStatus").textContent="";
  el("buyCreditsModal").classList.remove("hidden");
 }
 async function buyCredits(packageKey,button){
+ if(!PAYMENTS_ENABLED){
+   if(el("checkoutStatus"))el("checkoutStatus").textContent="AI Credit purchases are temporarily unavailable.";
+   return;
+ }
  const allowed=["25","75","200"];
  if(!allowed.includes(String(packageKey)))return alert("Invalid credit package.");
  const originalText=button?.textContent||"Buy";
