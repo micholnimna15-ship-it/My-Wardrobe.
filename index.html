@@ -1500,6 +1500,19 @@ body{
 @media(max-width:850px){.home2-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home2-quick{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:560px){.home2-head h2{font-size:27px}.home2-grid{grid-template-columns:1fr 1fr;gap:9px}.home2-card{min-height:158px;padding:14px}.home2-value{font-size:17px}.home2-quick{grid-template-columns:repeat(3,1fr)}}
 
+
+/* ===== FIRST-TIME APP TOUR ===== */
+.tour-overlay{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.76);backdrop-filter:blur(3px)}
+.tour-welcome-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 34px));background:linear-gradient(145deg,#1c1a17,#11110f);border:1px solid #6b5945;border-radius:24px;padding:34px 28px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.tour-spark{font-size:28px;color:#d2ad7b;margin-bottom:14px}.tour-eyebrow{font-size:10px;letter-spacing:2.8px;color:#b99a72}.tour-welcome-card h2{font:400 34px Georgia,"Times New Roman",serif;color:#f5efe8;margin:7px 0 12px}.tour-welcome-card p{color:#b8ada1;font-size:13px;line-height:1.65;margin:0 0 24px}
+.tour-primary,.tour-secondary{width:100%;border-radius:12px;padding:12px 15px;cursor:pointer}.tour-primary{border:1px solid #a48661;background:#d2ad7b;color:#17130f;font-weight:700}.tour-secondary{margin-top:9px;border:1px solid #484039;background:#171613;color:#bdb2a6}
+.tour-spotlight{position:fixed;border:2px solid #d2ad7b;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.72),0 0 30px rgba(210,173,123,.25);pointer-events:none;transition:all .22s ease;z-index:10051}
+.tour-card{position:fixed;width:min(340px,calc(100vw - 28px));background:#191714;border:1px solid #6a5946;border-radius:18px;padding:18px;z-index:10052;box-shadow:0 18px 60px rgba(0,0,0,.5);transition:top .22s ease,left .22s ease}
+.tour-card-top{display:flex;justify-content:space-between;align-items:center;color:#998d81;font-size:10px;letter-spacing:1px}.tour-card-top button{border:0;background:transparent;color:#c8b49a;cursor:pointer;font-size:11px}.tour-card-icon{font-size:24px;margin:16px 0 8px}.tour-card h3{font:500 22px Georgia,"Times New Roman",serif;color:#f4eee7;margin:0 0 8px}.tour-card p{color:#b9aea2;font-size:12px;line-height:1.55;margin:0 0 18px}
+.tour-card-actions{display:flex;justify-content:space-between;gap:8px}.tour-card-actions button{border-radius:10px;padding:9px 14px;cursor:pointer}.tour-back{border:1px solid #49423a;background:#171613;color:#bdb2a6}.tour-next{margin-left:auto;border:1px solid #9a7b58;background:#d2ad7b;color:#17130f;font-weight:700}
+.tour-highlight{position:relative;z-index:10053!important}
+@media(max-width:600px){.tour-card{width:calc(100vw - 24px)}.tour-welcome-card{padding:29px 22px}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2160,7 +2173,8 @@ body{
       </div>
       <div class="me-card"><h3 style="margin-top:0">📏 My Fit</h3><p class="muted">Measurements, sizes and preferred fit for better recommendations.</p><button type="button" class="secondary" onclick="openFitModal()">View / Edit My Fit</button></div>
       <div class="credit-card"><div class="muted">AI Credits</div><div class="credit-balance">✨ <span id="creditBalanceMe">—</span></div><div class="muted">1 credit is used after a successful AI outfit generation.</div><button type="button" class="buy-credits-btn" onclick="openBuyCreditsModal()">💳 Buy AI Credits</button><div id="paymentReturnMessage"></div></div>
-       <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button id="installAppBtn" class="secondary" onclick="handleInstallApp()">📲 Install App</button><button class="secondary danger" style="margin-top:8px" onclick="logout()">Log out</button></div>
+       <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button id="installAppBtn" class="secondary" onclick="handleInstallApp()">📲 Install App</button><button type="button" class="secondary-btn" onclick="replayAppTour()">🧭 Take App Tour Again</button>
+<button class="secondary danger" style="margin-top:8px" onclick="logout()">Log out</button></div>
     </section>
   </main>
 
@@ -7221,6 +7235,100 @@ function renderPairedStyleCard(title,items){
   </div>`;
 }
 
+
+/* =========================================================
+   FIRST-TIME NAVIGATION TOUR
+========================================================= */
+let appTourIndex=0;
+let appTourActive=false;
+
+const APP_TOUR_STEPS=[
+ {selector:'[data-page="wardrobe"]',icon:'👕',title:'Your Wardrobe',text:'Add and organise your clothes here. Create categories and keep your wardrobe in one place.'},
+ {selector:'[data-page="looks"]',icon:'💗',title:'Looks',text:'Build and save complete outfits using pieces from your wardrobe.'},
+ {selector:'[data-page="planner"]',icon:'📅',title:'Outfit Planner',text:'Plan what you want to wear on future dates and keep upcoming outfits organised.'},
+ {selector:'[data-page="shop"]',icon:'✨',title:'Shop AI',text:'Get personalised styling help, match your wardrobe and find missing pieces online.'},
+ {selector:'[data-page="laundry"]',icon:'🧺',title:'Laundry',text:'Track clothes through waiting, washing, drying and ready stages, including outdoor drying alerts.'},
+ {selector:'[data-page="travel"]',icon:'✈️',title:'Travel',text:'Create trips, build packing lists and see whether something you need is still in Laundry.'},
+ {selector:'#profileBtn',icon:'👤',title:'Your Profile',text:'Manage your profile, My Fit and shopping preferences here. You can also replay this tour anytime.'}
+];
+
+function appTourStorageKey(){
+ const uid=currentUser?.id||'guest';
+ return `mywardrobe_onboarding_v1_${uid}`;
+}
+function hasCompletedAppTour(){
+ return localStorage.getItem(appTourStorageKey())==='1';
+}
+function maybeShowFirstTimeTour(){
+ if(!currentUser||hasCompletedAppTour())return;
+ setTimeout(()=>el('appTourWelcome')?.classList.remove('hidden'),450);
+}
+function startAppTour(){
+ el('appTourWelcome')?.classList.add('hidden');
+ appTourIndex=0; appTourActive=true;
+ el('appTourLayer')?.classList.remove('hidden');
+ showAppTourStep();
+}
+function finishAppTour(){
+ localStorage.setItem(appTourStorageKey(),'1');
+ appTourActive=false;
+ document.querySelectorAll('.tour-highlight').forEach(n=>n.classList.remove('tour-highlight'));
+ el('appTourWelcome')?.classList.add('hidden');
+ el('appTourLayer')?.classList.add('hidden');
+}
+function skipAppTour(){finishAppTour()}
+function replayAppTour(){
+ appTourIndex=0;appTourActive=true;
+ el('appTourWelcome')?.classList.add('hidden');
+ el('appTourLayer')?.classList.remove('hidden');
+ showAppTourStep();
+}
+function nextAppTourStep(){
+ if(appTourIndex>=APP_TOUR_STEPS.length-1){finishAppTour();return}
+ appTourIndex++;showAppTourStep();
+}
+function previousAppTourStep(){
+ if(appTourIndex<=0)return;
+ appTourIndex--;showAppTourStep();
+}
+function showAppTourStep(){
+ if(!appTourActive)return;
+ document.querySelectorAll('.tour-highlight').forEach(n=>n.classList.remove('tour-highlight'));
+ const step=APP_TOUR_STEPS[appTourIndex];
+ const target=document.querySelector(step.selector);
+ if(!target){nextAppTourStep();return}
+ target.classList.add('tour-highlight');
+ const rect=target.getBoundingClientRect();
+ const pad=7,spot=el('appTourSpotlight'),card=el('appTourCard');
+ if(spot){
+   spot.style.left=Math.max(4,rect.left-pad)+'px';
+   spot.style.top=Math.max(4,rect.top-pad)+'px';
+   spot.style.width=Math.min(window.innerWidth-8,rect.width+pad*2)+'px';
+   spot.style.height=(rect.height+pad*2)+'px';
+ }
+ home2Set('appTourStepCount',`${appTourIndex+1} of ${APP_TOUR_STEPS.length}`);
+ home2Set('appTourIcon',step.icon);
+ home2Set('appTourTitle',step.title);
+ home2Set('appTourText',step.text);
+ const back=el('appTourBack');if(back)back.style.visibility=appTourIndex===0?'hidden':'visible';
+ const next=el('appTourNext');if(next)next.textContent=appTourIndex===APP_TOUR_STEPS.length-1?'Finish':'Next';
+ if(card){
+   const cardW=Math.min(340,window.innerWidth-28);
+   let left=Math.min(Math.max(14,rect.left+rect.width/2-cardW/2),window.innerWidth-cardW-14);
+   let top=rect.top-230;
+   if(top<14)top=Math.min(window.innerHeight-250,rect.bottom+18);
+   card.style.left=left+'px';card.style.top=Math.max(14,top)+'px';
+ }
+}
+window.addEventListener('resize',()=>{if(appTourActive)showAppTourStep()});
+
+
+document.addEventListener('click',(e)=>{
+ const nav=e.target.closest('[data-page="home"]');
+ if(nav)setTimeout(maybeShowFirstTimeTour,300);
+});
+setTimeout(()=>{if(currentUser)maybeShowFirstTimeTour()},1200);
+
 </script>
 
 <div id="wearHistoryModal" class="modal hidden">
@@ -7545,6 +7653,36 @@ function renderPairedStyleCard(title,items){
     <div class="style-us-note">Only information permitted through Connected Wardrobes is used. If the other person disables AI Styling, their wardrobe will no longer be available here.</div>
 
     <div id="styleUsResult" class="style-us-result" style="display:none"></div>
+  </div>
+</div>
+
+
+<!-- ===== FIRST-TIME APP TOUR ===== -->
+<div id="appTourWelcome" class="tour-overlay hidden">
+  <div class="tour-welcome-card">
+    <div class="tour-spark">✦</div>
+    <div class="tour-eyebrow">WELCOME TO</div>
+    <h2>My Wardrobe</h2>
+    <p>Let us show you around. This quick tour introduces the main places to organise, plan and style your wardrobe.</p>
+    <button class="tour-primary" onclick="startAppTour()">Start Tour</button>
+    <button class="tour-secondary" onclick="skipAppTour()">Skip for now</button>
+  </div>
+</div>
+
+<div id="appTourLayer" class="tour-overlay hidden">
+  <div id="appTourSpotlight" class="tour-spotlight"></div>
+  <div id="appTourCard" class="tour-card">
+    <div class="tour-card-top">
+      <span id="appTourStepCount">1 of 7</span>
+      <button onclick="skipAppTour()">Skip</button>
+    </div>
+    <div id="appTourIcon" class="tour-card-icon">👕</div>
+    <h3 id="appTourTitle">Wardrobe</h3>
+    <p id="appTourText"></p>
+    <div class="tour-card-actions">
+      <button id="appTourBack" class="tour-back" onclick="previousAppTourStep()">Back</button>
+      <button id="appTourNext" class="tour-next" onclick="nextAppTourStep()">Next</button>
+    </div>
   </div>
 </div>
 
