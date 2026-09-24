@@ -1467,7 +1467,7 @@ body{
           <p>CONFIDENCE LOOKS GOOD ON YOU.</p>
           <div class="home-hero-actions">
             <button class="hero-add-btn" onclick="openClothingModal()">＋ &nbsp; Add Item</button>
-            <button class="hero-scan-btn" onclick="openClothingModal()">📸 &nbsp; AI Scan</button>
+            <button class="hero-scan-btn" onclick="openMultiClothingScanner()">📸 &nbsp; AI Scan</button>
           </div>
         </div>
         <div class="wardrobe-mark" aria-hidden="true"></div>
@@ -2057,6 +2057,37 @@ body{
  </div>
 </div>
 
+
+<div id="multiClothingScannerModal" class="modal hidden">
+ <div class="modal-box">
+  <div class="modal-head">
+   <h2>AI Multi-Clothing Scanner</h2>
+   <button class="close" onclick="closeModal('multiClothingScannerModal')">×</button>
+  </div>
+
+  <div class="notice">
+   Take or choose one photo containing several visible clothing items.
+   This test only detects them — nothing will be saved to your wardrobe.
+  </div>
+
+  <div class="field">
+   <label>Photo</label>
+   <input id="multiScanPhoto" type="file" accept="image/*" onchange="previewMultiScanPhoto(event)">
+  </div>
+
+  <div id="multiScanPreview" class="photo-frame" style="min-height:210px">
+   Choose a photo with multiple clothing items
+  </div>
+
+  <button id="multiScanButton" type="button" class="primary" style="margin-top:14px" onclick="scanMultipleClothes()">
+   ✨ Scan Clothes
+  </button>
+
+  <div id="multiScanStatus" class="muted" style="margin-top:12px"></div>
+  <div id="multiScanResults" style="margin-top:14px"></div>
+ </div>
+</div>
+
 <div id="clothingModal" class="modal hidden">
  <div class="modal-box">
   <div class="modal-head"><h2 id="clothingModalTitle">Add clothing</h2><button class="close" onclick="closeModal('clothingModal')">×</button></div>
@@ -2243,6 +2274,7 @@ const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing"; // legacy direc
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
+const MULTI_SCAN_API_URL=SUPABASE_URL+"/functions/v1/scan-multiple-clothes";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
 let outfitHistory=[];
@@ -3637,6 +3669,116 @@ async function deleteCurrentCategory(){
 function populateCategorySelect(){
  el("clothingCategory").innerHTML=categories.map(c=>`<option value="${escapeJs(c.id)}">${escapeHtml(c.name)}</option>`).join("");
 }
+
+let multiScanSelectedFile=null;
+
+function openMultiClothingScanner(){
+ multiScanSelectedFile=null;
+ if(el("multiScanPhoto"))el("multiScanPhoto").value="";
+ if(el("multiScanPreview"))el("multiScanPreview").textContent="Choose a photo with multiple clothing items";
+ if(el("multiScanStatus"))el("multiScanStatus").textContent="";
+ if(el("multiScanResults"))el("multiScanResults").innerHTML="";
+ if(el("multiScanButton")){
+  el("multiScanButton").disabled=false;
+  el("multiScanButton").textContent="✨ Scan Clothes";
+ }
+ el("multiClothingScannerModal").classList.remove("hidden");
+}
+
+function previewMultiScanPhoto(e){
+ const file=e.target.files?.[0];
+ if(!file)return;
+ multiScanSelectedFile=file;
+ const url=URL.createObjectURL(file);
+ el("multiScanPreview").innerHTML=`<img src="${url}" alt="Multi-clothing scan preview" style="width:100%;max-height:360px;object-fit:contain;border-radius:12px">`;
+ el("multiScanStatus").textContent="Photo ready. Tap “Scan Clothes”.";
+ el("multiScanResults").innerHTML="";
+}
+
+function escapeMultiScanHtml(value){
+ return String(value??"")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+}
+
+function renderMultiScanResults(items){
+ const box=el("multiScanResults");
+ if(!Array.isArray(items)||!items.length){
+  box.innerHTML='<div class="empty-state">No clearly identifiable clothing items were detected. Try a clearer photo with the garments separated.</div>';
+  return;
+ }
+
+ box.innerHTML=`
+  <div class="section-head" style="margin-top:8px">
+   <h2>${items.length} item${items.length===1?"":"s"} detected</h2>
+  </div>
+  ${items.map((item,index)=>`
+   <div class="result-card">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+     <div>
+      <h3>${index+1}. ${escapeMultiScanHtml(item.name||"Clothing item")}</h3>
+      <div class="muted">${escapeMultiScanHtml(item.itemType||"")} · ${escapeMultiScanHtml(item.categorySuggestion||"Other")}</div>
+     </div>
+     <span class="chip" style="padding:6px 9px">${escapeMultiScanHtml(item.confidence||"")}</span>
+    </div>
+    <div style="margin-top:10px"><strong>Colour:</strong> ${escapeMultiScanHtml(item.color||"—")}</div>
+    <div style="margin-top:5px"><strong>Brand:</strong> ${escapeMultiScanHtml(item.brand||"Not detected")}</div>
+    ${item.description?`<div class="muted" style="margin-top:8px;line-height:1.45">${escapeMultiScanHtml(item.description)}</div>`:""}
+   </div>
+  `).join("")}
+  <div class="notice">Test mode: these detections have not been added to your wardrobe.</div>
+ `;
+}
+
+async function scanMultipleClothes(){
+ if(!multiScanSelectedFile)return alert("Choose a photo first.");
+
+ const btn=el("multiScanButton");
+ btn.disabled=true;
+ btn.textContent="Scanning…";
+ el("multiScanStatus").textContent="AI is checking the photo for individual clothing items…";
+ el("multiScanResults").innerHTML="";
+
+ try{
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session?.access_token)throw new Error("Please log in again.");
+
+  const image=await fileToDataUrl(multiScanSelectedFile);
+
+  const response=await fetch(MULTI_SCAN_API_URL,{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json",
+    "apikey":SUPABASE_PUBLISHABLE_KEY,
+    "Authorization":"Bearer "+session.access_token
+   },
+   body:JSON.stringify({image})
+  });
+
+  let data={};
+  try{data=await response.json()}catch(e){}
+
+  if(!response.ok||data.success===false){
+   throw new Error(data.error||`Scanner failed (${response.status}).`);
+  }
+
+  const items=Array.isArray(data.items)?data.items:[];
+  el("multiScanStatus").textContent=`Scan complete — ${items.length} item${items.length===1?"":"s"} detected.`;
+  renderMultiScanResults(items);
+
+ }catch(err){
+  console.error("Multi-clothing scanner:",err);
+  el("multiScanStatus").textContent="Scan failed: "+(err?.message||String(err));
+  el("multiScanResults").innerHTML='<div class="notice">Nothing was saved. You can choose another photo and try again.</div>';
+ }finally{
+  btn.disabled=false;
+  btn.textContent="✨ Scan Clothes";
+ }
+}
+
 function openClothingModal(id=null){
  editingClothingId=id;populateCategorySelect();
  const item=id?clothingItems.find(x=>x.id===id):null;
