@@ -2045,14 +2045,14 @@ body{
 
         <div id="tryOnCreditCard" class="tryon-credit-card">
           <div>
-            <div class="tryon-credit-label">MY WARDROBE CREDITS</div>
-            <div class="tryon-credit-balance"><span id="tryOnCreditBalance">—</span> credits available</div>
+            <div class="tryon-credit-label">AI CREDITS</div>
+            <div class="tryon-credit-balance"><span id="tryOnCreditBalance">—</span> AI Credits available</div>
           </div>
-          <div class="tryon-credit-cost">Try-On <strong>2 credits</strong></div>
+          <div class="tryon-credit-cost">Virtual Try-On <strong>2 AI Credits</strong></div>
         </div>
         <div id="tryOnCreditMessage" class="muted" style="margin-top:8px"></div>
 
-        <button id="tryOnGenerateBtn" class="tryon-action" onclick="startVirtualTryOn()" disabled>✦ Try It On — 2 Credits</button>
+        <button id="tryOnGenerateBtn" class="tryon-action" onclick="startVirtualTryOn()" disabled>✦ Try It On — 2 AI Credits</button>
 
         <div id="tryOnResult" class="tryon-result hidden">
           <div class="tryon-coming">
@@ -7629,30 +7629,17 @@ let tryOnPersonFile=null;
 let tryOnPersonObjectUrl="";
 let tryOnSelectedItemId=null;
 let tryOnSelectedCategoryId="all";
-let tryOnWalletBalance=null;
 let tryOnGenerating=false;
 const VIRTUAL_TRY_ON_COST=2;
 
 async function loadTryOnCreditBalance(){
- if(!currentUser)return;
- const {data,error}=await supabaseClient
-  .from("user_credit_wallets")
-  .select("balance")
-  .eq("user_id",currentUser.id)
-  .maybeSingle();
-
- if(error){
-  console.warn("Could not load Virtual Try-On credits:",error.message);
-  tryOnWalletBalance=null;
- }else{
-  tryOnWalletBalance=Number(data?.balance??0);
- }
- if(el("tryOnCreditBalance"))el("tryOnCreditBalance").textContent=tryOnWalletBalance===null?"—":String(tryOnWalletBalance);
+ await loadCreditBalance();
+ if(el("tryOnCreditBalance"))el("tryOnCreditBalance").textContent=aiCreditBalance===null?"—":String(aiCreditBalance);
  const msg=el("tryOnCreditMessage");
  if(msg){
-  msg.textContent=tryOnWalletBalance!==null&&tryOnWalletBalance<VIRTUAL_TRY_ON_COST
-   ?`You need ${VIRTUAL_TRY_ON_COST} credits to create a Virtual Try-On.`
-   :"Credits are charged only when a try-on is started. If generation fails, the backend refunds them.";
+  msg.textContent=aiCreditBalance!==null&&aiCreditBalance<VIRTUAL_TRY_ON_COST
+   ?`You need ${VIRTUAL_TRY_ON_COST} AI Credits to create a Virtual Try-On.`
+   :"Uses the same AI Credits shown at the top of My Wardrobe. Failed generations are refunded by the backend.";
  }
  updateTryOnButton();
 }
@@ -7741,9 +7728,9 @@ function selectTryOnItem(id){
 function updateTryOnButton(){
  const btn=el("tryOnGenerateBtn");
  if(!btn)return;
- const enoughCredits=tryOnWalletBalance===null?true:tryOnWalletBalance>=VIRTUAL_TRY_ON_COST;
+ const enoughCredits=aiCreditBalance===null?true:aiCreditBalance>=VIRTUAL_TRY_ON_COST;
  btn.disabled=tryOnGenerating||!(tryOnPersonFile&&tryOnSelectedItemId&&enoughCredits);
- if(!tryOnGenerating)btn.textContent=`✦ Try It On — ${VIRTUAL_TRY_ON_COST} Credits`;
+ if(!tryOnGenerating)btn.textContent=`✦ Try It On — ${VIRTUAL_TRY_ON_COST} AI Credits`;
 }
 
 function inferTryOnCategory(item){
@@ -7764,8 +7751,8 @@ async function startVirtualTryOn(){
  if(!item.displayPhoto)return alert("This wardrobe item does not have an available photo.");
 
  await loadTryOnCreditBalance();
- if(tryOnWalletBalance!==null&&tryOnWalletBalance<VIRTUAL_TRY_ON_COST){
-  alert(`You need ${VIRTUAL_TRY_ON_COST} credits for Virtual Try-On.`);
+ if(aiCreditBalance!==null&&aiCreditBalance<VIRTUAL_TRY_ON_COST){
+  alert(`You need ${VIRTUAL_TRY_ON_COST} AI Credits for Virtual Try-On.`);
   return;
  }
 
@@ -7810,8 +7797,11 @@ async function startVirtualTryOn(){
   }
   if(!data.image)throw new Error("The try-on finished but no image was returned.");
 
-  tryOnWalletBalance=Number.isFinite(Number(data.balance))?Number(data.balance):tryOnWalletBalance;
-  if(el("tryOnCreditBalance"))el("tryOnCreditBalance").textContent=String(tryOnWalletBalance??"—");
+  if(Number.isFinite(Number(data.balance))){
+   aiCreditBalance=Number(data.balance);
+   updateCreditDisplay();
+  }
+  if(el("tryOnCreditBalance"))el("tryOnCreditBalance").textContent=aiCreditBalance===null?"—":String(aiCreditBalance);
 
   if(result){
    result.innerHTML=`
