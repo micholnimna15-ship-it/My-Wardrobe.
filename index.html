@@ -1551,6 +1551,17 @@ body{
 .guide-live-target{position:relative!important;z-index:11999!important;pointer-events:auto!important}
 @media(max-width:600px){.guide-coach{width:calc(100vw - 20px)}.guide-welcome-card{padding:28px 21px}}
 
+
+/* ===== CLEAN WHITE CATEGORY PHOTO BACKGROUNDS ===== */
+.category-card:has(.category-cover){background:#fff!important;}
+.category-cover{
+  background:#fff!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+/* Empty categories stay dark */
+.category-card:has(.category-cover-placeholder){background:#181713!important;}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2281,13 +2292,12 @@ body{
 <div id="multiClothingScannerModal" class="modal hidden">
  <div class="modal-box">
   <div class="modal-head">
-   <h2>AI Multi-Clothing Scanner</h2>
+   <h2>AI Clothing Scanner</h2>
    <button class="close" onclick="closeModal('multiClothingScannerModal')">×</button>
   </div>
 
   <div class="notice">
-   Take or choose one photo containing several visible clothing items.
-   This test only detects them — nothing will be saved to your wardrobe.
+   Choose one photo containing multiple clothing items. AI will detect each visible item so you can review them before adding them to your wardrobe.
   </div>
 
   <div class="field">
