@@ -5201,7 +5201,12 @@ async function cleanClothingPhoto(){
    const session=(await supabaseClient.auth.getSession()).data.session;
    if(!session)throw new Error("Please log in again.");
 
-   const imageDataUrl=await fileToDataURL(selectedClothingFile);
+   const imageDataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read the selected photo."));
+    reader.readAsDataURL(selectedClothingFile);
+   });
    const imageBase64=String(imageDataUrl).split(",")[1];
    if(!imageBase64)throw new Error("Could not read the selected photo.");
 
