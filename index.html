@@ -3671,9 +3671,11 @@ function populateCategorySelect(){
 }
 
 let multiScanSelectedFile=null;
+let multiScanDetectedItems=[];
 
 function openMultiClothingScanner(){
  multiScanSelectedFile=null;
+ multiScanDetectedItems=[];
  if(el("multiScanPhoto"))el("multiScanPhoto").value="";
  if(el("multiScanPreview"))el("multiScanPreview").textContent="Choose a photo with multiple clothing items";
  if(el("multiScanStatus"))el("multiScanStatus").textContent="";
@@ -3689,6 +3691,7 @@ function previewMultiScanPhoto(e){
  const file=e.target.files?.[0];
  if(!file)return;
  multiScanSelectedFile=file;
+ multiScanDetectedItems=[];
  const url=URL.createObjectURL(file);
  el("multiScanPreview").innerHTML=`<img src="${url}" alt="Multi-clothing scan preview" style="width:100%;max-height:360px;object-fit:contain;border-radius:12px">`;
  el("multiScanStatus").textContent="Photo ready. Tap “Scan Clothes”.";
@@ -3704,37 +3707,91 @@ function escapeMultiScanHtml(value){
   .replaceAll("'","&#039;");
 }
 
-function renderMultiScanResults(items){
+function bestMultiScanCategoryId(suggestion=""){
+ if(!categories.length)return "";
+ const wanted=String(suggestion||"").trim().toLowerCase();
+ const exact=categories.find(c=>String(c.name||"").trim().toLowerCase()===wanted);
+ if(exact)return String(exact.id);
+ const singular=wanted.replace(/s$/,"");
+ const fuzzy=categories.find(c=>{
+  const n=String(c.name||"").trim().toLowerCase();
+  return n===singular||n.replace(/s$/,"")===singular||n.includes(singular)||singular.includes(n.replace(/s$/,""));
+ });
+ return fuzzy?String(fuzzy.id):String(categories[0]?.id||"");
+}
+
+function renderMultiScanResults(items=multiScanDetectedItems){
  const box=el("multiScanResults");
  if(!Array.isArray(items)||!items.length){
   box.innerHTML='<div class="empty-state">No clearly identifiable clothing items were detected. Try a clearer photo with the garments separated.</div>';
   return;
  }
 
+ const categoryOptions=(selectedId)=>categories.map(c=>
+  `<option value="${escapeMultiScanHtml(c.id)}" ${String(c.id)===String(selectedId)?"selected":""}>${escapeMultiScanHtml(c.icon||"👕")} ${escapeMultiScanHtml(c.name)}</option>`
+ ).join("");
+
  box.innerHTML=`
   <div class="section-head" style="margin-top:8px">
-   <h2>${items.length} item${items.length===1?"":"s"} detected</h2>
+   <h2>Review ${items.length} item${items.length===1?"":"s"}</h2>
   </div>
-  ${items.map((item,index)=>`
-   <div class="result-card">
-    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-     <div>
-      <h3>${index+1}. ${escapeMultiScanHtml(item.name||"Clothing item")}</h3>
-      <div class="muted">${escapeMultiScanHtml(item.itemType||"")} · ${escapeMultiScanHtml(item.categorySuggestion||"Other")}</div>
-     </div>
-     <span class="chip" style="padding:6px 9px">${escapeMultiScanHtml(item.confidence||"")}</span>
-    </div>
-    <div style="margin-top:10px"><strong>Colour:</strong> ${escapeMultiScanHtml(item.color||"—")}</div>
-    <div style="margin-top:5px"><strong>Brand:</strong> ${escapeMultiScanHtml(item.brand||"Not detected")}</div>
-    ${item.description?`<div class="muted" style="margin-top:8px;line-height:1.45">${escapeMultiScanHtml(item.description)}</div>`:""}
-   </div>
-  `).join("")}
-  <div class="notice">Test mode: these detections have not been added to your wardrobe.</div>
+  <div class="notice">Check the items you want to add. You can edit the details and choose one of your real wardrobe categories before saving.</div>
+  ${items.map((item,index)=>{
+    if(item.selected===undefined)item.selected=true;
+    if(!item.category_id)item.category_id=bestMultiScanCategoryId(item.categorySuggestion);
+    return `
+    <div class="result-card" data-multi-scan-card="${index}">
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px;font-weight:800">
+       <input type="checkbox" data-ms-field="selected" ${item.selected?"checked":""} onchange="updateMultiScanItem(${index},'selected',this.checked)">
+       Add this item
+       <span class="chip" style="margin-left:auto;padding:6px 9px">${escapeMultiScanHtml(item.confidence||"")}</span>
+      </label>
+
+      <div class="field">
+       <label>Name</label>
+       <input value="${escapeMultiScanHtml(item.name||"Clothing item")}" oninput="updateMultiScanItem(${index},'name',this.value)">
+      </div>
+
+      <div class="field">
+       <label>Category</label>
+       <select onchange="updateMultiScanItem(${index},'category_id',this.value)">
+        ${categoryOptions(item.category_id)}
+       </select>
+      </div>
+
+      <div class="fit-grid">
+       <div class="field">
+        <label>Colour</label>
+        <input value="${escapeMultiScanHtml(item.color||"")}" oninput="updateMultiScanItem(${index},'color',this.value)">
+       </div>
+       <div class="field">
+        <label>Brand</label>
+        <input value="${escapeMultiScanHtml(item.brand||"")}" placeholder="Optional" oninput="updateMultiScanItem(${index},'brand',this.value)">
+       </div>
+      </div>
+
+      <div class="muted" style="margin-top:4px">
+       AI detected: ${escapeMultiScanHtml(item.itemType||"Clothing")} · suggested ${escapeMultiScanHtml(item.categorySuggestion||"Other")}
+      </div>
+      ${item.description?`<div class="muted" style="margin-top:7px;line-height:1.45">${escapeMultiScanHtml(item.description)}</div>`:""}
+    </div>`;
+  }).join("")}
+
+  <button id="multiScanSaveButton" type="button" class="primary" style="margin-top:14px" onclick="saveMultiScanItems()">
+   Add Selected to Wardrobe
+  </button>
+  <div id="multiScanSaveStatus" class="muted" style="margin-top:10px"></div>
  `;
+}
+
+function updateMultiScanItem(index,field,value){
+ if(!multiScanDetectedItems[index])return;
+ multiScanDetectedItems[index][field]=value;
 }
 
 async function scanMultipleClothes(){
  if(!multiScanSelectedFile)return alert("Choose a photo first.");
+ if(!categories.length)return alert("Create at least one wardrobe category first.");
 
  const btn=el("multiScanButton");
  btn.disabled=true;
@@ -3747,7 +3804,6 @@ async function scanMultipleClothes(){
   if(!session?.access_token)throw new Error("Please log in again.");
 
   const image=await fileToDataUrl(multiScanSelectedFile);
-
   const response=await fetch(MULTI_SCAN_API_URL,{
    method:"POST",
    headers:{
@@ -3760,14 +3816,16 @@ async function scanMultipleClothes(){
 
   let data={};
   try{data=await response.json()}catch(e){}
+  if(!response.ok||data.success===false)throw new Error(data.error||`Scanner failed (${response.status}).`);
 
-  if(!response.ok||data.success===false){
-   throw new Error(data.error||`Scanner failed (${response.status}).`);
-  }
+  multiScanDetectedItems=(Array.isArray(data.items)?data.items:[]).map(item=>({
+   ...item,
+   selected:true,
+   category_id:bestMultiScanCategoryId(item.categorySuggestion)
+  }));
 
-  const items=Array.isArray(data.items)?data.items:[];
-  el("multiScanStatus").textContent=`Scan complete — ${items.length} item${items.length===1?"":"s"} detected.`;
-  renderMultiScanResults(items);
+  el("multiScanStatus").textContent=`Scan complete — ${multiScanDetectedItems.length} item${multiScanDetectedItems.length===1?"":"s"} detected. Review them below.`;
+  renderMultiScanResults();
 
  }catch(err){
   console.error("Multi-clothing scanner:",err);
@@ -3776,6 +3834,73 @@ async function scanMultipleClothes(){
  }finally{
   btn.disabled=false;
   btn.textContent="✨ Scan Clothes";
+ }
+}
+
+async function saveMultiScanItems(){
+ const selected=multiScanDetectedItems.filter(x=>x.selected);
+ if(!selected.length)return alert("Select at least one item.");
+ if(!multiScanSelectedFile)return alert("The original scan photo is missing. Choose the photo again.");
+
+ for(const item of selected){
+  if(!String(item.name||"").trim())return alert("Every selected item needs a name.");
+  if(!item.category_id)return alert(`Choose a category for ${item.name||"each selected item"}.`);
+ }
+
+ const btn=el("multiScanSaveButton");
+ const status=el("multiScanSaveStatus");
+ if(btn){btn.disabled=true;btn.textContent="Adding to Wardrobe…";}
+ if(status)status.textContent="Uploading the scan photo…";
+
+ let uploadedPath=null;
+ const insertedIds=[];
+
+ try{
+  const ext=(multiScanSelectedFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+  uploadedPath=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+  const upload=await supabaseClient.storage.from("wardrobe-photos").upload(uploadedPath,multiScanSelectedFile,{upsert:false});
+  if(upload.error)throw new Error("Photo upload failed: "+upload.error.message);
+
+  let saved=0;
+  for(const item of selected){
+   if(status)status.textContent=`Adding ${saved+1} of ${selected.length}…`;
+   const payload={
+    user_id:currentUser.id,
+    category_id:item.category_id,
+    name:String(item.name||"").trim(),
+    color:String(item.color||"").trim(),
+    brand:String(item.brand||"").trim(),
+    photo_url:uploadedPath
+   };
+   const {data,error}=await supabaseClient.from("clothing_items").insert(payload).select("id").single();
+   if(error)throw new Error(`Could not save ${payload.name}: ${error.message}`);
+   insertedIds.push(data.id);
+   saved++;
+  }
+
+  await createAppNotification({
+   type:"multi_scan_items_added",
+   title:"📸 AI Scan Added",
+   message:`${selected.length} item${selected.length===1?"":"s"} were added to your wardrobe.`,
+   actionPage:"home",
+   metadata:{clothing_item_ids:insertedIds,source:"multi_clothing_scanner"}
+  });
+
+  if(status)status.textContent=`Done — ${selected.length} item${selected.length===1?"":"s"} added.`;
+  await loadAllData();
+  renderCategories();
+  renderRecentItems();
+  if(currentCategoryId)renderClothingForCategory();
+
+  setTimeout(()=>closeModal("multiClothingScannerModal"),700);
+  alert(`${selected.length} item${selected.length===1?"":"s"} added to your wardrobe.`);
+
+ }catch(err){
+  console.error("Multi-scan save:",err);
+  if(status)status.textContent="Could not finish: "+(err?.message||String(err));
+  alert(err?.message||String(err));
+ }finally{
+  if(btn){btn.disabled=false;btn.textContent="Add Selected to Wardrobe";}
  }
 }
 
