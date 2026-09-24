@@ -1746,6 +1746,73 @@ body{
 .travel-trip-actions .small-btn{flex:1;min-width:130px}
 @media(max-width:650px){.travel-ai-panel{display:block}.travel-ai-btn{width:100%;margin-top:13px}.travel-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+/* ===== PERMANENT GLOBAL CLOTHING IMAGE RULE =====
+   Clothing/product imagery stays on pure white everywhere in My Wardrobe.
+   Page/card themes may change, but these image surfaces must remain white. */
+.clothing-photo,
+.product-image,
+.ai-piece img,
+.look-picker-photo,
+.look-picker-placeholder,
+.laundry-thumb,
+.recent-card img,
+.recent-placeholder,
+.planned-thumb-wrap img,
+.planned-thumb-placeholder,
+.planner-detail-item img,
+.travel-item img,
+.travel-item .ph,
+.travel-ai-item img,
+.travel-ai-item .ph,
+.travel-day-chip img,
+.tryon-item img,
+.tryon-card img,
+.tryon-wardrobe-item img,
+.tryon-category-item img,
+.upload-preview img,
+.photo-frame img,
+img[data-clothing-image="true"]{
+  background:#ffffff !important;
+}
+.clothing-photo,
+.product-image,
+.ai-piece img,
+.look-picker-photo,
+.laundry-thumb,
+.recent-card img,
+.planned-thumb-wrap img,
+.planner-detail-item img,
+.travel-item img,
+.travel-ai-item img,
+.travel-day-chip img,
+.tryon-item img,
+.tryon-card img,
+.tryon-wardrobe-item img,
+.tryon-category-item img{
+  object-fit:contain !important;
+}
+.travel-ai-item{
+  cursor:pointer;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.travel-ai-item.travel-ai-selected{
+  border:2px solid #d2ad7b !important;
+  box-shadow:0 0 0 3px rgba(210,173,123,.13);
+}
+.travel-ai-select-mark{
+  position:absolute;right:7px;top:7px;width:25px;height:25px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#fff;color:#17130f;border:1px solid #b8aa9b;font-size:13px;font-weight:900;
+  z-index:2;
+}
+.travel-ai-item.travel-ai-selected .travel-ai-select-mark{
+  background:#d2ad7b;border-color:#d2ad7b;color:#17130f;
+}
+.travel-ai-selection-count{
+  margin-top:10px;color:#b7aa9c;font-size:12px;
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3772,6 +3839,39 @@ function travelDaysUntil(dateValue){
 }
 
 
+
+let travelAISuggestedItemIds=[];
+let travelAISelectedItemIds=[];
+
+function toggleTravelAISuggestion(id){
+ const sid=String(id);
+ if(travelAISelectedItemIds.includes(sid)){
+   travelAISelectedItemIds=travelAISelectedItemIds.filter(x=>String(x)!==sid);
+ }else{
+   travelAISelectedItemIds.push(sid);
+ }
+ renderTravelAISelectionState();
+}
+
+function renderTravelAISelectionState(){
+ document.querySelectorAll(".travel-ai-item[data-travel-ai-id]").forEach(card=>{
+   const id=String(card.dataset.travelAiId||"");
+   const selected=travelAISelectedItemIds.includes(id);
+   card.classList.toggle("travel-ai-selected",selected);
+   const mark=card.querySelector(".travel-ai-select-mark");
+   if(mark)mark.textContent=selected?"✓":"";
+ });
+ const count=el("travelAISelectionCount");
+ if(count)count.textContent=`${travelAISelectedItemIds.length} of ${travelAISuggestedItemIds.length} suggested item${travelAISuggestedItemIds.length===1?"":"s"} selected`;
+ const btn=el("travelAIAddSelectedBtn");
+ if(btn)btn.disabled=!travelAISelectedItemIds.length;
+}
+
+function addSelectedTravelAISuggestions(){
+ if(!travelAISelectedItemIds.length)return alert("Select at least one suggested item first.");
+ applyTravelAISuggestions(travelAISelectedItemIds);
+}
+
 function travelTripDayCount(){
  const a=el("tripDeparture")?.value||"", b=el("tripReturn")?.value||"";
  if(!a)return 1;
@@ -3820,20 +3920,27 @@ function generateTravelPackingSuggestions(){
  }
 
  const box=el("travelAISuggestions");if(!box)return;
+ travelAISuggestedItemIds=picks.map(i=>String(i.id));
+ travelAISelectedItemIds=[...travelAISuggestedItemIds];
+
  const laundry=picks.filter(i=>i.laundry_status);
  box.innerHTML=`<div class="travel-ai-result">
    <h3>${escapeHtml(type)} packing suggestion${destination?" · "+escapeHtml(destination):""}</h3>
-   <div class="muted">Based on ${days} day${days===1?"":"s"}. My Wardrobe is prioritised before anything else.</div>
-   <div class="travel-ai-grid">${picks.map(i=>`<div class="travel-ai-item">
-     ${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:'<div class="ph">👕</div>'}
+   <div class="muted">Based on ${days} day${days===1?"":"s"}. My Wardrobe is prioritised before anything else. Tap any clothing item to select or deselect it.</div>
+   <div class="travel-ai-grid">${picks.map(i=>`<div class="travel-ai-item travel-ai-selected" data-travel-ai-id="${escapeHtml(String(i.id))}" onclick="toggleTravelAISuggestion('${escapeJs(String(i.id))}')">
+     <span class="travel-ai-select-mark">✓</span>
+     ${i.displayPhoto?`<img data-clothing-image="true" src="${escapeHtml(i.displayPhoto)}" alt="">`:'<div class="ph">👕</div>'}
      <div class="travel-ai-item-copy">${escapeHtml(i.name||"Item")}${i.laundry_status?" · 🧺":""}</div>
    </div>`).join("")}</div>
+   <div id="travelAISelectionCount" class="travel-ai-selection-count">${picks.length} of ${picks.length} suggested item${picks.length===1?"":"s"} selected</div>
    ${laundry.length?`<div class="planned-conflict">🧺 ${escapeHtml(laundry.map(i=>i.name||"Item").join(", "))} ${laundry.length===1?"is":"are"} currently in Laundry.</div>`:""}
    <div class="travel-ai-actions">
-     <button type="button" class="primary" style="width:auto" onclick='applyTravelAISuggestions(${JSON.stringify(picks.map(i=>String(i.id)))})'>Add all to Packing List</button>
+     <button id="travelAIAddSelectedBtn" type="button" class="primary" style="width:auto" onclick="addSelectedTravelAISuggestions()">Add Selected to Packing List</button>
+     <button type="button" class="secondary" onclick='applyTravelAISuggestions(${JSON.stringify(picks.map(i=>String(i.id)))})'>Add all to Packing List</button>
      <button type="button" class="secondary" onclick="clearTravelAISuggestions()">Dismiss</button>
    </div>
  </div>`;
+ renderTravelAISelectionState();
 }
 function applyTravelAISuggestions(ids){
  travelSelectedItemIds=[...new Set([...travelSelectedItemIds,...ids])];
@@ -3841,7 +3948,7 @@ function applyTravelAISuggestions(ids){
  if(travelActiveCategoryId)renderTravelCategoryItems(travelActiveCategoryId);
  el("travelSelectedPreview")?.scrollIntoView({behavior:"smooth",block:"center"});
 }
-function clearTravelAISuggestions(){if(el("travelAISuggestions"))el("travelAISuggestions").innerHTML=""}
+function clearTravelAISuggestions(){travelAISuggestedItemIds=[];travelAISelectedItemIds=[];if(el("travelAISuggestions"))el("travelAISuggestions").innerHTML=""}
 
 function travelBuildDayPlans(trip){
  const items=(trip.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
