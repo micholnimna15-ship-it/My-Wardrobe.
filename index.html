@@ -1642,6 +1642,31 @@ body{
 /* ===== AUTOMATIC MULTI-SCAN PREVIEW ===== */
 #multiScanResults .photo-frame,
 #multiScanResults .photo-frame img{background:#fff!important;background-color:#fff!important}
+
+/* ===== VIRTUAL TRY-ON — STAGE 1 ===== */
+.tryon-shell{max-width:980px;margin:0 auto;padding-bottom:28px}
+.tryon-hero{padding:24px;border:1px solid #4b433a;border-radius:22px;background:linear-gradient(145deg,#1d1b18,#12110f);margin-bottom:16px}
+.tryon-kicker{font-size:10px;letter-spacing:2px;color:#c5a06f;text-transform:uppercase}
+.tryon-hero h1{font:400 31px Georgia,"Times New Roman",serif;color:#f5eee6;margin:7px 0}
+.tryon-hero p{color:#a99f94;line-height:1.55;margin:0;max-width:660px}
+.tryon-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tryon-panel{border:1px solid #4a4239;border-radius:19px;background:#181613;padding:16px}
+.tryon-panel h3{margin:0 0 5px;color:#f2ebe3}.tryon-panel p{margin:0 0 13px;color:#9e948a;font-size:12px;line-height:1.45}
+.tryon-photo-box{min-height:300px;border:1px dashed #655642;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#756b61;text-align:center;padding:14px}
+.tryon-photo-box img{width:100%;height:100%;max-height:430px;object-fit:contain;background:#fff}
+.tryon-upload{width:100%;margin-top:11px}
+.tryon-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-height:380px;overflow:auto;padding-right:2px}
+.tryon-item{border:1px solid #403a34;border-radius:13px;background:#11100e;padding:6px;cursor:pointer;color:#ddd;text-align:left}
+.tryon-item.selected{border-color:#d2ad7b;box-shadow:0 0 0 2px rgba(210,173,123,.16)}
+.tryon-item img{width:100%;aspect-ratio:4/5;object-fit:contain;border-radius:9px;background:#fff;display:block}
+.tryon-item span{display:block;font-size:10px;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tryon-selected{margin-top:10px;color:#c6b9ab;font-size:12px}
+.tryon-action{margin-top:16px;width:100%;min-height:50px;border-radius:14px;border:1px solid #9b7a56;background:#d2ad7b;color:#17130f;font-weight:900}
+.tryon-action:disabled{opacity:.45;cursor:not-allowed}
+.tryon-result{margin-top:15px;border:1px solid #4a4239;border-radius:18px;padding:16px;background:#171512}
+.tryon-coming{padding:18px;border-radius:14px;background:#201b15;border:1px solid #594933;color:#cdb89e;font-size:12px;line-height:1.55}
+@media(max-width:720px){.tryon-grid{grid-template-columns:1fr}.tryon-items{grid-template-columns:repeat(3,1fr)}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1908,6 +1933,15 @@ body{
         </section>
       </div>
 
+
+      <div class="ai-promo">
+        <div>
+          <h3>Virtual Try-On</h3>
+          <p>Choose your photo and see which wardrobe item you want to try on.</p>
+        </div>
+        <button class="secondary" onclick="showPage('tryon')">Try On →</button>
+      </div>
+
       <div class="ai-promo">
         <div>
           <h3>Shop AI</h3>
@@ -1958,6 +1992,42 @@ body{
       <div class="page-intro"><h1>My Looks</h1><p>Your favourite outfit combinations, ready when you need them.</p></div>
       <div class="section-head"><h2>Saved looks</h2><button class="secondary" onclick="openSaveLookModal()">+ Create look</button></div>
       <div id="looksContainer" class="looks-grid"></div>
+    </section>
+
+
+    <section id="tryOnPage" class="hidden">
+      <div class="tryon-shell">
+        <div class="tryon-hero">
+          <div class="tryon-kicker">AI Styling Lab</div>
+          <h1>Virtual Try-On</h1>
+          <p>Choose a clear photo of yourself and one item from your wardrobe. Review both before generating your try-on.</p>
+        </div>
+
+        <div class="tryon-grid">
+          <div class="tryon-panel">
+            <h3>1. Choose your photo</h3>
+            <p>A clear, well-lit full-body photo works best.</p>
+            <div id="tryOnPersonPreview" class="tryon-photo-box">Your photo will appear here</div>
+            <input id="tryOnPersonInput" class="tryon-upload" type="file" accept="image/*" onchange="previewTryOnPerson(event)">
+          </div>
+
+          <div class="tryon-panel">
+            <h3>2. Choose from My Wardrobe</h3>
+            <p>Select the clothing item you want to try on.</p>
+            <div id="tryOnWardrobeItems" class="tryon-items"></div>
+            <div id="tryOnSelectedText" class="tryon-selected">No item selected</div>
+          </div>
+        </div>
+
+        <button id="tryOnGenerateBtn" class="tryon-action" onclick="startVirtualTryOn()" disabled>✦ Try It On</button>
+
+        <div id="tryOnResult" class="tryon-result hidden">
+          <div class="tryon-coming">
+            <strong>Selections ready.</strong><br>
+            Your photo and wardrobe item are ready for the AI generation step. Nothing has been changed or saved.
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="shopPage" class="hidden">
@@ -3010,13 +3080,14 @@ async function createSignedPhotoUrls(){
  }
 }
 
-function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","plannerPage","shopPage","laundryPage","travelPage","mePage"].forEach(id=>el(id).classList.add("hidden"))}
+function hideAllPages(){["homePage","categoryPage","searchPage","looksPage","plannerPage","tryOnPage","shopPage","laundryPage","travelPage","mePage"].forEach(id=>el(id).classList.add("hidden"))}
 function clearNavActive(){["navHome","navLooks","navPlanner","navShop","navLaundry","navTravel"].forEach(id=>el(id)?.classList.remove("active"))}
 function showPage(page){
  hideAllPages();clearNavActive();
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems();renderHomeDashboard()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
  if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");Promise.all([loadOutfitHistory(),loadPlannedOutfits()]).then(()=>{renderOutfitPlanner();renderOutfitCalendar();});}
+ if(page==="tryon"){el("tryOnPage").classList.remove("hidden");renderVirtualTryOnItems()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
  if(page==="travel"){el("travelPage").classList.remove("hidden");el("navTravel").classList.add("active");renderTravelPacking()}
@@ -7515,6 +7586,67 @@ window.guidedBack=guidedBack;
 
 // First authenticated launch safety check.
 setTimeout(()=>{if(currentUser)maybeShowFirstTimeTour()},1300);
+
+
+/* =========================================================
+   VIRTUAL TRY-ON — STAGE 1
+========================================================= */
+let tryOnPersonFile=null;
+let tryOnPersonObjectUrl="";
+let tryOnSelectedItemId=null;
+
+function previewTryOnPerson(event){
+ const file=event.target.files?.[0];
+ if(!file)return;
+ tryOnPersonFile=file;
+ if(tryOnPersonObjectUrl)URL.revokeObjectURL(tryOnPersonObjectUrl);
+ tryOnPersonObjectUrl=URL.createObjectURL(file);
+ const box=el("tryOnPersonPreview");
+ if(box)box.innerHTML=`<img src="${tryOnPersonObjectUrl}" alt="Your try-on photo">`;
+ updateTryOnButton();
+}
+
+function renderVirtualTryOnItems(){
+ const wrap=el("tryOnWardrobeItems");
+ if(!wrap)return;
+ if(!clothingItems.length){
+  wrap.innerHTML='<div class="muted">Add a clothing item to your wardrobe first.</div>';
+  updateTryOnButton();
+  return;
+ }
+ wrap.innerHTML=clothingItems.map(item=>`
+  <button type="button" class="tryon-item ${String(item.id)===String(tryOnSelectedItemId)?"selected":""}" onclick="selectTryOnItem('${item.id}')">
+   ${item.displayPhoto?`<img src="${item.displayPhoto}" alt="${escapeHtml(item.name||"Wardrobe item")}">`:`<div style="aspect-ratio:4/5;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#777">👕</div>`}
+   <span>${escapeHtml(item.name||"Clothing item")}</span>
+  </button>
+ `).join("");
+ const selected=clothingItems.find(i=>String(i.id)===String(tryOnSelectedItemId));
+ const label=el("tryOnSelectedText");
+ if(label)label.textContent=selected?`Selected: ${selected.name||"Clothing item"}`:"No item selected";
+ updateTryOnButton();
+}
+
+function selectTryOnItem(id){
+ tryOnSelectedItemId=id;
+ renderVirtualTryOnItems();
+}
+
+function updateTryOnButton(){
+ const btn=el("tryOnGenerateBtn");
+ if(btn)btn.disabled=!(tryOnPersonFile&&tryOnSelectedItemId);
+}
+
+function startVirtualTryOn(){
+ if(!tryOnPersonFile)return alert("Choose your photo first.");
+ const item=clothingItems.find(i=>String(i.id)===String(tryOnSelectedItemId));
+ if(!item)return alert("Choose a wardrobe item first.");
+ const result=el("tryOnResult");
+ if(result){
+  result.classList.remove("hidden");
+  result.innerHTML=`<div class="tryon-coming"><strong>Ready for AI Try-On ✦</strong><br>Your photo and <b>${escapeHtml(item.name||"selected item")}</b> are selected correctly. The next stage will connect this screen to the secure AI try-on function.</div>`;
+  result.scrollIntoView({behavior:"smooth",block:"nearest"});
+ }
+}
 
 </script>
 
