@@ -2478,7 +2478,7 @@ body{
   <div class="field"><label>Clothing photo</label><input id="clothingPhoto" type="file" accept="image/*" onchange="previewPhoto(event)"></div>
   <div class="photo-tools">
     <strong>✨ AI Photo Cleaner</strong>
-    <div class="muted" style="margin-top:4px">Choose a photo and start AI cleaning. The item is saved first, then cleaning continues in the background even if you close the app.</div>
+    <div class="muted" style="margin-top:4px">Choose a photo, clean it with AI, and review the cleaned preview beside the original before saving.</div>
     <div class="photo-tools-grid">
       <div>
         <div class="muted" style="margin-bottom:5px">Original</div>
@@ -2650,7 +2650,7 @@ const SHOP_API_URL=SUPABASE_URL+"/functions/v1/search-products";
 const STYLE_API_URL=SUPABASE_URL+"/functions/v1/style-outfit";
 const STYLE_US_API_URL=SUPABASE_URL+"/functions/v1/style-us";
 const STYLE_CHAT_API_URL=SUPABASE_URL+"/functions/v1/send-style-chat";
-const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing"; // legacy direct cleaner; background jobs now use ai_cleaning_jobs
+const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing"; // direct cleaner used for immediate side-by-side preview
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
@@ -4848,29 +4848,51 @@ function base64ToFile(base64,mimeType="image/png",name="ai-cleaned.png"){
 
 async function cleanClothingPhoto(){
  if(!selectedClothingFile)return alert("Choose a clothing photo first.");
- const name=el("clothingName").value.trim();
- const category_id=el("clothingCategory").value;
- if(!name||!category_id)return alert("Enter a name and choose a category first.");
  const btn=el("cleanPhotoButton");
- btn.disabled=true;btn.textContent="✨ Starting…";
- el("cleanPhotoStatus").textContent="Uploading your item and starting background AI cleaning…";
+ btn.disabled=true;btn.textContent="✨ Cleaning…";
+ el("cleanPhotoStatus").textContent="Cleaning your photo with AI… Please wait.";
+ el("cleanedPhotoFrame").innerHTML='<div style="padding:20px;text-align:center">✨<br><br>Creating preview…</div>';
  try{
-   const result=await createBackgroundCleaningJob({
-     file:selectedClothingFile,
-     name,
-     color:el("clothingColor").value.trim(),
-     brand:el("clothingBrand").value.trim(),
-     category_id,
-     clothingItemId:editingClothingId||null
+   const dataUrl=await fileToDataUrl(selectedClothingFile);
+   const imageBase64=String(dataUrl).split(",")[1];
+   if(!imageBase64)throw new Error("Could not read the selected photo.");
+
+   const {data:{session}}=await supabaseClient.auth.getSession();
+   if(!session?.access_token)throw new Error("Please log in again.");
+
+   const response=await fetch(CLEAN_API_URL,{
+     method:"POST",
+     headers:{
+       "Content-Type":"application/json",
+       "apikey":SUPABASE_PUBLISHABLE_KEY,
+       "Authorization":"Bearer "+session.access_token
+     },
+     body:JSON.stringify({
+       imageBase64,
+       mimeType:selectedClothingFile.type||"image/jpeg"
+     })
    });
-   el("cleanedPhotoFrame").innerHTML='<div style="padding:20px;text-align:center">✨<br><br>Cleaning in background</div>';
-   el("cleanPhotoStatus").textContent="Saved. AI cleaning is now running in the background. You can close the app.";
-   selectedClothingFile=null;cleanedClothingFile=null;
-   await loadAllData();renderCategories();renderRecentItems();if(currentCategoryId)renderClothingForCategory();
-   setTimeout(()=>closeModal("clothingModal"),900);
+
+   let data={};
+   try{data=await response.json()}catch(e){}
+   if(!response.ok||data.success===false||!data.imageBase64){
+     throw new Error(data.error||`AI cleaning failed (${response.status}).`);
+   }
+
+   cleanedClothingFile=base64ToFile(
+     data.imageBase64,
+     data.mimeType||"image/png",
+     "ai-cleaned.png"
+   );
+
+   const cleanedUrl=URL.createObjectURL(cleanedClothingFile);
+   el("cleanedPhotoFrame").innerHTML=`<img src="${cleanedUrl}" alt="AI cleaned clothing preview">`;
+   el("cleanPhotoStatus").textContent="Cleaned preview ready. Check it beside the original, then tap Save clothing if you want to keep it.";
  }catch(err){
-   console.error(err);
-   el("cleanPhotoStatus").textContent="Could not start background cleaning: "+err.message;
+   console.error("AI photo cleaning failed:",err);
+   cleanedClothingFile=null;
+   el("cleanedPhotoFrame").textContent="AI preview appears here";
+   el("cleanPhotoStatus").textContent="Could not clean photo: "+(err?.message||"Unknown error");
  }finally{
    btn.disabled=false;btn.textContent="✨ Clean with AI";
  }
