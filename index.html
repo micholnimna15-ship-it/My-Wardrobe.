@@ -5223,32 +5223,76 @@ function base64ToFile(base64,mimeType="image/png",name="ai-cleaned.png"){
 }
 
 async function cleanClothingPhoto(){
- if(!selectedClothingFile)return alert("Choose a clothing photo first.");
- const name=el("clothingName").value.trim();
- const category_id=el("clothingCategory").value;
- if(!name||!category_id)return alert("Enter a name and choose a category first.");
+ if(!selectedClothingFile){
+  return alert("Choose a clothing photo first.");
+ }
+
  const btn=el("cleanPhotoButton");
- btn.disabled=true;btn.textContent="✨ Starting…";
- el("cleanPhotoStatus").textContent="Uploading your item and starting background AI cleaning…";
+ btn.disabled=true;
+ btn.textContent="✨ Cleaning…";
+ el("cleanPhotoStatus").textContent="AI is cleaning your clothing photo. Please wait…";
+
  try{
-   const result=await createBackgroundCleaningJob({
-     file:selectedClothingFile,
-     name,
-     color:el("clothingColor").value.trim(),
-     brand:el("clothingBrand").value.trim(),
-     category_id,
-     clothingItemId:editingClothingId||null
-   });
-   el("cleanedPhotoFrame").innerHTML='<div style="padding:20px;text-align:center">✨<br><br>Cleaning in background</div>';
-   el("cleanPhotoStatus").textContent="Saved. AI cleaning is now running in the background. You can close the app.";
-   selectedClothingFile=null;cleanedClothingFile=null;
-   await loadAllData();renderCategories();renderRecentItems();if(currentCategoryId)renderClothingForCategory();
-   setTimeout(()=>closeModal("clothingModal"),900);
+  const dataUrl=await fileToDataUrl(selectedClothingFile);
+  const imageBase64=dataUrl.split(",")[1];
+  const mimeType=selectedClothingFile.type||"image/jpeg";
+
+  const {data:{session}}=await supabaseClient.auth.getSession();
+
+  if(!session){
+   throw new Error("Your session has expired. Please sign in again.");
+  }
+
+  const response=await fetch(CLEAN_API_URL,{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json",
+    "Authorization":`Bearer ${session.access_token}`,
+    "apikey":SUPABASE_PUBLISHABLE_KEY
+   },
+   body:JSON.stringify({
+    imageBase64,
+    mimeType
+   })
+  });
+
+  let data;
+  try{
+   data=await response.json();
+  }catch(_){
+   throw new Error("The clean-clothing function returned an invalid response.");
+  }
+
+  if(!response.ok||!data?.success){
+   throw new Error(data?.error||"AI clothing cleaning failed.");
+  }
+
+  if(!data.imageBase64){
+   throw new Error("The AI did not return a cleaned image.");
+  }
+
+  cleanedClothingFile=base64ToFile(
+   data.imageBase64,
+   data.mimeType||"image/png",
+   "ai-cleaned.png"
+  );
+
+  const cleanedUrl=URL.createObjectURL(cleanedClothingFile);
+
+  el("cleanedPhotoFrame").innerHTML=
+   `<img src="${cleanedUrl}" alt="AI cleaned clothing photo">`;
+
+  el("cleanPhotoStatus").textContent=
+   "✨ Cleaning complete. Review the result, then tap Save Item.";
+
  }catch(err){
-   console.error(err);
-   el("cleanPhotoStatus").textContent="Could not start background cleaning: "+err.message;
+  console.error("Clean with AI error:",err);
+  cleanedClothingFile=null;
+  el("cleanPhotoStatus").textContent=
+   "Could not clean photo: "+(err?.message||"Unknown error");
  }finally{
-   btn.disabled=false;btn.textContent="✨ Clean with AI";
+  btn.disabled=false;
+  btn.textContent="✨ Clean with AI";
  }
 }
 
