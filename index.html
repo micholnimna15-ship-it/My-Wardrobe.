@@ -3781,7 +3781,7 @@ function renderMultiScanResults(items=multiScanDetectedItems){
          <div class="photo-frame" style="min-height:190px">
           <img src="${item.extractedImage}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain">
          </div>
-         <div class="notice" style="margin-top:8px">Extraction preview only. The wardrobe save function is still using the original group photo.</div>
+         <div class="success-box" style="margin-top:8px">✓ This extracted image will be used when this item is saved.</div>
         `:""}
        </div>
       </div>
@@ -3793,7 +3793,12 @@ function renderMultiScanResults(items=multiScanDetectedItems){
     </div>`;
   }).join("")}
 
-  <button id="multiScanSaveButton" type="button" class="primary" style="margin-top:14px" onclick="saveMultiScanItems()">
+  <button id="multiExtractAllButton" type="button" class="secondary" style="width:100%;margin-top:14px" onclick="extractAllSelectedMultiScanItems()">
+   ✨ Extract All Selected
+  </button>
+  <div id="multiExtractAllStatus" class="muted" style="margin-top:8px"></div>
+
+  <button id="multiScanSaveButton" type="button" class="primary" style="margin-top:10px" onclick="saveMultiScanItems()">
    Add Selected to Wardrobe
   </button>
   <div id="multiScanSaveStatus" class="muted" style="margin-top:10px"></div>
@@ -3806,10 +3811,95 @@ function updateMultiScanItem(index,field,value){
 }
 
 
+
+async function requestMultiScanExtraction(index){
+ const item=multiScanDetectedItems[index];
+ if(!item)throw new Error("Item not found.");
+ if(!multiScanSelectedFile)throw new Error("Choose the original scan photo again.");
+
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session?.access_token)throw new Error("Please log in again.");
+
+ const image=await fileToDataUrl(multiScanSelectedFile);
+ const response=await fetch(EXTRACT_CLOTHING_API_URL,{
+  method:"POST",
+  headers:{
+   "Content-Type":"application/json",
+   "apikey":SUPABASE_PUBLISHABLE_KEY,
+   "Authorization":"Bearer "+session.access_token
+  },
+  body:JSON.stringify({
+   image,
+   item:{
+    name:String(item.name||"Clothing item").trim(),
+    itemType:item.itemType||"garment",
+    color:String(item.color||"").trim(),
+    description:item.description||""
+   }
+  })
+ });
+
+ let data={};
+ try{data=await response.json()}catch(e){}
+ if(!response.ok||data.success===false||!data.image){
+  throw new Error(data.error||`Extraction failed (${response.status}).`);
+ }
+ item.extractedImage=data.image;
+ return data.image;
+}
+
+async function extractAllSelectedMultiScanItems(){
+ const selectedIndexes=multiScanDetectedItems
+  .map((item,index)=>item?.selected?index:-1)
+  .filter(index=>index>=0);
+
+ if(!selectedIndexes.length)return alert("Select at least one item first.");
+
+ const btn=el("multiExtractAllButton");
+ const status=el("multiExtractAllStatus");
+ if(btn){btn.disabled=true;btn.textContent="Extracting Selected…";}
+
+ let completed=0;
+ const failed=[];
+
+ try{
+  for(const index of selectedIndexes){
+   const item=multiScanDetectedItems[index];
+   if(item.extractedImage){
+    completed++;
+    if(status)status.textContent=`${completed} of ${selectedIndexes.length} ready…`;
+    continue;
+   }
+
+   if(status)status.textContent=`Extracting ${completed+1} of ${selectedIndexes.length}: ${item.name||"item"}…`;
+
+   try{
+    await requestMultiScanExtraction(index);
+    completed++;
+   }catch(err){
+    console.error("Bulk extraction failed:",index,err);
+    failed.push(item.name||`Item ${index+1}`);
+   }
+  }
+
+  renderMultiScanResults();
+
+  const refreshedStatus=el("multiExtractAllStatus");
+  if(refreshedStatus){
+   refreshedStatus.textContent=failed.length
+    ? `${completed} extracted. Could not extract: ${failed.join(", ")}. You can retry those individually.`
+    : `All ${completed} selected item${completed===1?"":"s"} extracted successfully.`;
+  }
+
+ }finally{
+  const refreshedBtn=el("multiExtractAllButton");
+  if(refreshedBtn){refreshedBtn.disabled=false;refreshedBtn.textContent="✨ Extract All Selected";}
+ }
+}
+
 async function extractMultiScanItem(index){
  const item=multiScanDetectedItems[index];
  if(!item)return;
- if(!multiScanSelectedFile)return alert("Choose the original scan photo again.");
 
  const btn=el(`multiExtractBtn-${index}`);
  const status=el(`multiExtractStatus-${index}`);
@@ -3820,50 +3910,20 @@ async function extractMultiScanItem(index){
  if(preview)preview.innerHTML="";
 
  try{
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  if(!session?.access_token)throw new Error("Please log in again.");
+  const image=await requestMultiScanExtraction(index);
 
-  const image=await fileToDataUrl(multiScanSelectedFile);
-
-  const response=await fetch(EXTRACT_CLOTHING_API_URL,{
-   method:"POST",
-   headers:{
-    "Content-Type":"application/json",
-    "apikey":SUPABASE_PUBLISHABLE_KEY,
-    "Authorization":"Bearer "+session.access_token
-   },
-   body:JSON.stringify({
-    image,
-    item:{
-     name:String(item.name||"Clothing item").trim(),
-     itemType:item.itemType||"garment",
-     color:String(item.color||"").trim(),
-     description:item.description||""
-    }
-   })
-  });
-
-  let data={};
-  try{data=await response.json()}catch(e){}
-
-  if(!response.ok||data.success===false||!data.image){
-   throw new Error(data.error||`Extraction failed (${response.status}).`);
-  }
-
-  item.extractedImage=data.image;
-
-  if(status)status.textContent="Extraction complete. Compare it carefully with the real garment.";
+  if(status)status.textContent="Extraction complete. This image will be used when you save the item.";
   if(preview){
    preview.innerHTML=`
     <div class="photo-frame" style="min-height:190px">
-     <img src="${data.image}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain">
+     <img src="${image}" alt="Extracted ${escapeMultiScanHtml(item.name||"clothing item")}" style="width:100%;max-height:300px;object-fit:contain">
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px">
      <button type="button" class="secondary" onclick="extractMultiScanItem(${index})">↻ Retry</button>
-     <button type="button" class="secondary" onclick="clearMultiScanExtraction(${index})">Remove Preview</button>
+     <button type="button" class="secondary" onclick="clearMultiScanExtraction(${index})">Use Original</button>
     </div>
-    <div class="notice" style="margin-top:8px">
-     Test mode: this extracted image is only a preview. Saving still uses the original group photo.
+    <div class="success-box" style="margin-top:8px">
+     ✓ Extraction accepted for saving. Retry if the garment does not match the original closely.
     </div>`;
   }
 
@@ -3933,10 +3993,17 @@ async function scanMultipleClothes(){
  }
 }
 
+async function dataUrlToBlob(dataUrl){
+ const match=String(dataUrl||"").match(/^data:([^;]+);base64,(.+)$/);
+ if(!match)throw new Error("Invalid extracted image.");
+ const mime=match[1];
+ const bytes=Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0));
+ return new Blob([bytes],{type:mime});
+}
+
 async function saveMultiScanItems(){
  const selected=multiScanDetectedItems.filter(x=>x.selected);
  if(!selected.length)return alert("Select at least one item.");
- if(!multiScanSelectedFile)return alert("The original scan photo is missing. Choose the photo again.");
 
  for(const item of selected){
   if(!String(item.name||"").trim())return alert("Every selected item needs a name.");
@@ -3946,30 +4013,66 @@ async function saveMultiScanItems(){
  const btn=el("multiScanSaveButton");
  const status=el("multiScanSaveStatus");
  if(btn){btn.disabled=true;btn.textContent="Adding to Wardrobe…";}
- if(status)status.textContent="Uploading the scan photo…";
 
- let uploadedPath=null;
+ const uploadedPaths=[];
  const insertedIds=[];
 
  try{
-  const ext=(multiScanSelectedFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
-  uploadedPath=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
-  const upload=await supabaseClient.storage.from("wardrobe-photos").upload(uploadedPath,multiScanSelectedFile,{upsert:false});
-  if(upload.error)throw new Error("Photo upload failed: "+upload.error.message);
+  let originalPhotoPath=null;
+
+  // Upload the original only if at least one selected item has no extraction.
+  if(selected.some(item=>!item.extractedImage)){
+   if(!multiScanSelectedFile)throw new Error("The original scan photo is missing.");
+   if(status)status.textContent="Uploading original photo for items without extraction…";
+   const ext=(multiScanSelectedFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+   originalPhotoPath=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+   const upload=await supabaseClient.storage.from("wardrobe-photos").upload(
+    originalPhotoPath,
+    multiScanSelectedFile,
+    {upsert:false}
+   );
+   if(upload.error)throw new Error("Original photo upload failed: "+upload.error.message);
+   uploadedPaths.push(originalPhotoPath);
+  }
 
   let saved=0;
+
   for(const item of selected){
-   if(status)status.textContent=`Adding ${saved+1} of ${selected.length}…`;
+   if(status)status.textContent=`Adding ${saved+1} of ${selected.length}: ${item.name||"item"}…`;
+
+   let photoPath=originalPhotoPath;
+
+   if(item.extractedImage){
+    const blob=await dataUrlToBlob(item.extractedImage);
+    photoPath=`${currentUser.id}/${crypto.randomUUID()}.png`;
+
+    const upload=await supabaseClient.storage.from("wardrobe-photos").upload(
+     photoPath,
+     blob,
+     {contentType:"image/png",upsert:false}
+    );
+
+    if(upload.error)throw new Error(`Could not upload extracted image for ${item.name}: ${upload.error.message}`);
+    uploadedPaths.push(photoPath);
+   }
+
    const payload={
     user_id:currentUser.id,
     category_id:item.category_id,
     name:String(item.name||"").trim(),
     color:String(item.color||"").trim(),
     brand:String(item.brand||"").trim(),
-    photo_url:uploadedPath
+    photo_url:photoPath
    };
-   const {data,error}=await supabaseClient.from("clothing_items").insert(payload).select("id").single();
+
+   const {data,error}=await supabaseClient
+    .from("clothing_items")
+    .insert(payload)
+    .select("id")
+    .single();
+
    if(error)throw new Error(`Could not save ${payload.name}: ${error.message}`);
+
    insertedIds.push(data.id);
    saved++;
   }
@@ -3979,10 +4082,15 @@ async function saveMultiScanItems(){
    title:"📸 AI Scan Added",
    message:`${selected.length} item${selected.length===1?"":"s"} were added to your wardrobe.`,
    actionPage:"home",
-   metadata:{clothing_item_ids:insertedIds,source:"multi_clothing_scanner"}
+   metadata:{
+    clothing_item_ids:insertedIds,
+    source:"multi_clothing_scanner",
+    extracted_images:selected.filter(x=>x.extractedImage).length
+   }
   });
 
-  if(status)status.textContent=`Done — ${selected.length} item${selected.length===1?"":"s"} added.`;
+  if(status)status.textContent=`Done — ${selected.length} item${selected.length===1?"":"s"} added with individual images where extracted.`;
+
   await loadAllData();
   renderCategories();
   renderRecentItems();
