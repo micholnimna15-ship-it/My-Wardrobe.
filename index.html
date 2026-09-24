@@ -1513,6 +1513,43 @@ body{
 .tour-highlight{position:relative;z-index:10053!important}
 @media(max-width:600px){.tour-card{width:calc(100vw - 24px)}.tour-welcome-card{padding:29px 22px}}
 
+
+/* ===== PROFILE APP ACTIONS ===== */
+.me-card .secondary-btn,
+.me-card .app-logout-btn{
+  width:100%;
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px 16px;
+  margin-top:10px;
+  border-radius:14px;
+  font-weight:700;
+  text-align:left;
+  transition:border-color .16s ease,background .16s ease,transform .16s ease;
+}
+.me-card .secondary-btn{
+  border:1px solid #51483f;
+  background:#1b1916;
+  color:#f2ece5;
+}
+.me-card .secondary-btn:hover{
+  background:#211e1a;
+  border-color:#8b7358;
+  transform:translateY(-1px);
+}
+.me-card .app-logout-btn{
+  border:1px solid rgba(212,106,101,.42);
+  background:rgba(212,106,101,.06);
+  color:#e5aaa6;
+}
+.me-card .app-logout-btn:hover{
+  background:rgba(212,106,101,.11);
+  border-color:#d46a65;
+  transform:translateY(-1px);
+}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2173,8 +2210,8 @@ body{
       </div>
       <div class="me-card"><h3 style="margin-top:0">📏 My Fit</h3><p class="muted">Measurements, sizes and preferred fit for better recommendations.</p><button type="button" class="secondary" onclick="openFitModal()">View / Edit My Fit</button></div>
       <div class="credit-card"><div class="muted">AI Credits</div><div class="credit-balance">✨ <span id="creditBalanceMe">—</span></div><div class="muted">1 credit is used after a successful AI outfit generation.</div><button type="button" class="buy-credits-btn" onclick="openBuyCreditsModal()">💳 Buy AI Credits</button><div id="paymentReturnMessage"></div></div>
-       <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button id="installAppBtn" class="secondary" onclick="handleInstallApp()">📲 Install App</button><button type="button" class="secondary-btn" onclick="replayAppTour()">🧭 Take App Tour Again</button>
-<button class="secondary danger" style="margin-top:8px" onclick="logout()">Log out</button></div>
+       <div class="me-card"><h3 style="margin-top:0">⚙️ App</h3><button type="button" class="secondary-btn" onclick="replayAppTour()">🧭 <span>Take App Tour Again</span></button>
+<button class="app-logout-btn" onclick="logout()">↪ <span>Log out</span></button></div>
     </section>
   </main>
 
