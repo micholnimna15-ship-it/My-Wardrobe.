@@ -263,12 +263,6 @@ body{
 
 
 
-/* ===== OUTFIT INTELLIGENCE ACTIONS ===== */
-.ai-outfit-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:15px;border-top:1px solid var(--line)}
-.ai-outfit-actions button{flex:1;min-width:150px}
-.ai-outfit-actions .tryon-link{background:#d2ad7b!important;color:#15120f!important;border-color:#d2ad7b!important;font-weight:800}
-.ai-outfit-count{margin-top:10px;color:var(--muted);font-size:12px}
-
 /* ===== SHOP AI FEATURE MENU + UPLOADED ITEM STYLING ===== */
 .shop-feature-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
 .shop-feature-card{width:100%;text-align:left;border:1px solid var(--line);border-radius:22px;padding:18px;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(249,246,255,.94));box-shadow:var(--shadow);transition:.18s ease}
@@ -1673,146 +1667,6 @@ body{
 .tryon-coming{padding:18px;border-radius:14px;background:#201b15;border:1px solid #594933;color:#cdb89e;font-size:12px;line-height:1.55}
 @media(max-width:720px){.tryon-grid{grid-template-columns:1fr}.tryon-items{grid-template-columns:repeat(3,1fr)}}
 
-
-/* ===== VIRTUAL TRY-ON — LIVE CREDIT + RESULT ===== */
-.tryon-credit-card{margin-top:16px;border:1px solid #4b433a;border-radius:16px;background:#181613;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-.tryon-credit-label{font-size:9px;letter-spacing:1.8px;color:#c5a06f}
-.tryon-credit-balance{margin-top:4px;color:#f3eee7;font:400 19px Georgia,"Times New Roman",serif}
-.tryon-credit-cost{font-size:12px;color:#a99f94;text-align:right}.tryon-credit-cost strong{display:block;color:#d2ad7b;font-size:14px;margin-top:2px}
-.tryon-live-result{text-align:center}.tryon-live-result img{width:min(620px,100%);max-height:760px;object-fit:contain;background:#fff;border-radius:16px;display:block;margin:0 auto 14px}
-.tryon-result-actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
-.tryon-generating{padding:28px 16px;text-align:center;color:#cdb89e}
-.tryon-generating strong{display:block;color:#f4eee7;font:400 22px Georgia,"Times New Roman",serif;margin-bottom:7px}
-.tryon-error{padding:15px;border:1px solid #70433f;background:#251816;border-radius:13px;color:#efb4ae}
-@media(max-width:600px){.tryon-credit-card{align-items:flex-start}.tryon-credit-balance{font-size:17px}}
-
-
-/* ===== VIRTUAL TRY-ON CATEGORY PICKER ===== */
-.tryon-category-chooser{display:flex;gap:8px;overflow-x:auto;padding:2px 1px 12px;margin-bottom:3px;scrollbar-width:none}
-.tryon-category-chooser::-webkit-scrollbar{display:none}
-.tryon-category-chip{flex:0 0 auto;border:1px solid #4b433a;background:#12110f;color:#b8aa9b;border-radius:999px;padding:9px 13px;font-size:11px;cursor:pointer;white-space:nowrap}
-.tryon-category-chip.active{background:#d2ad7b;color:#17130f;border-color:#d2ad7b;font-weight:800}
-.tryon-category-label{font:400 17px Georgia,"Times New Roman",serif;color:#f2ebe3;margin:3px 0 10px}
-.tryon-category-empty{grid-column:1/-1;padding:22px 10px;text-align:center;border:1px dashed #51483f;border-radius:13px;color:#a99d90;font-size:12px}
-
-
-/* ===== VIRTUAL TRY-ON OUTFIT + SAVED ===== */
-.tryon-mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 8px}
-.tryon-mode{border:1px solid #4b433a;background:#151310;color:#a99d90;border-radius:12px;padding:11px 12px;font-weight:800;cursor:pointer}
-.tryon-mode.active{background:#d2ad7b;color:#17130f;border-color:#d2ad7b}
-.tryon-outfit-summary{margin-top:14px;border:1px solid #4b433a;border-radius:14px;background:#151310;padding:13px}
-.tryon-summary-head{display:flex;justify-content:space-between;align-items:center;font-size:9px;letter-spacing:1.5px;color:#c6a272}
-.tryon-summary-head button{border:0;background:none;color:#a99d90;font-size:11px;cursor:pointer}
-.tryon-summary-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #2f2a25}
-.tryon-summary-item:last-child{border-bottom:0}.tryon-summary-item img{width:42px;height:50px;object-fit:contain;background:#fff;border-radius:8px}
-.tryon-summary-item .name{flex:1;color:#eee7df;font-size:12px}.tryon-summary-item .cat{display:block;color:#8f8479;font-size:10px;margin-top:2px}
-.tryon-summary-item button{border:0;background:none;color:#c68e87;cursor:pointer;font-size:16px}
-.tryon-outfit-price{margin-top:10px;padding-top:10px;border-top:1px solid #3c352f;color:#d2ad7b;font-weight:800;font-size:12px;text-align:right}
-.saved-tryons-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
-.saved-tryon-card{border:1px solid #403a34;border-radius:13px;background:#141210;overflow:hidden}
-.saved-tryon-card img{width:100%;aspect-ratio:4/5;object-fit:contain;background:#fff;display:block}
-.saved-tryon-info{padding:9px}.saved-tryon-info strong{display:block;color:#eee7df;font-size:11px}.saved-tryon-info span{color:#8f8479;font-size:9px}
-.saved-tryon-actions{display:flex;gap:6px;margin-top:8px}.saved-tryon-actions button{flex:1;border:1px solid #403a34;background:#1d1a17;color:#c7b9aa;border-radius:8px;padding:7px;font-size:9px;cursor:pointer}
-@media(max-width:650px){.saved-tryons-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
-
-/* ===== OUTFIT INTELLIGENCE → PLANNER ===== */
-@media(min-width:760px){
-  .ai-outfit-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))}
-  .ai-outfit-actions button{min-width:0!important}
-}
-
-
-/* ===== TRAVEL PACKING INTELLIGENCE — COMPLETE ===== */
-.travel-ai-panel{margin:16px 0;padding:17px;border:1px solid #4b443c;border-radius:18px;background:linear-gradient(145deg,#1d1b18,#121210);display:flex;justify-content:space-between;gap:15px;align-items:center}
-.travel-ai-eyebrow{font-size:10px;letter-spacing:2px;color:#d2ad7b;font-weight:800;margin-bottom:5px}
-.travel-ai-panel h3{margin:0 0 5px;color:#fff;font:400 22px Georgia,"Times New Roman",serif}
-.travel-ai-panel p{margin:0;color:#a99d90;font-size:12px;line-height:1.5;max-width:600px}
-.travel-ai-btn{border:0;border-radius:999px;padding:12px 16px;background:#d2ad7b;color:#17130f;font-weight:800;white-space:nowrap}
-.travel-ai-result{border:1px solid #4b443c;border-radius:17px;background:#181713;padding:15px;margin:12px 0}
-.travel-ai-result h3{margin:0 0 6px;color:#f4efe8;font:400 20px Georgia,"Times New Roman",serif}
-.travel-ai-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px}
-.travel-ai-item{position:relative;border:1px solid #4b443c;border-radius:13px;background:#141310;overflow:hidden}
-.travel-ai-item img,.travel-ai-item .ph{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;display:flex;align-items:center;justify-content:center;font-size:32px}
-.travel-ai-item-copy{padding:8px;font-size:11px;color:#eee7de}
-.travel-ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.travel-day-plan{margin-top:16px;border-top:1px solid #4b443c;padding-top:13px}
-.travel-day{padding:10px 0;border-bottom:1px solid #302d28}
-.travel-day-title{color:#d2ad7b;font-weight:800;font-size:12px;margin-bottom:7px}
-.travel-day-items{display:flex;gap:7px;overflow-x:auto}
-.travel-day-chip{display:flex;align-items:center;gap:6px;border:1px solid #4b443c;border-radius:999px;padding:5px 9px;color:#c9bdb0;font-size:11px;white-space:nowrap}
-.travel-day-chip img{width:26px;height:26px;border-radius:50%;object-fit:contain;background:#fff}
-.travel-trip-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.travel-trip-actions .small-btn{flex:1;min-width:130px}
-@media(max-width:650px){.travel-ai-panel{display:block}.travel-ai-btn{width:100%;margin-top:13px}.travel-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
-
-/* ===== PERMANENT GLOBAL CLOTHING IMAGE RULE =====
-   Clothing/product imagery stays on pure white everywhere in My Wardrobe.
-   Page/card themes may change, but these image surfaces must remain white. */
-.clothing-photo,
-.product-image,
-.ai-piece img,
-.look-picker-photo,
-.look-picker-placeholder,
-.laundry-thumb,
-.recent-card img,
-.recent-placeholder,
-.planned-thumb-wrap img,
-.planned-thumb-placeholder,
-.planner-detail-item img,
-.travel-item img,
-.travel-item .ph,
-.travel-ai-item img,
-.travel-ai-item .ph,
-.travel-day-chip img,
-.tryon-item img,
-.tryon-card img,
-.tryon-wardrobe-item img,
-.tryon-category-item img,
-.upload-preview img,
-.photo-frame img,
-img[data-clothing-image="true"]{
-  background:#ffffff !important;
-}
-.clothing-photo,
-.product-image,
-.ai-piece img,
-.look-picker-photo,
-.laundry-thumb,
-.recent-card img,
-.planned-thumb-wrap img,
-.planner-detail-item img,
-.travel-item img,
-.travel-ai-item img,
-.travel-day-chip img,
-.tryon-item img,
-.tryon-card img,
-.tryon-wardrobe-item img,
-.tryon-category-item img{
-  object-fit:contain !important;
-}
-.travel-ai-item{
-  cursor:pointer;
-  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
-}
-.travel-ai-item.travel-ai-selected{
-  border:2px solid #d2ad7b !important;
-  box-shadow:0 0 0 3px rgba(210,173,123,.13);
-}
-.travel-ai-select-mark{
-  position:absolute;right:7px;top:7px;width:25px;height:25px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:#fff;color:#17130f;border:1px solid #b8aa9b;font-size:13px;font-weight:900;
-  z-index:2;
-}
-.travel-ai-item.travel-ai-selected .travel-ai-select-mark{
-  background:#d2ad7b;border-color:#d2ad7b;color:#17130f;
-}
-.travel-ai-selection-count{
-  margin-top:10px;color:#b7aa9c;font-size:12px;
-}
-
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2158,46 +2012,20 @@ img[data-clothing-image="true"]{
           </div>
 
           <div class="tryon-panel">
-            <h3>2. Choose How to Try On</h3>
-            <div class="tryon-mode-switch">
-              <button id="tryOnSingleModeBtn" type="button" class="tryon-mode active" onclick="setTryOnMode('single')">Single Item</button>
-              <button id="tryOnOutfitModeBtn" type="button" class="tryon-mode" onclick="setTryOnMode('outfit')">Build an Outfit</button>
-            </div>
-            <p id="tryOnModeHelp">Choose one clothing item from your wardrobe.</p>
-            <h3 style="margin-top:18px">3. Choose from My Wardrobe</h3>
-            <p>Choose one of your categories, then select the clothing you want to try on.</p>
-            <div id="tryOnCategoryChooser" class="tryon-category-chooser"></div>
-            <div id="tryOnCategoryLabel" class="tryon-category-label">All Items</div>
+            <h3>2. Choose from My Wardrobe</h3>
+            <p>Select the clothing item you want to try on.</p>
             <div id="tryOnWardrobeItems" class="tryon-items"></div>
-            <div id="tryOnOutfitSummary" class="tryon-outfit-summary hidden">
-              <div class="tryon-summary-head"><span>SELECTED OUTFIT</span><button type="button" onclick="clearTryOnOutfit()">Clear</button></div>
-              <div id="tryOnOutfitSelections"></div>
-              <div id="tryOnOutfitPrice" class="tryon-outfit-price"></div>
-            </div>
             <div id="tryOnSelectedText" class="tryon-selected">No item selected</div>
           </div>
         </div>
 
-        <div id="tryOnCreditCard" class="tryon-credit-card">
-          <div>
-            <div class="tryon-credit-label">AI CREDITS</div>
-            <div class="tryon-credit-balance"><span id="tryOnCreditBalance">—</span> AI Credits available</div>
+        <button id="tryOnGenerateBtn" class="tryon-action" onclick="startVirtualTryOn()" disabled>✦ Try It On</button>
+
+        <div id="tryOnResult" class="tryon-result hidden">
+          <div class="tryon-coming">
+            <strong>Selections ready.</strong><br>
+            Your photo and wardrobe item are ready for the AI generation step. Nothing has been changed or saved.
           </div>
-          <div class="tryon-credit-cost">Virtual Try-On <strong>2 AI Credits</strong></div>
-        </div>
-        <div id="tryOnCreditMessage" class="muted" style="margin-top:8px"></div>
-
-        <button id="tryOnGenerateBtn" class="tryon-action" onclick="startVirtualTryOn()" disabled>✦ Try It On — 2 AI Credits</button>
-
-        <div id="tryOnResult" class="tryon-result hidden"></div>
-
-        <div class="tryon-panel" style="margin-top:16px">
-          <div class="tryon-panel-head">
-            <div><span class="tryon-step">SAVED</span><h3>Saved Try-Ons</h3></div>
-            <button type="button" class="secondary" onclick="loadSavedTryOns()">↻ Refresh</button>
-          </div>
-          <p>Your successful Virtual Try-Ons are saved here.</p>
-          <div id="savedTryOnsGrid" class="saved-tryons-grid"><div class="muted">Open Virtual Try-On to load your saved looks.</div></div>
         </div>
       </div>
     </section>
@@ -2491,16 +2319,6 @@ img[data-clothing-image="true"]{
               <option>Adventure</option><option>Other</option>
             </select>
           </div>
-
-          <div class="travel-ai-panel">
-            <div>
-              <div class="travel-ai-eyebrow">TRAVEL INTELLIGENCE</div>
-              <h3>Build my packing list</h3>
-              <p>Uses your trip details and prioritises clothes already in your wardrobe. You can review everything before saving.</p>
-            </div>
-            <button type="button" class="travel-ai-btn" onclick="generateTravelPackingSuggestions()">✨ Suggest from My Wardrobe</button>
-          </div>
-          <div id="travelAISuggestions"></div>
 
           <div class="section-head" style="margin-top:18px">
             <div>
@@ -2834,14 +2652,12 @@ const STYLE_US_API_URL=SUPABASE_URL+"/functions/v1/style-us";
 const STYLE_CHAT_API_URL=SUPABASE_URL+"/functions/v1/send-style-chat";
 const CLEAN_API_URL=SUPABASE_URL+"/functions/v1/clean-clothing"; // legacy direct cleaner; background jobs now use ai_cleaning_jobs
 const STYLE_ITEM_API_URL=SUPABASE_URL+"/functions/v1/style-item";
-const VIRTUAL_TRY_ON_API_URL=SUPABASE_URL+"/functions/v1/virtual-try-on";
 const USE_CREDIT_API_URL=SUPABASE_URL+"/functions/v1/use-credit";
 const CREATE_CHECKOUT_API_URL=SUPABASE_URL+"/functions/v1/create-checkout";
 const MULTI_SCAN_API_URL=SUPABASE_URL+"/functions/v1/scan-multiple-clothes";
 const EXTRACT_CLOTHING_API_URL=SUPABASE_URL+"/functions/v1/extract-clothing-item";
 
 let currentUser=null,categories=[],clothingItems=[],savedLooks=[],lookItems=[],userProfile=null;
-let currentAIOutfit=null;
 let outfitHistory=[];
 let outfitCalendarCursor=new Date();
 outfitCalendarCursor=new Date(outfitCalendarCursor.getFullYear(),outfitCalendarCursor.getMonth(),1);
@@ -3271,7 +3087,7 @@ function showPage(page){
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems();renderHomeDashboard()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
  if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");Promise.all([loadOutfitHistory(),loadPlannedOutfits()]).then(()=>{renderOutfitPlanner();renderOutfitCalendar();});}
- if(page==="tryon"){el("tryOnPage").classList.remove("hidden");renderVirtualTryOnItems();renderTryOnOutfitSummary();loadTryOnCreditBalance();loadSavedTryOns()}
+ if(page==="tryon"){el("tryOnPage").classList.remove("hidden");renderVirtualTryOnItems()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
  if(page==="travel"){el("travelPage").classList.remove("hidden");el("navTravel").classList.add("active");renderTravelPacking()}
@@ -3838,160 +3654,6 @@ function travelDaysUntil(dateValue){
  return Math.ceil((d-today)/86400000);
 }
 
-
-
-let travelAISuggestedItemIds=[];
-let travelAISelectedItemIds=[];
-
-function toggleTravelAISuggestion(id){
- const sid=String(id);
- if(travelAISelectedItemIds.includes(sid)){
-   travelAISelectedItemIds=travelAISelectedItemIds.filter(x=>String(x)!==sid);
- }else{
-   travelAISelectedItemIds.push(sid);
- }
- renderTravelAISelectionState();
-}
-
-function renderTravelAISelectionState(){
- document.querySelectorAll(".travel-ai-item[data-travel-ai-id]").forEach(card=>{
-   const id=String(card.dataset.travelAiId||"");
-   const selected=travelAISelectedItemIds.includes(id);
-   card.classList.toggle("travel-ai-selected",selected);
-   const mark=card.querySelector(".travel-ai-select-mark");
-   if(mark)mark.textContent=selected?"✓":"";
- });
- const count=el("travelAISelectionCount");
- if(count)count.textContent=`${travelAISelectedItemIds.length} of ${travelAISuggestedItemIds.length} suggested item${travelAISuggestedItemIds.length===1?"":"s"} selected`;
- const btn=el("travelAIAddSelectedBtn");
- if(btn)btn.disabled=!travelAISelectedItemIds.length;
-}
-
-function addSelectedTravelAISuggestions(){
- if(!travelAISelectedItemIds.length)return alert("Select at least one suggested item first.");
- applyTravelAISuggestions(travelAISelectedItemIds);
-}
-
-function travelTripDayCount(){
- const a=el("tripDeparture")?.value||"", b=el("tripReturn")?.value||"";
- if(!a)return 1;
- if(!b)return 2;
- const d1=new Date(a+"T12:00:00"),d2=new Date(b+"T12:00:00");
- return Math.max(1,Math.min(21,Math.floor((d2-d1)/86400000)+1));
-}
-function travelCategoryKeyword(item){
- const cat=(categories.find(c=>String(c.id)===String(item.category_id))?.name||"").toLowerCase();
- const name=(item.name||"").toLowerCase();
- return cat+" "+name;
-}
-function travelPickBy(words,count,used){
- const candidates=clothingItems.filter(i=>{
-   const hay=travelCategoryKeyword(i);
-   return words.some(w=>hay.includes(w))&&!used.has(String(i.id));
- });
- const clean=candidates.filter(i=>!i.laundry_status);
- return [...clean,...candidates.filter(i=>i.laundry_status)].slice(0,count);
-}
-function generateTravelPackingSuggestions(){
- const destination=(el("tripDestination")?.value||"").trim();
- const type=el("tripType")?.value||"Holiday";
- const days=travelTripDayCount();
- if(!clothingItems.length)return alert("Add some clothes to your wardrobe first.");
-
- const used=new Set(), picks=[];
- const add=(words,count)=>{
-   travelPickBy(words,count,used).forEach(i=>{used.add(String(i.id));picks.push(i)});
- };
- const tops=Math.min(Math.max(2,Math.ceil(days*.65)),6);
- const bottoms=Math.min(Math.max(1,Math.ceil(days/3)),4);
-
- add(["shirt","top","tee","t-shirt","tshirt","blouse","polo"],tops);
- add(["trouser","pants","jean","short","skirt"],bottoms);
- if(["Business","Wedding"].includes(type))add(["blazer","jacket","suit","dress"],2);
- else add(["jacket","hoodie","sweater","jumper","cardigan"],1);
- add(["shoe","sneaker","loafer","boot","heel","sandal"],Math.min(2,Math.max(1,Math.ceil(days/5))));
- if(type==="Beach")add(["swim","bikini","swimsuit","short","sandal"],2);
- add(["underwear","sock"],Math.min(days+1,7));
-
- if(picks.length<Math.min(5,clothingItems.length)){
-   clothingItems.filter(i=>!used.has(String(i.id))&&!i.laundry_status)
-     .slice(0,Math.min(6,clothingItems.length)-picks.length)
-     .forEach(i=>{used.add(String(i.id));picks.push(i)});
- }
-
- const box=el("travelAISuggestions");if(!box)return;
- travelAISuggestedItemIds=picks.map(i=>String(i.id));
- travelAISelectedItemIds=[...travelAISuggestedItemIds];
-
- const laundry=picks.filter(i=>i.laundry_status);
- box.innerHTML=`<div class="travel-ai-result">
-   <h3>${escapeHtml(type)} packing suggestion${destination?" · "+escapeHtml(destination):""}</h3>
-   <div class="muted">Based on ${days} day${days===1?"":"s"}. My Wardrobe is prioritised before anything else. Tap any clothing item to select or deselect it.</div>
-   <div class="travel-ai-grid">${picks.map(i=>`<div class="travel-ai-item travel-ai-selected" data-travel-ai-id="${escapeHtml(String(i.id))}" onclick="toggleTravelAISuggestion('${escapeJs(String(i.id))}')">
-     <span class="travel-ai-select-mark">✓</span>
-     ${i.displayPhoto?`<img data-clothing-image="true" src="${escapeHtml(i.displayPhoto)}" alt="">`:'<div class="ph">👕</div>'}
-     <div class="travel-ai-item-copy">${escapeHtml(i.name||"Item")}${i.laundry_status?" · 🧺":""}</div>
-   </div>`).join("")}</div>
-   <div id="travelAISelectionCount" class="travel-ai-selection-count">${picks.length} of ${picks.length} suggested item${picks.length===1?"":"s"} selected</div>
-   ${laundry.length?`<div class="planned-conflict">🧺 ${escapeHtml(laundry.map(i=>i.name||"Item").join(", "))} ${laundry.length===1?"is":"are"} currently in Laundry.</div>`:""}
-   <div class="travel-ai-actions">
-     <button id="travelAIAddSelectedBtn" type="button" class="primary" style="width:auto" onclick="addSelectedTravelAISuggestions()">Add Selected to Packing List</button>
-     <button type="button" class="secondary" onclick='applyTravelAISuggestions(${JSON.stringify(picks.map(i=>String(i.id)))})'>Add all to Packing List</button>
-     <button type="button" class="secondary" onclick="clearTravelAISuggestions()">Dismiss</button>
-   </div>
- </div>`;
- renderTravelAISelectionState();
-}
-function applyTravelAISuggestions(ids){
- travelSelectedItemIds=[...new Set([...travelSelectedItemIds,...ids])];
- updateTravelSelectedCount();
- if(travelActiveCategoryId)renderTravelCategoryItems(travelActiveCategoryId);
- el("travelSelectedPreview")?.scrollIntoView({behavior:"smooth",block:"center"});
-}
-function clearTravelAISuggestions(){travelAISuggestedItemIds=[];travelAISelectedItemIds=[];if(el("travelAISuggestions"))el("travelAISuggestions").innerHTML=""}
-
-function travelBuildDayPlans(trip){
- const items=(trip.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
- if(!items.length)return [];
- const start=new Date((trip.departure||new Date().toISOString().slice(0,10))+"T12:00:00");
- const end=trip.returnDate?new Date(trip.returnDate+"T12:00:00"):start;
- const days=Math.max(1,Math.min(14,Math.floor((end-start)/86400000)+1));
- const tops=items.filter(i=>/shirt|top|tee|t-shirt|blouse|polo|dress/i.test(travelCategoryKeyword(i)));
- const bottoms=items.filter(i=>/trouser|pants|jean|short|skirt/i.test(travelCategoryKeyword(i)));
- const layers=items.filter(i=>/jacket|blazer|hoodie|sweater|jumper|cardigan/i.test(travelCategoryKeyword(i)));
- const shoes=items.filter(i=>/shoe|sneaker|loafer|boot|heel|sandal/i.test(travelCategoryKeyword(i)));
- const plans=[];
- for(let n=0;n<days;n++){
-   const date=new Date(start);date.setDate(start.getDate()+n);
-   const chosen=[];
-   if(tops.length)chosen.push(tops[n%tops.length]);
-   if(bottoms.length)chosen.push(bottoms[n%bottoms.length]);
-   if(layers.length && (n%2===0||trip.type==="Business"))chosen.push(layers[n%layers.length]);
-   if(shoes.length)chosen.push(shoes[n%shoes.length]);
-   plans.push({date:date.toISOString().slice(0,10),itemIds:[...new Set(chosen.map(i=>i.id))]});
- }
- return plans;
-}
-function toggleTravelDayPlan(tripId){
- const trip=travelTrips.find(t=>String(t.id)===String(tripId));if(!trip)return;
- trip.showDayPlan=!trip.showDayPlan;
- if(trip.showDayPlan&&!trip.dayPlans?.length)trip.dayPlans=travelBuildDayPlans(trip);
- persistTravelTrips();renderTravelTrips();
-}
-function tryOnTravelDay(tripId,dayIndex){
- const trip=travelTrips.find(t=>String(t.id)===String(tripId));if(!trip)return;
- const plan=(trip.dayPlans||[])[dayIndex];if(!plan)return;
- const ids=(plan.itemIds||[]).filter(id=>clothingItems.find(i=>String(i.id)===String(id))?.displayPhoto);
- if(!ids.length)return alert("These day-plan items need photos before Virtual Try-On can use them.");
- showPage("tryon");
- tryOnMode=ids.length>1?"outfit":"single";
- tryOnSelectedItemId=tryOnMode==="single"?ids[0]:null;
- tryOnSelectedItemIds=tryOnMode==="outfit"?ids.slice(0,4):[];
- el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single");
- el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
- renderTryOnWardrobe();
-}
-
 function renderTravelPacking(){
  loadTravelTrips();
  renderTravelSavedLooks();
@@ -4078,7 +3740,7 @@ function saveTrip(){
  if(!travelSelectedItemIds.length)return alert("Choose at least one item to pack.");
  travelTrips.push({
    id:crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random(),
-   name,destination,departure,returnDate,type,itemIds:[...travelSelectedItemIds],packedIds:[],dayPlans:[],showDayPlan:false,createdAt:new Date().toISOString()
+   name,destination,departure,returnDate,type,itemIds:[...travelSelectedItemIds],packedIds:[],createdAt:new Date().toISOString()
  });
  persistTravelTrips();
  travelSelectedItemIds=[];travelActiveCategoryId=null;
@@ -4243,20 +3905,9 @@ function renderTravelTrips(){
        : items.length?'<div class="travel-complete-box">✓ Everything on this packing list is packed.</div>':""}
      ${groups||'<div class="muted" style="margin-top:12px">No items found.</div>'}
      ${renderTripItemEditor(t)}
-     ${t.showDayPlan?`<div class="travel-day-plan">
-       <div class="travel-group-head"><strong>Day-by-day outfits</strong><span class="muted">Built from packed wardrobe pieces</span></div>
-       ${(t.dayPlans||[]).map((dp,di)=>{
-         const ditems=(dp.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
-         return `<div class="travel-day">
-           <div class="travel-day-title">Day ${di+1} · ${escapeHtml(plannerPrettyDate(dp.date))}</div>
-           <div class="travel-day-items">${ditems.map(i=>`<span class="travel-day-chip">${i.displayPhoto?`<img src="${escapeHtml(i.displayPhoto)}" alt="">`:"👕"}${escapeHtml(i.name||"Item")}</span>`).join("")}</div>
-           ${ditems.length?`<button class="small-btn" style="margin-top:8px" onclick="event.stopPropagation();tryOnTravelDay('${t.id}',${di})">✦ Try this day on</button>`:""}
-         </div>`;
-       }).join("")}
-     </div>`:""}
-     <div class="travel-trip-actions">
-       <button class="small-btn" onclick="event.stopPropagation();editTripItems('${t.id}')">✏️ Edit Packing</button>
-       <button class="small-btn" onclick="event.stopPropagation();toggleTravelDayPlan('${t.id}')">${t.showDayPlan?"Hide":"✨ Build"} Day Outfits</button>
+     <div class="planned-actions">
+       <button class="small-btn" onclick="event.stopPropagation();editTripItems('${t.id}')">✏️ Edit Packing Items</button>
+       <button class="small-btn" onclick="event.stopPropagation();alert('AI Outfit Suggestions stay optional and separate from your packing list.')">✨ AI Suggestions</button>
        <button class="small-btn danger" onclick="event.stopPropagation();deleteTrip('${t.id}')">Delete Trip</button>
      </div>
    </div>`;
@@ -4267,24 +3918,27 @@ function renderTravelTrips(){
 async function checkTravelLaundryReminders(){
  if(!currentUser)return;
  loadTravelTrips();
- const today=new Date();today.setHours(0,0,0,0);
- const key=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
- const tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
- for(const check of [{date:key(today),label:"today"},{date:key(tomorrow),label:"tomorrow"}]){
-   for(const trip of travelTrips.filter(t=>t.departure===check.date)){
-     const laundry=(trip.itemIds||[]).map(id=>clothingItems.find(i=>String(i.id)===String(id)))
-       .filter(i=>i&&String(i.laundry_status||"").toLowerCase()==="laundry");
-     if(!laundry.length)continue;
-     const storageKey=`travel-laundry:${check.label}:${currentUser.id}:${trip.id}:${check.date}`;
-     if(localStorage.getItem(storageKey))continue;
-     const names=laundry.map(i=>i.name||"Clothing item");
-     const message=`${names.join(", ")} for ${trip.name} ${check.label} ${names.length===1?"is":"are"} still in Laundry. Make sure ${names.length===1?"it is":"they are"} ready before you leave.`;
-     const {error}=await supabaseClient.from("notifications").insert({
-       user_id:currentUser.id,type:"travel_laundry_reminder",
-       title:check.label==="today"?"🧺 Trip Leaves Today":"🧺 Packing Reminder",message
-     });
-     if(!error)localStorage.setItem(storageKey,"1");
-   }
+ const today=new Date(); today.setHours(0,0,0,0);
+ const tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+ const key=[tomorrow.getFullYear(),String(tomorrow.getMonth()+1).padStart(2,"0"),String(tomorrow.getDate()).padStart(2,"0")].join("-");
+
+ for(const trip of travelTrips.filter(t=>t.departure===key)){
+   const laundry=(trip.itemIds||[]).map(id=>clothingItems.find(i=>i.id===id))
+     .filter(i=>i&&String(i.laundry_status||"").toLowerCase()==="laundry");
+   if(!laundry.length)continue;
+   const storageKey=`travel-laundry:${currentUser.id}:${trip.id}:${key}`;
+   if(localStorage.getItem(storageKey))continue;
+   const names=laundry.map(i=>i.name||"Clothing item");
+   const message=names.length===1
+     ? `${names[0]} for ${trip.name} tomorrow is still in Laundry. Make sure it is ready before you leave.`
+     : `${names.join(", ")} for ${trip.name} tomorrow are still in Laundry. Make sure they are ready before you leave.`;
+   const {error}=await supabaseClient.from("notifications").insert({
+     user_id:currentUser.id,
+     type:"travel_laundry_reminder",
+     title:"🧺 Packing Reminder",
+     message
+   });
+   if(!error)localStorage.setItem(storageKey,"1");
  }
  await loadNotifications();
 }
@@ -5194,54 +4848,29 @@ function base64ToFile(base64,mimeType="image/png",name="ai-cleaned.png"){
 
 async function cleanClothingPhoto(){
  if(!selectedClothingFile)return alert("Choose a clothing photo first.");
+ const name=el("clothingName").value.trim();
+ const category_id=el("clothingCategory").value;
+ if(!name||!category_id)return alert("Enter a name and choose a category first.");
  const btn=el("cleanPhotoButton");
- btn.disabled=true;btn.textContent="✨ Cleaning…";
- el("cleanPhotoStatus").textContent="AI is cleaning your clothing photo…";
+ btn.disabled=true;btn.textContent="✨ Starting…";
+ el("cleanPhotoStatus").textContent="Uploading your item and starting background AI cleaning…";
  try{
-   const session=(await supabaseClient.auth.getSession()).data.session;
-   if(!session)throw new Error("Please log in again.");
-
-   const imageDataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Could not read the selected photo."));
-    reader.readAsDataURL(selectedClothingFile);
+   const result=await createBackgroundCleaningJob({
+     file:selectedClothingFile,
+     name,
+     color:el("clothingColor").value.trim(),
+     brand:el("clothingBrand").value.trim(),
+     category_id,
+     clothingItemId:editingClothingId||null
    });
-   const imageBase64=String(imageDataUrl).split(",")[1];
-   if(!imageBase64)throw new Error("Could not read the selected photo.");
-
-   const response=await fetch(CLEAN_API_URL,{
-     method:"POST",
-     headers:{
-       "Content-Type":"application/json",
-       "Authorization":"Bearer "+session.access_token,
-       "apikey":SUPABASE_PUBLISHABLE_KEY
-     },
-     body:JSON.stringify({
-       imageBase64,
-       mimeType:selectedClothingFile.type||"image/jpeg"
-     })
-   });
-
-   const data=await response.json().catch(()=>({}));
-   if(!response.ok||!data.success){
-     throw new Error(data.error||"AI clothing cleaner failed.");
-   }
-   if(!data.imageBase64)throw new Error("No cleaned image was returned.");
-
-   cleanedClothingFile=base64ToFile(
-     data.imageBase64,
-     data.mimeType||"image/png",
-     "ai-cleaned.png"
-   );
-
-   const cleanedUrl=URL.createObjectURL(cleanedClothingFile);
-   el("cleanedPhotoFrame").innerHTML=`<img src="${cleanedUrl}" alt="AI cleaned clothing photo">`;
-   el("cleanPhotoStatus").textContent="Done. Review the cleaned photo, then press Save Item.";
+   el("cleanedPhotoFrame").innerHTML='<div style="padding:20px;text-align:center">✨<br><br>Cleaning in background</div>';
+   el("cleanPhotoStatus").textContent="Saved. AI cleaning is now running in the background. You can close the app.";
+   selectedClothingFile=null;cleanedClothingFile=null;
+   await loadAllData();renderCategories();renderRecentItems();if(currentCategoryId)renderClothingForCategory();
+   setTimeout(()=>closeModal("clothingModal"),900);
  }catch(err){
-   console.error("Clean clothing error:",err);
-   cleanedClothingFile=null;
-   el("cleanPhotoStatus").textContent="Could not clean photo: "+(err?.message||"Unknown error");
+   console.error(err);
+   el("cleanPhotoStatus").textContent="Could not start background cleaning: "+err.message;
  }finally{
    btn.disabled=false;btn.textContent="✨ Clean with AI";
  }
@@ -6331,98 +5960,6 @@ function shopAI2BudgetNumber(){const m=String(el("shopBudget")?.value||"").repla
 function shopAI2ProductPriceNumber(p){if(p?.extractedPrice!=null&&Number.isFinite(Number(p.extractedPrice)))return Number(p.extractedPrice);const m=String(p?.price||"").replace(/,/g,"").match(/([0-9]+(?:\.[0-9]+)?)/);return m?Number(m[1]):null}
 function shopAI2RankProducts(products){const budget=shopAI2BudgetNumber(),stores=getSelectedStores?.()||[];return [...(products||[])].sort((a,b)=>{const ap=shopAI2ProductPriceNumber(a),bp=shopAI2ProductPriceNumber(b);const score=p=>{const pp=shopAI2ProductPriceNumber(p);return(stores.length&&productMatchesSelectedStore(p,stores)?3:0)+(budget!=null&&pp!=null&&pp<=budget?2:0)+(Number(p.rating||0)>=4?1:0)};return score(b)-score(a)})}
 
-function getAIOutfitWardrobeIds(outfit=currentAIOutfit){
- const valid=new Set((clothingItems||[]).map(i=>String(i.id)));
- return [...new Set((outfit?.wardrobeItemIds||[]).map(String).filter(id=>valid.has(id)))];
-}
-function renderAIOutfitActions(outfit){
- const ids=getAIOutfitWardrobeIds(outfit);
- if(!ids.length)return "";
- return `<div class="ai-outfit-actions">
-  <button type="button" class="secondary" onclick="saveAIOutfitAsLook()">♡ Save to My Looks</button>
-  <button type="button" class="secondary" onclick="addAIOutfitToPlanner()">📅 Add to Planner</button>
-  <button type="button" class="secondary tryon-link" onclick="sendAIOutfitToTryOn()">✦ Try This Outfit On</button>
- </div><div class="ai-outfit-count">${ids.length} wardrobe piece${ids.length===1?"":"s"} selected by AI</div>`;
-}
-async function saveAIOutfitAsLook(){
- const ids=getAIOutfitWardrobeIds();
- if(!ids.length)return alert("Create an AI outfit first.");
- if(!currentUser)return alert("Please log in again.");
- const defaultName=currentAIOutfit?.outfitName||`${selectedOccasion||"AI"} outfit`;
- const name=(prompt("Name this look:",defaultName)||"").trim();
- if(!name)return;
- const r=await supabaseClient.from("saved_looks").insert({user_id:currentUser.id,name}).select().single();
- if(r.error)return alert(r.error.message);
- const rows=ids.map(id=>({look_id:r.data.id,clothing_item_id:id}));
- const ir=await supabaseClient.from("look_items").insert(rows);
- if(ir.error){await supabaseClient.from("saved_looks").delete().eq("id",r.data.id);return alert(ir.error.message)}
- await loadAllData();renderLooks();
- alert(`Saved “${name}” to My Looks.`);
-}
-
-function addAIOutfitToPlanner(){
- const ids=getAIOutfitWardrobeIds();
- if(!ids.length)return alert("Create an AI outfit first.");
-
- editingPlannerId=null;
- plannerSelectedItemIds=[...ids];
- plannerActiveCategoryId=null;
-
- showPage("planner");
-
- const dateInput=el("plannerDate");
- if(dateInput && !dateInput.value){
-   const d=new Date();
-   d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
-   dateInput.min=d.toISOString().slice(0,10);
- }
-
- const occasionSelect=el("plannerOccasion");
- if(occasionSelect && selectedOccasion){
-   const match=[...occasionSelect.options].find(o=>o.value.toLowerCase()===String(selectedOccasion).toLowerCase());
-   if(match)occasionSelect.value=match.value;
- }
-
- if(el("plannerName")){
-   el("plannerName").value=currentAIOutfit?.outfitName||`${selectedOccasion||"AI"} outfit`;
- }
- if(el("plannerNotes")){
-   el("plannerNotes").value="Created with Outfit Intelligence";
- }
-
- el("plannerCategoryItems")?.classList.add("hidden");
- el("plannerCategoryChooser")?.classList.remove("hidden");
- renderPlannerWardrobeItems();
-
- const laundry=ids
-   .map(id=>clothingItems.find(i=>String(i.id)===String(id)))
-   .filter(i=>i?.laundry_status);
-
- setTimeout(()=>{
-   el("plannerDate")?.scrollIntoView({behavior:"smooth",block:"center"});
-   el("plannerDate")?.focus();
-   if(laundry.length){
-     alert(`${laundry.length} selected item${laundry.length===1?" is":"s are"} currently in Laundry. You can still plan the outfit.`);
-   }
- },250);
-}
-
-function sendAIOutfitToTryOn(){
- const ids=getAIOutfitWardrobeIds();
- if(!ids.length)return alert("Create an AI outfit first.");
- const usable=ids.filter(id=>clothingItems.find(i=>String(i.id)===String(id))?.displayPhoto);
- if(!usable.length)return alert("The selected wardrobe pieces need photos before Virtual Try-On can use them.");
- showPage("tryon");
- tryOnMode=usable.length>1?"outfit":"single";
- tryOnSelectedItemId=tryOnMode==="single"?usable[0]:null;
- tryOnSelectedItemIds=tryOnMode==="outfit"?usable.slice(0,4):[];
- el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single");
- el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
- if(el("tryOnModeHelp"))el("tryOnModeHelp").textContent=tryOnMode==="single"?"Your AI-selected wardrobe item is ready. Add your photo to try it on.":"Your AI-selected outfit is ready. Add your photo to generate the Virtual Try-On.";
- renderVirtualTryOnItems();renderTryOnOutfitSummary();updateTryOnButton();
- el("tryOnPage")?.scrollIntoView({behavior:"smooth",block:"start"});
-}
-
 async function createAIOutfit(){
  if(!selectedOccasion)return alert("Choose an occasion first.");
  if(!clothingItems.length)return alert("Add some clothes to your wardrobe first.");
@@ -6431,14 +5968,12 @@ async function createAIOutfit(){
 
  const box=el("shoppingResults");
  const button=el("createOutfitButton");
- currentAIOutfit=null;
  button.disabled=true;
  button.textContent="Creating your outfit…";
  box.innerHTML='<div class="loading-box"><b>AI is checking your wardrobe first…</b><br><span class="muted">It will only shop for pieces that are genuinely missing or useful.</span></div>';
 
  try{
   const outfit=await callStyleAI();
-  currentAIOutfit=outfit;
   // Charge one credit only after the AI successfully creates an outfit.
   await useAICredit();
   const missing=Array.isArray(outfit.missingItems)?outfit.missingItems.slice(0,2):[];
@@ -6448,7 +5983,6 @@ async function createAIOutfit(){
    <div class="ai-outfit-explanation">${escapeHtml(outfit.explanation||"")}</div>
    <div class="section-head"><h2>From your wardrobe</h2></div>
    ${renderAIWardrobeItems(outfit.wardrobeItemIds)}
-   ${renderAIOutfitActions(outfit)}
   </div>`;
 
   if(outfit.completeFromWardrobe||!missing.length){
@@ -8055,28 +7589,11 @@ setTimeout(()=>{if(currentUser)maybeShowFirstTimeTour()},1300);
 
 
 /* =========================================================
-   VIRTUAL TRY-ON — LIVE
+   VIRTUAL TRY-ON — STAGE 1
 ========================================================= */
 let tryOnPersonFile=null;
 let tryOnPersonObjectUrl="";
 let tryOnSelectedItemId=null;
-let tryOnSelectedCategoryId="all";
-let tryOnMode="single";
-let tryOnSelectedItemIds=[];
-let tryOnGenerating=false;
-const VIRTUAL_TRY_ON_COST=2;
-
-async function loadTryOnCreditBalance(){
- await loadCreditBalance();
- if(el("tryOnCreditBalance"))el("tryOnCreditBalance").textContent=aiCreditBalance===null?"—":String(aiCreditBalance);
- const msg=el("tryOnCreditMessage");
- if(msg){
-  msg.textContent=aiCreditBalance!==null&&aiCreditBalance<VIRTUAL_TRY_ON_COST
-   ?`You need ${VIRTUAL_TRY_ON_COST} AI Credits to create a Virtual Try-On.`
-   :"Uses the same AI Credits shown at the top of My Wardrobe. Failed generations are refunded by the backend.";
- }
- updateTryOnButton();
-}
 
 function previewTryOnPerson(event){
  const file=event.target.files?.[0];
@@ -8089,87 +7606,47 @@ function previewTryOnPerson(event){
  updateTryOnButton();
 }
 
-function renderVirtualTryOnCategories(){
- const wrap=el("tryOnCategoryChooser"); if(!wrap)return;
- const usable=categories.filter(c=>clothingItems.some(i=>String(i.category_id)===String(c.id)));
- wrap.innerHTML=`<button type="button" class="tryon-category-chip ${tryOnSelectedCategoryId==="all"?"active":""}" onclick="selectTryOnCategory('all')">All Items</button>`+
- usable.map(c=>`<button type="button" class="tryon-category-chip ${String(tryOnSelectedCategoryId)===String(c.id)?"active":""}" onclick="selectTryOnCategory('${c.id}')">${escapeHtml((c.icon?c.icon+" ":"")+(c.name||"Category"))}</button>`).join("");
-}
-function setTryOnMode(mode){
- tryOnMode=mode==="outfit"?"outfit":"single"; tryOnSelectedItemId=null; tryOnSelectedItemIds=[];
- el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single"); el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
- if(el("tryOnModeHelp"))el("tryOnModeHelp").textContent=tryOnMode==="single"?"Choose one clothing item from your wardrobe.":"Choose items from different categories to build one outfit. Each garment costs 2 AI Credits.";
- renderVirtualTryOnItems(); renderTryOnOutfitSummary();
-}
-function selectTryOnCategory(id){tryOnSelectedCategoryId=String(id);renderVirtualTryOnItems()}
 function renderVirtualTryOnItems(){
- const wrap=el("tryOnWardrobeItems"); if(!wrap)return; renderVirtualTryOnCategories();
- const filtered=tryOnSelectedCategoryId==="all"?clothingItems:clothingItems.filter(i=>String(i.category_id)===String(tryOnSelectedCategoryId));
- const cat=categories.find(c=>String(c.id)===String(tryOnSelectedCategoryId));
- if(el("tryOnCategoryLabel"))el("tryOnCategoryLabel").textContent=tryOnSelectedCategoryId==="all"?`All Items (${clothingItems.length})`:`${cat?.name||"Category"} (${filtered.length})`;
- if(!filtered.length){wrap.innerHTML='<div class="tryon-category-empty">No clothing items here yet.</div>';updateTryOnButton();return}
- wrap.innerHTML=filtered.map(item=>{const selected=tryOnMode==="single"?String(item.id)===String(tryOnSelectedItemId):tryOnSelectedItemIds.some(id=>String(id)===String(item.id));return `<button type="button" class="tryon-item ${selected?"selected":""}" onclick="selectTryOnItem('${item.id}')">${item.displayPhoto?`<img src="${safeAttributeUrl(item.displayPhoto)}" alt="${escapeHtml(item.name||"Wardrobe item")}">`:"👕"}<span>${escapeHtml(item.name||"Clothing item")}</span></button>`}).join("");
+ const wrap=el("tryOnWardrobeItems");
+ if(!wrap)return;
+ if(!clothingItems.length){
+  wrap.innerHTML='<div class="muted">Add a clothing item to your wardrobe first.</div>';
+  updateTryOnButton();
+  return;
+ }
+ wrap.innerHTML=clothingItems.map(item=>`
+  <button type="button" class="tryon-item ${String(item.id)===String(tryOnSelectedItemId)?"selected":""}" onclick="selectTryOnItem('${item.id}')">
+   ${item.displayPhoto?`<img src="${item.displayPhoto}" alt="${escapeHtml(item.name||"Wardrobe item")}">`:`<div style="aspect-ratio:4/5;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#777">👕</div>`}
+   <span>${escapeHtml(item.name||"Clothing item")}</span>
+  </button>
+ `).join("");
+ const selected=clothingItems.find(i=>String(i.id)===String(tryOnSelectedItemId));
+ const label=el("tryOnSelectedText");
+ if(label)label.textContent=selected?`Selected: ${selected.name||"Clothing item"}`:"No item selected";
  updateTryOnButton();
 }
+
 function selectTryOnItem(id){
- const item=clothingItems.find(i=>String(i.id)===String(id)); if(!item)return;
- if(tryOnMode==="single")tryOnSelectedItemId=id;
- else{
-  const x=tryOnSelectedItemIds.findIndex(v=>String(v)===String(id));
-  if(x>=0)tryOnSelectedItemIds.splice(x,1);
-  else{
-   if(tryOnSelectedItemIds.length>=4)return alert("You can use up to 4 clothing items in one outfit.");
-   const same=tryOnSelectedItemIds.findIndex(v=>{const a=clothingItems.find(i=>String(i.id)===String(v));return a&&String(a.category_id||"")===String(item.category_id||"")});
-   if(same>=0)tryOnSelectedItemIds.splice(same,1);
-   tryOnSelectedItemIds.push(id);
-  }
- }
- renderVirtualTryOnItems();renderTryOnOutfitSummary();
+ tryOnSelectedItemId=id;
+ renderVirtualTryOnItems();
 }
-function clearTryOnOutfit(){tryOnSelectedItemIds=[];renderVirtualTryOnItems();renderTryOnOutfitSummary()}
-function removeTryOnOutfitItem(id){tryOnSelectedItemIds=tryOnSelectedItemIds.filter(x=>String(x)!==String(id));renderVirtualTryOnItems();renderTryOnOutfitSummary()}
-function renderTryOnOutfitSummary(){
- const box=el("tryOnOutfitSummary");if(!box)return;if(tryOnMode!=="outfit"){box.classList.add("hidden");return}box.classList.remove("hidden");
- const items=tryOnSelectedItemIds.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
- if(el("tryOnOutfitSelections"))el("tryOnOutfitSelections").innerHTML=items.length?items.map(item=>{const c=categories.find(x=>String(x.id)===String(item.category_id));return `<div class="tryon-summary-item">${item.displayPhoto?`<img src="${safeAttributeUrl(item.displayPhoto)}">`:""}<div class="name">${escapeHtml(item.name||"Item")}<span class="cat">${escapeHtml(c?.name||"Wardrobe")}</span></div><button onclick="removeTryOnOutfitItem('${item.id}')">×</button></div>`}).join(""):'<div class="muted" style="padding:10px 0">Choose items from your categories above.</div>';
- if(el("tryOnOutfitPrice"))el("tryOnOutfitPrice").textContent=items.length?`${items.length} item${items.length===1?"":"s"} selected · ${items.length*2} AI Credits`:"No items selected";
-}
+
 function updateTryOnButton(){
- const btn=el("tryOnGenerateBtn");if(!btn)return;const count=tryOnMode==="single"?(tryOnSelectedItemId?1:0):tryOnSelectedItemIds.length,cost=count*VIRTUAL_TRY_ON_COST;
- btn.disabled=tryOnGenerating||!tryOnPersonFile||!count||(aiCreditBalance!==null&&aiCreditBalance<cost);
- if(!tryOnGenerating)btn.textContent=tryOnMode==="outfit"?`✦ Try On This Outfit — ${cost} AI Credits`:`✦ Try It On — 2 AI Credits`;
+ const btn=el("tryOnGenerateBtn");
+ if(btn)btn.disabled=!(tryOnPersonFile&&tryOnSelectedItemId);
 }
-function inferTryOnCategory(item){
- const c=categories.find(x=>String(x.id)===String(item?.category_id)),t=`${c?.name||""} ${item?.name||""}`.toLowerCase();
- if(/dress|jumpsuit|romper|gown|one.?piece/.test(t))return "one-pieces";if(/pant|trouser|jean|short|skirt|bottom/.test(t))return "bottoms";if(/shirt|t.?shirt|tee|top|blouse|jacket|hoodie|sweater|coat/.test(t))return "tops";return "auto";
+
+function startVirtualTryOn(){
+ if(!tryOnPersonFile)return alert("Choose your photo first.");
+ const item=clothingItems.find(i=>String(i.id)===String(tryOnSelectedItemId));
+ if(!item)return alert("Choose a wardrobe item first.");
+ const result=el("tryOnResult");
+ if(result){
+  result.classList.remove("hidden");
+  result.innerHTML=`<div class="tryon-coming"><strong>Ready for AI Try-On ✦</strong><br>Your photo and <b>${escapeHtml(item.name||"selected item")}</b> are selected correctly. The next stage will connect this screen to the secure AI try-on function.</div>`;
+  result.scrollIntoView({behavior:"smooth",block:"nearest"});
+ }
 }
-async function startVirtualTryOn(){
- if(tryOnGenerating)return;if(!tryOnPersonFile)return alert("Choose your photo first.");
- const items=tryOnMode==="single"?clothingItems.filter(i=>String(i.id)===String(tryOnSelectedItemId)):tryOnSelectedItemIds.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
- if(!items.length)return alert("Choose at least one wardrobe item.");if(items.some(i=>!i.displayPhoto))return alert("A selected item has no photo.");
- const cost=items.length*2;await loadTryOnCreditBalance();if(aiCreditBalance!==null&&aiCreditBalance<cost)return alert(`You need ${cost} AI Credits.`);
- const result=el("tryOnResult"),btn=el("tryOnGenerateBtn");tryOnGenerating=true;updateTryOnButton();if(btn)btn.textContent="✦ Generating…";
- if(result){result.classList.remove("hidden");result.innerHTML=`<div class="tryon-generating"><strong>Creating your ${items.length>1?"outfit":"try-on"}…</strong>${items.length} garment${items.length===1?"":"s"} selected. Please keep this page open.</div>`}
- try{
-  const {data:{session}}=await supabaseClient.auth.getSession();if(!session?.access_token)throw new Error("Please log in again.");
-  const personImage=await fileToDataUrl(tryOnPersonFile),garments=items.map(i=>({image:i.displayPhoto,itemId:i.id,category:inferTryOnCategory(i)}));
-  const r=await fetch(VIRTUAL_TRY_ON_API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({personImage,garments})});
-  let d={};try{d=await r.json()}catch(e){};if(!r.ok||d.success===false)throw new Error(d.error||`Virtual Try-On failed (${r.status}).`);if(!d.image)throw new Error("No generated image was returned.");
-  if(Number.isFinite(Number(d.balance))){aiCreditBalance=Number(d.balance);updateCreditDisplay()}
-  result.innerHTML=`<div class="tryon-live-result"><img src="${safeAttributeUrl(d.image)}" alt="AI Virtual Try-On result"><div class="success-box">✓ Saved · ${Number(d.creditsUsed||cost)} AI Credits used</div></div>`;
-  await loadTryOnCreditBalance();await loadSavedTryOns();
- }catch(e){if(result)result.innerHTML=`<div class="tryon-error"><strong>Virtual Try-On couldn't be completed.</strong><br>${escapeHtml(e?.message||"Please try again.")}</div>`;await loadTryOnCreditBalance()}
- finally{tryOnGenerating=false;updateTryOnButton()}
-}
-async function loadSavedTryOns(){
- const grid=el("savedTryOnsGrid");if(!grid||!currentUser)return;grid.innerHTML='<div class="muted">Loading…</div>';
- const {data,error}=await supabaseClient.from("virtual_try_ons").select("id,result_image_url,try_on_type,credits_used,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(30);
- if(error){grid.innerHTML=`<div class="muted">${escapeHtml(error.message)}</div>`;return}if(!data?.length){grid.innerHTML='<div class="muted">No saved try-ons yet.</div>';return}
- const rows=await Promise.all(data.map(async row=>{const {data:s}=await supabaseClient.storage.from("virtual-try-ons").createSignedUrl(row.result_image_url,3600);return {...row,signedUrl:s?.signedUrl||""}}));window.__savedTryOns=rows;
- grid.innerHTML=rows.map(row=>`<div class="saved-tryon-card">${row.signedUrl?`<img src="${safeAttributeUrl(row.signedUrl)}" alt="Saved Try-On">`:""}<div class="saved-tryon-info"><strong>${row.try_on_type==="outfit"?"Outfit Try-On":"Single Try-On"}</strong><span>${row.credits_used} AI Credits · ${new Date(row.created_at).toLocaleDateString()}</span><div class="saved-tryon-actions"><button onclick="openSavedTryOn('${row.id}')">View</button><button onclick="deleteSavedTryOn('${row.id}')">Delete</button></div></div></div>`).join("");
-}
-function openSavedTryOn(id){const row=(window.__savedTryOns||[]).find(x=>String(x.id)===String(id));if(!row?.signedUrl)return;const r=el("tryOnResult");r.classList.remove("hidden");r.innerHTML=`<div class="tryon-live-result"><img src="${safeAttributeUrl(row.signedUrl)}" alt="Saved Try-On"><div class="success-box">Saved ${row.try_on_type==="outfit"?"Outfit":"Try-On"} · ${row.credits_used} AI Credits</div></div>`;r.scrollIntoView({behavior:"smooth"})}
-async function deleteSavedTryOn(id){if(!confirm("Delete this Saved Try-On?"))return;const {error}=await supabaseClient.from("virtual_try_ons").delete().eq("id",id).eq("user_id",currentUser.id);if(error)return alert(error.message);await loadSavedTryOns()}
 
 </script>
 
