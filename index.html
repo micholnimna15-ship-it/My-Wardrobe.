@@ -1689,6 +1689,26 @@ body{
 .tryon-category-label{font:400 17px Georgia,"Times New Roman",serif;color:#f2ebe3;margin:3px 0 10px}
 .tryon-category-empty{grid-column:1/-1;padding:22px 10px;text-align:center;border:1px dashed #51483f;border-radius:13px;color:#a99d90;font-size:12px}
 
+
+/* ===== VIRTUAL TRY-ON OUTFIT + SAVED ===== */
+.tryon-mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 8px}
+.tryon-mode{border:1px solid #4b433a;background:#151310;color:#a99d90;border-radius:12px;padding:11px 12px;font-weight:800;cursor:pointer}
+.tryon-mode.active{background:#d2ad7b;color:#17130f;border-color:#d2ad7b}
+.tryon-outfit-summary{margin-top:14px;border:1px solid #4b433a;border-radius:14px;background:#151310;padding:13px}
+.tryon-summary-head{display:flex;justify-content:space-between;align-items:center;font-size:9px;letter-spacing:1.5px;color:#c6a272}
+.tryon-summary-head button{border:0;background:none;color:#a99d90;font-size:11px;cursor:pointer}
+.tryon-summary-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #2f2a25}
+.tryon-summary-item:last-child{border-bottom:0}.tryon-summary-item img{width:42px;height:50px;object-fit:contain;background:#fff;border-radius:8px}
+.tryon-summary-item .name{flex:1;color:#eee7df;font-size:12px}.tryon-summary-item .cat{display:block;color:#8f8479;font-size:10px;margin-top:2px}
+.tryon-summary-item button{border:0;background:none;color:#c68e87;cursor:pointer;font-size:16px}
+.tryon-outfit-price{margin-top:10px;padding-top:10px;border-top:1px solid #3c352f;color:#d2ad7b;font-weight:800;font-size:12px;text-align:right}
+.saved-tryons-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.saved-tryon-card{border:1px solid #403a34;border-radius:13px;background:#141210;overflow:hidden}
+.saved-tryon-card img{width:100%;aspect-ratio:4/5;object-fit:contain;background:#fff;display:block}
+.saved-tryon-info{padding:9px}.saved-tryon-info strong{display:block;color:#eee7df;font-size:11px}.saved-tryon-info span{color:#8f8479;font-size:9px}
+.saved-tryon-actions{display:flex;gap:6px;margin-top:8px}.saved-tryon-actions button{flex:1;border:1px solid #403a34;background:#1d1a17;color:#c7b9aa;border-radius:8px;padding:7px;font-size:9px;cursor:pointer}
+@media(max-width:650px){.saved-tryons-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2034,11 +2054,22 @@ body{
           </div>
 
           <div class="tryon-panel">
-            <h3>2. Choose from My Wardrobe</h3>
-            <p>Choose one of your wardrobe categories, then select the item you want to try on.</p>
+            <h3>2. Choose How to Try On</h3>
+            <div class="tryon-mode-switch">
+              <button id="tryOnSingleModeBtn" type="button" class="tryon-mode active" onclick="setTryOnMode('single')">Single Item</button>
+              <button id="tryOnOutfitModeBtn" type="button" class="tryon-mode" onclick="setTryOnMode('outfit')">Build an Outfit</button>
+            </div>
+            <p id="tryOnModeHelp">Choose one clothing item from your wardrobe.</p>
+            <h3 style="margin-top:18px">3. Choose from My Wardrobe</h3>
+            <p>Choose one of your categories, then select the clothing you want to try on.</p>
             <div id="tryOnCategoryChooser" class="tryon-category-chooser"></div>
             <div id="tryOnCategoryLabel" class="tryon-category-label">All Items</div>
             <div id="tryOnWardrobeItems" class="tryon-items"></div>
+            <div id="tryOnOutfitSummary" class="tryon-outfit-summary hidden">
+              <div class="tryon-summary-head"><span>SELECTED OUTFIT</span><button type="button" onclick="clearTryOnOutfit()">Clear</button></div>
+              <div id="tryOnOutfitSelections"></div>
+              <div id="tryOnOutfitPrice" class="tryon-outfit-price"></div>
+            </div>
             <div id="tryOnSelectedText" class="tryon-selected">No item selected</div>
           </div>
         </div>
@@ -2054,11 +2085,15 @@ body{
 
         <button id="tryOnGenerateBtn" class="tryon-action" onclick="startVirtualTryOn()" disabled>✦ Try It On — 2 AI Credits</button>
 
-        <div id="tryOnResult" class="tryon-result hidden">
-          <div class="tryon-coming">
-            <strong>Selections ready.</strong><br>
-            Your photo and wardrobe item are ready for the AI generation step. Nothing has been changed or saved.
+        <div id="tryOnResult" class="tryon-result hidden"></div>
+
+        <div class="tryon-panel" style="margin-top:16px">
+          <div class="tryon-panel-head">
+            <div><span class="tryon-step">SAVED</span><h3>Saved Try-Ons</h3></div>
+            <button type="button" class="secondary" onclick="loadSavedTryOns()">↻ Refresh</button>
           </div>
+          <p>Your successful Virtual Try-Ons are saved here.</p>
+          <div id="savedTryOnsGrid" class="saved-tryons-grid"><div class="muted">Open Virtual Try-On to load your saved looks.</div></div>
         </div>
       </div>
     </section>
@@ -3121,7 +3156,7 @@ function showPage(page){
  if(page==="home"){el("homePage").classList.remove("hidden");el("navHome").classList.add("active");renderCategories();renderRecentItems();renderHomeDashboard()}
  if(page==="looks"){el("looksPage").classList.remove("hidden");el("navLooks").classList.add("active");renderLooks()}
  if(page==="planner"){el("plannerPage").classList.remove("hidden");el("navPlanner").classList.add("active");Promise.all([loadOutfitHistory(),loadPlannedOutfits()]).then(()=>{renderOutfitPlanner();renderOutfitCalendar();});}
- if(page==="tryon"){el("tryOnPage").classList.remove("hidden");renderVirtualTryOnItems();loadTryOnCreditBalance()}
+ if(page==="tryon"){el("tryOnPage").classList.remove("hidden");renderVirtualTryOnItems();renderTryOnOutfitSummary();loadTryOnCreditBalance();loadSavedTryOns()}
  if(page==="shop"){el("shopPage").classList.remove("hidden");el("navShop").classList.add("active");openShopFeature("menu")}
  if(page==="laundry"){el("laundryPage").classList.remove("hidden");el("navLaundry").classList.add("active");renderLaundry()}
  if(page==="travel"){el("travelPage").classList.remove("hidden");el("navTravel").classList.add("active");renderTravelPacking()}
@@ -7629,6 +7664,8 @@ let tryOnPersonFile=null;
 let tryOnPersonObjectUrl="";
 let tryOnSelectedItemId=null;
 let tryOnSelectedCategoryId="all";
+let tryOnMode="single";
+let tryOnSelectedItemIds=[];
 let tryOnGenerating=false;
 const VIRTUAL_TRY_ON_COST=2;
 
@@ -7656,177 +7693,86 @@ function previewTryOnPerson(event){
 }
 
 function renderVirtualTryOnCategories(){
- const wrap=el("tryOnCategoryChooser");
- if(!wrap)return;
- const usableCategories=categories.filter(cat=>
-  clothingItems.some(item=>String(item.category_id)===String(cat.id))
- );
- wrap.innerHTML=`
-  <button type="button" class="tryon-category-chip ${tryOnSelectedCategoryId==="all"?"active":""}" onclick="selectTryOnCategory('all')">All Items</button>
-  ${usableCategories.map(cat=>`
-   <button type="button" class="tryon-category-chip ${String(tryOnSelectedCategoryId)===String(cat.id)?"active":""}" onclick="selectTryOnCategory('${cat.id}')">
-    ${escapeHtml((cat.icon?cat.icon+" ":"")+(cat.name||"Category"))}
-   </button>
-  `).join("")}
- `;
+ const wrap=el("tryOnCategoryChooser"); if(!wrap)return;
+ const usable=categories.filter(c=>clothingItems.some(i=>String(i.category_id)===String(c.id)));
+ wrap.innerHTML=`<button type="button" class="tryon-category-chip ${tryOnSelectedCategoryId==="all"?"active":""}" onclick="selectTryOnCategory('all')">All Items</button>`+
+ usable.map(c=>`<button type="button" class="tryon-category-chip ${String(tryOnSelectedCategoryId)===String(c.id)?"active":""}" onclick="selectTryOnCategory('${c.id}')">${escapeHtml((c.icon?c.icon+" ":"")+(c.name||"Category"))}</button>`).join("");
 }
-
-function selectTryOnCategory(id){
- tryOnSelectedCategoryId=String(id);
- const selected=clothingItems.find(i=>String(i.id)===String(tryOnSelectedItemId));
- if(selected&&tryOnSelectedCategoryId!=="all"&&String(selected.category_id)!==tryOnSelectedCategoryId){
-  tryOnSelectedItemId=null;
- }
- renderVirtualTryOnItems();
+function setTryOnMode(mode){
+ tryOnMode=mode==="outfit"?"outfit":"single"; tryOnSelectedItemId=null; tryOnSelectedItemIds=[];
+ el("tryOnSingleModeBtn")?.classList.toggle("active",tryOnMode==="single"); el("tryOnOutfitModeBtn")?.classList.toggle("active",tryOnMode==="outfit");
+ if(el("tryOnModeHelp"))el("tryOnModeHelp").textContent=tryOnMode==="single"?"Choose one clothing item from your wardrobe.":"Choose items from different categories to build one outfit. Each garment costs 2 AI Credits.";
+ renderVirtualTryOnItems(); renderTryOnOutfitSummary();
 }
-
+function selectTryOnCategory(id){tryOnSelectedCategoryId=String(id);renderVirtualTryOnItems()}
 function renderVirtualTryOnItems(){
- const wrap=el("tryOnWardrobeItems");
- if(!wrap)return;
-
- renderVirtualTryOnCategories();
-
- const filtered=tryOnSelectedCategoryId==="all"
-  ?clothingItems
-  :clothingItems.filter(item=>String(item.category_id)===String(tryOnSelectedCategoryId));
-
- const selectedCategory=categories.find(c=>String(c.id)===String(tryOnSelectedCategoryId));
- const categoryLabel=el("tryOnCategoryLabel");
- if(categoryLabel)categoryLabel.textContent=tryOnSelectedCategoryId==="all"
-  ?`All Items (${clothingItems.length})`
-  :`${selectedCategory?.name||"Category"} (${filtered.length})`;
-
- if(!clothingItems.length){
-  wrap.innerHTML='<div class="tryon-category-empty">Add a clothing item to your wardrobe first.</div>';
-  updateTryOnButton();
-  return;
- }
- if(!filtered.length){
-  wrap.innerHTML='<div class="tryon-category-empty">There are no clothes in this category yet.</div>';
-  updateTryOnButton();
-  return;
- }
-
- wrap.innerHTML=filtered.map(item=>`
-  <button type="button" class="tryon-item ${String(item.id)===String(tryOnSelectedItemId)?"selected":""}" onclick="selectTryOnItem('${item.id}')">
-   ${item.displayPhoto?`<img src="${safeAttributeUrl(item.displayPhoto)}" alt="${escapeHtml(item.name||"Wardrobe item")}">`:`<div style="aspect-ratio:4/5;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#777">👕</div>`}
-   <span>${escapeHtml(item.name||"Clothing item")}</span>
-  </button>
- `).join("");
-
- const selected=clothingItems.find(i=>String(i.id)===String(tryOnSelectedItemId));
- const label=el("tryOnSelectedText");
- if(label)label.textContent=selected?`Selected: ${selected.name||"Clothing item"}`:"No item selected";
+ const wrap=el("tryOnWardrobeItems"); if(!wrap)return; renderVirtualTryOnCategories();
+ const filtered=tryOnSelectedCategoryId==="all"?clothingItems:clothingItems.filter(i=>String(i.category_id)===String(tryOnSelectedCategoryId));
+ const cat=categories.find(c=>String(c.id)===String(tryOnSelectedCategoryId));
+ if(el("tryOnCategoryLabel"))el("tryOnCategoryLabel").textContent=tryOnSelectedCategoryId==="all"?`All Items (${clothingItems.length})`:`${cat?.name||"Category"} (${filtered.length})`;
+ if(!filtered.length){wrap.innerHTML='<div class="tryon-category-empty">No clothing items here yet.</div>';updateTryOnButton();return}
+ wrap.innerHTML=filtered.map(item=>{const selected=tryOnMode==="single"?String(item.id)===String(tryOnSelectedItemId):tryOnSelectedItemIds.some(id=>String(id)===String(item.id));return `<button type="button" class="tryon-item ${selected?"selected":""}" onclick="selectTryOnItem('${item.id}')">${item.displayPhoto?`<img src="${safeAttributeUrl(item.displayPhoto)}" alt="${escapeHtml(item.name||"Wardrobe item")}">`:"👕"}<span>${escapeHtml(item.name||"Clothing item")}</span></button>`}).join("");
  updateTryOnButton();
 }
-
 function selectTryOnItem(id){
- tryOnSelectedItemId=id;
- renderVirtualTryOnItems();
+ const item=clothingItems.find(i=>String(i.id)===String(id)); if(!item)return;
+ if(tryOnMode==="single")tryOnSelectedItemId=id;
+ else{
+  const x=tryOnSelectedItemIds.findIndex(v=>String(v)===String(id));
+  if(x>=0)tryOnSelectedItemIds.splice(x,1);
+  else{
+   if(tryOnSelectedItemIds.length>=4)return alert("You can use up to 4 clothing items in one outfit.");
+   const same=tryOnSelectedItemIds.findIndex(v=>{const a=clothingItems.find(i=>String(i.id)===String(v));return a&&String(a.category_id||"")===String(item.category_id||"")});
+   if(same>=0)tryOnSelectedItemIds.splice(same,1);
+   tryOnSelectedItemIds.push(id);
+  }
+ }
+ renderVirtualTryOnItems();renderTryOnOutfitSummary();
 }
-
+function clearTryOnOutfit(){tryOnSelectedItemIds=[];renderVirtualTryOnItems();renderTryOnOutfitSummary()}
+function removeTryOnOutfitItem(id){tryOnSelectedItemIds=tryOnSelectedItemIds.filter(x=>String(x)!==String(id));renderVirtualTryOnItems();renderTryOnOutfitSummary()}
+function renderTryOnOutfitSummary(){
+ const box=el("tryOnOutfitSummary");if(!box)return;if(tryOnMode!=="outfit"){box.classList.add("hidden");return}box.classList.remove("hidden");
+ const items=tryOnSelectedItemIds.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+ if(el("tryOnOutfitSelections"))el("tryOnOutfitSelections").innerHTML=items.length?items.map(item=>{const c=categories.find(x=>String(x.id)===String(item.category_id));return `<div class="tryon-summary-item">${item.displayPhoto?`<img src="${safeAttributeUrl(item.displayPhoto)}">`:""}<div class="name">${escapeHtml(item.name||"Item")}<span class="cat">${escapeHtml(c?.name||"Wardrobe")}</span></div><button onclick="removeTryOnOutfitItem('${item.id}')">×</button></div>`}).join(""):'<div class="muted" style="padding:10px 0">Choose items from your categories above.</div>';
+ if(el("tryOnOutfitPrice"))el("tryOnOutfitPrice").textContent=items.length?`${items.length} item${items.length===1?"":"s"} selected · ${items.length*2} AI Credits`:"No items selected";
+}
 function updateTryOnButton(){
- const btn=el("tryOnGenerateBtn");
- if(!btn)return;
- const enoughCredits=aiCreditBalance===null?true:aiCreditBalance>=VIRTUAL_TRY_ON_COST;
- btn.disabled=tryOnGenerating||!(tryOnPersonFile&&tryOnSelectedItemId&&enoughCredits);
- if(!tryOnGenerating)btn.textContent=`✦ Try It On — ${VIRTUAL_TRY_ON_COST} AI Credits`;
+ const btn=el("tryOnGenerateBtn");if(!btn)return;const count=tryOnMode==="single"?(tryOnSelectedItemId?1:0):tryOnSelectedItemIds.length,cost=count*VIRTUAL_TRY_ON_COST;
+ btn.disabled=tryOnGenerating||!tryOnPersonFile||!count||(aiCreditBalance!==null&&aiCreditBalance<cost);
+ if(!tryOnGenerating)btn.textContent=tryOnMode==="outfit"?`✦ Try On This Outfit — ${cost} AI Credits`:`✦ Try It On — 2 AI Credits`;
 }
-
 function inferTryOnCategory(item){
- const cat=categories.find(c=>String(c.id)===String(item?.category_id));
- const text=`${cat?.name||""} ${item?.name||""}`.toLowerCase();
- if(/dress|jumpsuit|romper|gown|one.?piece/.test(text))return "one-pieces";
- if(/pant|trouser|jean|short|skirt|bottom/.test(text))return "bottoms";
- if(/shirt|t.?shirt|tee|top|blouse|jacket|hoodie|sweater|coat/.test(text))return "tops";
- return "auto";
+ const c=categories.find(x=>String(x.id)===String(item?.category_id)),t=`${c?.name||""} ${item?.name||""}`.toLowerCase();
+ if(/dress|jumpsuit|romper|gown|one.?piece/.test(t))return "one-pieces";if(/pant|trouser|jean|short|skirt|bottom/.test(t))return "bottoms";if(/shirt|t.?shirt|tee|top|blouse|jacket|hoodie|sweater|coat/.test(t))return "tops";return "auto";
 }
-
 async function startVirtualTryOn(){
- if(tryOnGenerating)return;
- if(!tryOnPersonFile)return alert("Choose your photo first.");
-
- const item=clothingItems.find(i=>String(i.id)===String(tryOnSelectedItemId));
- if(!item)return alert("Choose a wardrobe item first.");
- if(!item.displayPhoto)return alert("This wardrobe item does not have an available photo.");
-
- await loadTryOnCreditBalance();
- if(aiCreditBalance!==null&&aiCreditBalance<VIRTUAL_TRY_ON_COST){
-  alert(`You need ${VIRTUAL_TRY_ON_COST} AI Credits for Virtual Try-On.`);
-  return;
- }
-
- const result=el("tryOnResult");
- const btn=el("tryOnGenerateBtn");
- tryOnGenerating=true;
- updateTryOnButton();
- if(btn)btn.textContent="✦ Generating your try-on…";
- if(result){
-  result.classList.remove("hidden");
-  result.innerHTML=`<div class="tryon-generating"><strong>Creating your try-on…</strong>AI is fitting ${escapeHtml(item.name||"your selected item")} to your photo. Please keep this page open.</div>`;
-  result.scrollIntoView({behavior:"smooth",block:"nearest"});
- }
-
+ if(tryOnGenerating)return;if(!tryOnPersonFile)return alert("Choose your photo first.");
+ const items=tryOnMode==="single"?clothingItems.filter(i=>String(i.id)===String(tryOnSelectedItemId)):tryOnSelectedItemIds.map(id=>clothingItems.find(i=>String(i.id)===String(id))).filter(Boolean);
+ if(!items.length)return alert("Choose at least one wardrobe item.");if(items.some(i=>!i.displayPhoto))return alert("A selected item has no photo.");
+ const cost=items.length*2;await loadTryOnCreditBalance();if(aiCreditBalance!==null&&aiCreditBalance<cost)return alert(`You need ${cost} AI Credits.`);
+ const result=el("tryOnResult"),btn=el("tryOnGenerateBtn");tryOnGenerating=true;updateTryOnButton();if(btn)btn.textContent="✦ Generating…";
+ if(result){result.classList.remove("hidden");result.innerHTML=`<div class="tryon-generating"><strong>Creating your ${items.length>1?"outfit":"try-on"}…</strong>${items.length} garment${items.length===1?"":"s"} selected. Please keep this page open.</div>`}
  try{
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  if(!session?.access_token)throw new Error("Please log in again.");
-
-  const personImage=await fileToDataUrl(tryOnPersonFile);
-  const response=await fetch(VIRTUAL_TRY_ON_API_URL,{
-   method:"POST",
-   headers:{
-    "Content-Type":"application/json",
-    "apikey":SUPABASE_PUBLISHABLE_KEY,
-    "Authorization":"Bearer "+session.access_token
-   },
-   body:JSON.stringify({
-    personImage,
-    garmentImage:item.displayPhoto,
-    category:inferTryOnCategory(item)
-   })
-  });
-
-  let data={};
-  try{data=await response.json()}catch(e){}
-
-  if(!response.ok||data.success===false){
-   if(data.code==="INSUFFICIENT_CREDITS"||response.status===402){
-    throw new Error(`You need ${VIRTUAL_TRY_ON_COST} credits for Virtual Try-On.`);
-   }
-   throw new Error(data.error||`Virtual Try-On failed (${response.status}).`);
-  }
-  if(!data.image)throw new Error("The try-on finished but no image was returned.");
-
-  if(Number.isFinite(Number(data.balance))){
-   aiCreditBalance=Number(data.balance);
-   updateCreditDisplay();
-  }
-  if(el("tryOnCreditBalance"))el("tryOnCreditBalance").textContent=aiCreditBalance===null?"—":String(aiCreditBalance);
-
-  if(result){
-   result.innerHTML=`
-    <div class="tryon-live-result">
-     <img src="${safeAttributeUrl(data.image)}" alt="AI Virtual Try-On result">
-     <div class="success-box">✓ Virtual Try-On complete · ${Number(data.creditsUsed||VIRTUAL_TRY_ON_COST)} credits used</div>
-     <div class="tryon-result-actions">
-      <button type="button" class="secondary" onclick="startVirtualTryOn()">↻ Regenerate</button>
-      <button type="button" class="secondary" onclick="document.getElementById('tryOnWardrobeItems')?.scrollIntoView({behavior:'smooth'})">👕 Choose Another Item</button>
-     </div>
-    </div>`;
-  }
-
-  await loadTryOnCreditBalance();
- }catch(error){
-  console.error("Virtual Try-On:",error);
-  if(result){
-   result.innerHTML=`<div class="tryon-error"><strong>Virtual Try-On couldn't be completed.</strong><br>${escapeHtml(error?.message||"Please try again.")}<br><br>If the backend had already charged the request and generation failed, its refund logic will return the credits.</div>`;
-  }
-  await loadTryOnCreditBalance();
- }finally{
-  tryOnGenerating=false;
-  updateTryOnButton();
- }
+  const {data:{session}}=await supabaseClient.auth.getSession();if(!session?.access_token)throw new Error("Please log in again.");
+  const personImage=await fileToDataUrl(tryOnPersonFile),garments=items.map(i=>({image:i.displayPhoto,itemId:i.id,category:inferTryOnCategory(i)}));
+  const r=await fetch(VIRTUAL_TRY_ON_API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({personImage,garments})});
+  let d={};try{d=await r.json()}catch(e){};if(!r.ok||d.success===false)throw new Error(d.error||`Virtual Try-On failed (${r.status}).`);if(!d.image)throw new Error("No generated image was returned.");
+  if(Number.isFinite(Number(d.balance))){aiCreditBalance=Number(d.balance);updateCreditDisplay()}
+  result.innerHTML=`<div class="tryon-live-result"><img src="${safeAttributeUrl(d.image)}" alt="AI Virtual Try-On result"><div class="success-box">✓ Saved · ${Number(d.creditsUsed||cost)} AI Credits used</div></div>`;
+  await loadTryOnCreditBalance();await loadSavedTryOns();
+ }catch(e){if(result)result.innerHTML=`<div class="tryon-error"><strong>Virtual Try-On couldn't be completed.</strong><br>${escapeHtml(e?.message||"Please try again.")}</div>`;await loadTryOnCreditBalance()}
+ finally{tryOnGenerating=false;updateTryOnButton()}
 }
+async function loadSavedTryOns(){
+ const grid=el("savedTryOnsGrid");if(!grid||!currentUser)return;grid.innerHTML='<div class="muted">Loading…</div>';
+ const {data,error}=await supabaseClient.from("virtual_try_ons").select("id,result_image_url,try_on_type,credits_used,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(30);
+ if(error){grid.innerHTML=`<div class="muted">${escapeHtml(error.message)}</div>`;return}if(!data?.length){grid.innerHTML='<div class="muted">No saved try-ons yet.</div>';return}
+ const rows=await Promise.all(data.map(async row=>{const {data:s}=await supabaseClient.storage.from("virtual-try-ons").createSignedUrl(row.result_image_url,3600);return {...row,signedUrl:s?.signedUrl||""}}));window.__savedTryOns=rows;
+ grid.innerHTML=rows.map(row=>`<div class="saved-tryon-card">${row.signedUrl?`<img src="${safeAttributeUrl(row.signedUrl)}" alt="Saved Try-On">`:""}<div class="saved-tryon-info"><strong>${row.try_on_type==="outfit"?"Outfit Try-On":"Single Try-On"}</strong><span>${row.credits_used} AI Credits · ${new Date(row.created_at).toLocaleDateString()}</span><div class="saved-tryon-actions"><button onclick="openSavedTryOn('${row.id}')">View</button><button onclick="deleteSavedTryOn('${row.id}')">Delete</button></div></div></div>`).join("");
+}
+function openSavedTryOn(id){const row=(window.__savedTryOns||[]).find(x=>String(x.id)===String(id));if(!row?.signedUrl)return;const r=el("tryOnResult");r.classList.remove("hidden");r.innerHTML=`<div class="tryon-live-result"><img src="${safeAttributeUrl(row.signedUrl)}" alt="Saved Try-On"><div class="success-box">Saved ${row.try_on_type==="outfit"?"Outfit":"Try-On"} · ${row.credits_used} AI Credits</div></div>`;r.scrollIntoView({behavior:"smooth"})}
+async function deleteSavedTryOn(id){if(!confirm("Delete this Saved Try-On?"))return;const {error}=await supabaseClient.from("virtual_try_ons").delete().eq("id",id).eq("user_id",currentUser.id);if(error)return alert(error.message);await loadSavedTryOns()}
 
 </script>
 
